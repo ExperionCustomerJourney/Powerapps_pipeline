@@ -1,0 +1,592 @@
+{
+  "properties": {
+    "connectionReferences": {
+      "shared_commondataserviceforapps": {
+        "runtimeSource": "embedded",
+        "connection": {
+          "connectionReferenceLogicalName": "vl_sharedcommondataserviceforapps_04816"
+        },
+        "api": {
+          "name": "shared_commondataserviceforapps"
+        }
+      },
+      "shared_smtp": {
+        "runtimeSource": "embedded",
+        "connection": {
+          "connectionReferenceLogicalName": "vl_Con_VantageLOS_SMTP"
+        },
+        "api": {
+          "name": "shared_smtp"
+        }
+      },
+      "shared_sharepointonline": {
+        "runtimeSource": "embedded",
+        "connection": {
+          "connectionReferenceLogicalName": "vl_sharedsharepointonline_b9297"
+        },
+        "api": {
+          "name": "shared_sharepointonline"
+        }
+      }
+    },
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "parameters": {
+        "$connections": {
+          "defaultValue": {},
+          "type": "Object"
+        },
+        "$authentication": {
+          "defaultValue": {},
+          "type": "SecureObject"
+        },
+        "Envar_VantageLOS_SharepointSite (vl_Envar_VantageLOS_SharepointSite)": {
+          "defaultValue": "https://experionloancentral.sharepoint.com/sites/Vantage_Dev",
+          "type": "String",
+          "metadata": {
+            "schemaName": "vl_Envar_VantageLOS_SharepointSite"
+          }
+        },
+        "Envar_VantageLOS_SMTPSendFrom (vl_Envar_VantageLOS_SMTPSendFrom)": {
+          "defaultValue": "zeal.uat@in1bank.com.au",
+          "type": "String",
+          "metadata": {
+            "schemaName": "vl_Envar_VantageLOS_SMTPSendFrom"
+          }
+        },
+        "Envar_VantageLOS_CustomerJourneyLink (vl_Envar_VantageLOS_CustomerJourneyLink)": {
+          "defaultValue": "https://los.exp-loancentral.com/application?version=",
+          "type": "String",
+          "metadata": {
+            "schemaName": "vl_Envar_VantageLOS_CustomerJourneyLink"
+          }
+        }
+      },
+      "triggers": {
+        "When_Notification_Request_Received": {
+          "metadata": {
+            "operationMetadataId": "2a334ac3-2374-4c76-a616-a33378477d93"
+          },
+          "type": "OpenApiConnectionWebhook",
+          "inputs": {
+            "host": {
+              "connectionName": "shared_commondataserviceforapps",
+              "operationId": "SubscribeWebhookTrigger",
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+            },
+            "parameters": {
+              "subscriptionRequest/message": 1,
+              "subscriptionRequest/entityname": "vl_workflowqueue",
+              "subscriptionRequest/scope": 4,
+              "subscriptionRequest/filterexpression": "vl_queuetype eq 127420000"
+            },
+            "authentication": "@parameters('$authentication')"
+          }
+        }
+      },
+      "actions": {
+        "Initialize_varEmailSubject": {
+          "runAfter": {},
+          "metadata": {
+            "operationMetadataId": "b5c2a7f6-d58a-4aae-ad14-d2c9df3017fa"
+          },
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "varEmailSubject",
+                "type": "string"
+              }
+            ]
+          }
+        },
+        "Main": {
+          "actions": {
+            "Get_Application_Details": {
+              "runAfter": {},
+              "metadata": {
+                "operationMetadataId": "c6bf7a23-1a0f-43e8-b3dd-4e3e42a5a7dc"
+              },
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_commondataserviceforapps",
+                  "operationId": "GetItem",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                },
+                "parameters": {
+                  "entityName": "vl_applicationses",
+                  "recordId": "@triggerOutputs()?['body/_vl_applicationid_value']"
+                },
+                "authentication": "@parameters('$authentication')"
+              }
+            },
+            "Check_Application_Status": {
+              "actions": {
+                "Set_varEmailSubject": {
+                  "runAfter": {
+                    "Set_varUrl": [
+                      "Succeeded"
+                    ]
+                  },
+                  "metadata": {
+                    "operationMetadataId": "d508aec1-915c-40f7-b982-881e6e56cccb"
+                  },
+                  "type": "SetVariable",
+                  "inputs": {
+                    "name": "varEmailSubject",
+                    "value": "@{outputs('Get_Application_Details')?['body/vl_applicationid']}: in1bank Welcome Email"
+                  }
+                },
+                "Send_Welcome_Email": {
+                  "runAfter": {
+                    "Set_varEmailBody": [
+                      "Succeeded"
+                    ]
+                  },
+                  "metadata": {
+                    "operationMetadataId": "59fa25ae-da5e-4ec5-b71b-58f6489fd8e0"
+                  },
+                  "type": "OpenApiConnection",
+                  "inputs": {
+                    "host": {
+                      "connectionName": "shared_smtp",
+                      "operationId": "SendEmailV3",
+                      "apiId": "/providers/Microsoft.PowerApps/apis/shared_smtp"
+                    },
+                    "parameters": {
+                      "emailMessage/From": "@parameters('Envar_VantageLOS_SMTPSendFrom (vl_Envar_VantageLOS_SMTPSendFrom)')",
+                      "emailMessage/To": "@outputs('Get_Applicant_Details')?['body/vl_emailaddress']",
+                      "emailMessage/Subject": "@variables('varEmailSubject')",
+                      "emailMessage/Body": "@variables('varEmailBody')",
+                      "emailMessage/Attachments": [
+                        {
+                          "ContentData": "@body('Get_Credit_Guide')",
+                          "ContentType": "application/pdf",
+                          "FileName": "In1bank Credit Guide.pdf"
+                        },
+                        {
+                          "ContentData": "@body('Get_Financial_Service_Guide')",
+                          "ContentType": "application/pdf",
+                          "FileName": "In1bank Financial Services Guide.pdf"
+                        },
+                        {
+                          "ContentData": "@body('Get_Privacy_Policy')",
+                          "ContentType": "application/pdf",
+                          "FileName": "In1bank Privacy Policy.pdf"
+                        }
+                      ]
+                    },
+                    "authentication": "@parameters('$authentication')"
+                  }
+                },
+                "Set_varEmailBody": {
+                  "runAfter": {
+                    "Get_Privacy_Policy": [
+                      "Succeeded"
+                    ]
+                  },
+                  "metadata": {
+                    "operationMetadataId": "6b881462-a04d-4182-840c-8be10ab2d571"
+                  },
+                  "type": "SetVariable",
+                  "inputs": {
+                    "name": "varEmailBody",
+                    "value": "<p>Dear @{variables('varFirstName')},<br><br>\nWelcome to in1bank and thanks for commencing your loan application. The following link can be used at any time to recommence your application if required.<br><br>\n<a href=\"@{variables('varUrl')}\">@{variables('varUrl')}<a/><br><br>\nIf you require any assistance, please contact us at applications@in1bank.com.au<br><br>\nPlease also find attached Credit Guide, Financial Service Guide, Privacy Policy for review.<br><br>\nRegards,<br>\nin1bank Ltd home loan application team<br>\n<img src=\"data:image/png;base64,@{body('Get_In1bank_logo')?['$content']}\" width=\"160\" height=\"50\"><br>\nIn1bank Ltd &nbsp;&nbsp;&nbsp;Level 3, 257 Clarence Street, Sydney NSW Australia<br>\nT +1300 461 226 | E applications@in1bank.com.au<br>\n</p>"
+                  }
+                },
+                "Get_Credit_Guide": {
+                  "runAfter": {
+                    "Set_varEmailSubject": [
+                      "Succeeded"
+                    ]
+                  },
+                  "metadata": {
+                    "%252fShared%2bDocuments%252fTemplates%252fMail%252fin1bank%2bCredit%2bGuide.pdf": "/Shared Documents/Templates/Mail/in1bank Credit Guide.pdf",
+                    "operationMetadataId": "4d4a97eb-ec44-4055-b73f-ca7d715eeb7c"
+                  },
+                  "type": "OpenApiConnection",
+                  "inputs": {
+                    "host": {
+                      "connectionName": "shared_sharepointonline",
+                      "operationId": "GetFileContent",
+                      "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline"
+                    },
+                    "parameters": {
+                      "dataset": "@parameters('Envar_VantageLOS_SharepointSite (vl_Envar_VantageLOS_SharepointSite)')",
+                      "id": "%252fShared%2bDocuments%252fTemplates%252fMail%252fin1bank%2bCredit%2bGuide.pdf",
+                      "inferContentType": true
+                    },
+                    "authentication": "@parameters('$authentication')"
+                  }
+                },
+                "Get_Financial_Service_Guide": {
+                  "runAfter": {
+                    "Get_Credit_Guide": [
+                      "Succeeded"
+                    ]
+                  },
+                  "metadata": {
+                    "%252fShared%2bDocuments%252fTemplates%252fMail%252fin1bank%2bFinancial%2bServices%2bGuide.pdf": "/Shared Documents/Templates/Mail/in1bank Financial Services Guide.pdf",
+                    "operationMetadataId": "27864e53-cc11-4ecc-b293-fc7aa52db6fd"
+                  },
+                  "type": "OpenApiConnection",
+                  "inputs": {
+                    "host": {
+                      "connectionName": "shared_sharepointonline",
+                      "operationId": "GetFileContent",
+                      "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline"
+                    },
+                    "parameters": {
+                      "dataset": "@parameters('Envar_VantageLOS_SharepointSite (vl_Envar_VantageLOS_SharepointSite)')",
+                      "id": "%252fShared%2bDocuments%252fTemplates%252fMail%252fin1bank%2bFinancial%2bServices%2bGuide.pdf",
+                      "inferContentType": true
+                    },
+                    "authentication": "@parameters('$authentication')"
+                  }
+                },
+                "Get_Privacy_Policy": {
+                  "runAfter": {
+                    "Get_Financial_Service_Guide": [
+                      "Succeeded"
+                    ]
+                  },
+                  "metadata": {
+                    "%252fShared%2bDocuments%252fTemplates%252fMail%252fin1bank%2bPrivacy%2bPolicy.pdf": "/Shared Documents/Templates/Mail/in1bank Privacy Policy.pdf",
+                    "operationMetadataId": "6d3d2e0c-b8f0-40bc-a36e-8e18401d4b7e"
+                  },
+                  "type": "OpenApiConnection",
+                  "inputs": {
+                    "host": {
+                      "connectionName": "shared_sharepointonline",
+                      "operationId": "GetFileContent",
+                      "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline"
+                    },
+                    "parameters": {
+                      "dataset": "@parameters('Envar_VantageLOS_SharepointSite (vl_Envar_VantageLOS_SharepointSite)')",
+                      "id": "%252fShared%2bDocuments%252fTemplates%252fMail%252fin1bank%2bPrivacy%2bPolicy.pdf",
+                      "inferContentType": true
+                    },
+                    "authentication": "@parameters('$authentication')"
+                  }
+                },
+                "Set_varUrl": {
+                  "runAfter": {},
+                  "metadata": {
+                    "operationMetadataId": "53a3b134-1e15-4825-9968-dfd6f527ac43"
+                  },
+                  "type": "SetVariable",
+                  "inputs": {
+                    "name": "varUrl",
+                    "value": "@{parameters('Envar_VantageLOS_CustomerJourneyLink (vl_Envar_VantageLOS_CustomerJourneyLink)')}@{triggerOutputs()?['body/_vl_applicationid_value']}"
+                  }
+                }
+              },
+              "runAfter": {
+                "Set_varFirstName": [
+                  "Succeeded"
+                ]
+              },
+              "else": {
+                "actions": {
+                  "Get_file_content": {
+                    "runAfter": {
+                      "Set_varURL_SupportDocument": [
+                        "Succeeded"
+                      ]
+                    },
+                    "metadata": {
+                      "%252fShared%2bDocuments%252fTemplates%252fMail%252fDocumentEmail1.png": "/Shared Documents/Templates/Mail/DocumentEmail1.png",
+                      "operationMetadataId": "1a8c52f8-bab4-4751-a2b6-34d173f710e2",
+                      "%252fShared%2bDocuments%252fTemplates%252fMail%252fDocumentEmailv2.png": "/Shared Documents/Templates/Mail/DocumentEmailv2.png"
+                    },
+                    "type": "OpenApiConnection",
+                    "inputs": {
+                      "host": {
+                        "connectionName": "shared_sharepointonline",
+                        "operationId": "GetFileContent",
+                        "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline"
+                      },
+                      "parameters": {
+                        "dataset": "@parameters('Envar_VantageLOS_SharepointSite (vl_Envar_VantageLOS_SharepointSite)')",
+                        "id": "%252fShared%2bDocuments%252fTemplates%252fMail%252fDocumentEmailv2.png",
+                        "inferContentType": true
+                      },
+                      "authentication": "@parameters('$authentication')"
+                    }
+                  },
+                  "Send_Document_Request_Email": {
+                    "runAfter": {
+                      "Set_varEmailBody_Document_Request": [
+                        "Succeeded"
+                      ]
+                    },
+                    "metadata": {
+                      "operationMetadataId": "8f28fc3d-1dfb-4e1a-b652-1a188a2df4e5"
+                    },
+                    "type": "OpenApiConnection",
+                    "inputs": {
+                      "host": {
+                        "connectionName": "shared_smtp",
+                        "operationId": "SendEmailV3",
+                        "apiId": "/providers/Microsoft.PowerApps/apis/shared_smtp"
+                      },
+                      "parameters": {
+                        "emailMessage/From": "@parameters('Envar_VantageLOS_SMTPSendFrom (vl_Envar_VantageLOS_SMTPSendFrom)')",
+                        "emailMessage/To": "@outputs('Get_Applicant_Details')?['body/vl_emailaddress']",
+                        "emailMessage/Subject": "@variables('varEmailSubject')",
+                        "emailMessage/Body": "@variables('varEmailBody')"
+                      },
+                      "authentication": "@parameters('$authentication')"
+                    }
+                  },
+                  "Set_varEmailBody_Document_Request": {
+                    "runAfter": {
+                      "Set_varEmailSubject_Document_Request": [
+                        "Succeeded"
+                      ]
+                    },
+                    "metadata": {
+                      "operationMetadataId": "c51b4b3c-9e37-459e-82cc-5b84f73a6494"
+                    },
+                    "type": "SetVariable",
+                    "inputs": {
+                      "name": "varEmailBody",
+                      "value": "<p>\nDear @{variables('varFirstName')},<br>\n<br>\nTo assist with the assessment of your loan application, we require some additional documents from you.<br>\n<br>\nPlease use the following link to upload the required documents:<br>\n<a href=\"@{variables('varUrl')}\">@{variables('varUrl')}<a/><br>\n<br>\nOnce the link is opened, please click on the \"Upload file\" to upload the documents.<br>\n<br>\n<img src=\"data:image/png;base64,@{body('Get_file_content')?['$content']}\" width=\"700\" height=\"300\"><br>\n <br>\n<br>\nShould you need any assistance, please contact us at applications@in1bank.com.au<br>\n<br>\nRegards,<br>\nin1bank Ltd home loan application team<br>\n<img src=\"data:image/png;base64,@{body('Get_In1bank_logo')?['$content']}\" width=\"160\" height=\"50\"><br>\nIn1bank Ltd &nbsp;&nbsp;&nbsp;Level 3, 257 Clarence Street, Sydney NSW Australia<br>\nT +1300 461 226 | E applications@in1bank.com.au<br>\n<br>\n<br>\n</p>"
+                    }
+                  },
+                  "Set_varEmailSubject_Document_Request": {
+                    "runAfter": {
+                      "Get_file_content": [
+                        "Succeeded"
+                      ]
+                    },
+                    "metadata": {
+                      "operationMetadataId": "a9692f81-fe36-41b3-add0-accaf115acdc"
+                    },
+                    "type": "SetVariable",
+                    "inputs": {
+                      "name": "varEmailSubject",
+                      "value": "Loan Application @{outputs('Get_Application_Details')?['body/vl_applicationid']} - Documents Required"
+                    }
+                  },
+                  "Set_varURL_SupportDocument": {
+                    "runAfter": {},
+                    "metadata": {
+                      "operationMetadataId": "a13c3813-aa50-4f46-8fbd-3e3f7e8e525d"
+                    },
+                    "type": "SetVariable",
+                    "inputs": {
+                      "name": "varUrl",
+                      "value": "@{parameters('Envar_VantageLOS_CustomerJourneyLink (vl_Envar_VantageLOS_CustomerJourneyLink)')}@{triggerOutputs()?['body/_vl_applicationid_value']}&step=15&seek=record\n"
+                    }
+                  }
+                }
+              },
+              "expression": {
+                "and": [
+                  {
+                    "not": {
+                      "equals": [
+                        "@outputs('Get_Application_Details')?['body/vl_action@OData.Community.Display.V1.FormattedValue']",
+                        "Awaiting Customer Input"
+                      ]
+                    }
+                  }
+                ]
+              },
+              "metadata": {
+                "operationMetadataId": "04295928-3c03-4179-a017-d6fba332ab7d"
+              },
+              "type": "If"
+            },
+            "Get_Applicant_Details": {
+              "runAfter": {
+                "Get_Application_Details": [
+                  "Succeeded"
+                ]
+              },
+              "metadata": {
+                "operationMetadataId": "1cefffb3-1baf-4505-8603-13804be79cc5"
+              },
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_commondataserviceforapps",
+                  "operationId": "GetItem",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                },
+                "parameters": {
+                  "entityName": "vl_applicants",
+                  "recordId": "@triggerOutputs()?['body/_vl_applicantid_value']"
+                },
+                "authentication": "@parameters('$authentication')"
+              }
+            },
+            "Get_In1bank_Logo": {
+              "runAfter": {
+                "Get_Applicant_Details": [
+                  "Succeeded"
+                ]
+              },
+              "metadata": {
+                "operationMetadataId": "b27c89b5-2641-40e4-b9ff-5046f794ab9f"
+              },
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_sharepointonline",
+                  "operationId": "GetFileContentByPath",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline"
+                },
+                "parameters": {
+                  "dataset": "@parameters('Envar_VantageLOS_SharepointSite (vl_Envar_VantageLOS_SharepointSite)')",
+                  "path": "/Shared Documents/Templates/Mail/in1bank logo.png",
+                  "inferContentType": true
+                },
+                "authentication": "@parameters('$authentication')"
+              }
+            },
+            "Set_varFirstName": {
+              "runAfter": {
+                "Get_In1bank_Logo": [
+                  "Succeeded"
+                ]
+              },
+              "metadata": {
+                "operationMetadataId": "ca977b39-48ec-4c9b-8e36-4546f713dce7"
+              },
+              "type": "SetVariable",
+              "inputs": {
+                "name": "varFirstname",
+                "value": "@outputs('Get_Applicant_Details')?['body/vl_fullname']"
+              }
+            }
+          },
+          "runAfter": {
+            "Initialize_varUrl": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "1fab9e05-a063-411b-a1a5-e0fae50eef1b"
+          },
+          "type": "Scope"
+        },
+        "Initialize_varEmailBody": {
+          "runAfter": {
+            "Initialize_varEmailSubject": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "c996dcb3-7f86-4bb5-a6e3-44dc06075c03"
+          },
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "varEmailBody",
+                "type": "string"
+              }
+            ]
+          }
+        },
+        "Initialize_varFirstname": {
+          "runAfter": {
+            "Initialize_varEmailBody": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "967a93b6-dbee-4a72-83d7-f9ccbb79fded"
+          },
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "varFirstname",
+                "type": "string"
+              }
+            ]
+          }
+        },
+        "Initialize_varUrl": {
+          "runAfter": {
+            "Initialize_varFirstname": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "179b0b2b-44d8-4aef-9b10-3767f335e384"
+          },
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "varUrl",
+                "type": "string"
+              }
+            ]
+          }
+        },
+        "On_Error": {
+          "actions": {
+            "Filter_Error_Details": {
+              "runAfter": {},
+              "metadata": {
+                "operationMetadataId": "13137ec9-f12a-4fc7-9fcc-bf6c3136d43a"
+              },
+              "type": "Query",
+              "inputs": {
+                "from": "@result('Main')",
+                "where": "@equals(item()?['status'], 'Failed')"
+              }
+            },
+            "Add_Error_Details": {
+              "runAfter": {
+                "Filter_Error_Details": [
+                  "Succeeded"
+                ]
+              },
+              "metadata": {
+                "operationMetadataId": "2783367c-e0f4-45db-a7a5-c67a9b37c19e"
+              },
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_commondataserviceforapps",
+                  "operationId": "CreateRecord",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                },
+                "parameters": {
+                  "entityName": "vl_errorhandlings",
+                  "item/vl_component": "@first(body('Filter_Error_Details'))?['name']",
+                  "item/vl_errorcode": "@first(body('Filter_Error_Details'))?['error']?['code']",
+                  "item/vl_errormessage": "@first(body('Filter_Error_Details'))?['error']?['message']",
+                  "item/vl_errorsource": 127420001,
+                  "item/vl_sourcename": "@workflow().tags.flowDisplayName"
+                },
+                "authentication": "@parameters('$authentication')"
+              }
+            }
+          },
+          "runAfter": {
+            "Main": [
+              "Failed",
+              "Skipped",
+              "TimedOut"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "a4031aae-9e76-4f53-81b8-4ece8ed895da"
+          },
+          "type": "Scope"
+        }
+      }
+    },
+    "templateName": ""
+  },
+  "schemaVersion": "1.0.0.0"
+}

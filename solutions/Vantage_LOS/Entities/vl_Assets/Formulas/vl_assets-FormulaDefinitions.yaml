@@ -1,0 +1,51 @@
+vl_loanterm: |-
+    =Switch(vl_ApplicationID.vl_loanterm,
+    global_vl_loantermchoice.'127420000',1,
+    global_vl_loantermchoice.'127420001',2,
+    global_vl_loantermchoice.'127420002',3,
+    global_vl_loantermchoice.'127420003',4,
+    global_vl_loantermchoice.'127420004',5,
+    global_vl_loantermchoice.'127420005',6,
+    global_vl_loantermchoice.'127420006',7,
+    global_vl_loantermchoice.'127420007',8,
+    global_vl_loantermchoice.'127420008',9,
+    global_vl_loantermchoice.'127420009',10,
+    global_vl_loantermchoice.'127420010',11,
+    global_vl_loantermchoice.'127420011',12,
+    global_vl_loantermchoice.'127420012',13,
+    global_vl_loantermchoice.'127420013',14,
+    global_vl_loantermchoice.'127420014',15,
+    global_vl_loantermchoice.'127420015',16,
+    global_vl_loantermchoice.'127420016',17,
+    global_vl_loantermchoice.'127420017',18,
+    global_vl_loantermchoice.'127420018',19,
+    global_vl_loantermchoice.'127420019',20,
+    global_vl_loantermchoice.'127420020',21,
+    global_vl_loantermchoice.'127420021',22,
+    global_vl_loantermchoice.'127420022',23,
+    global_vl_loantermchoice.'127420023',24,
+    global_vl_loantermchoice.'127420024',25,
+    global_vl_loantermchoice.'127420025',26,
+    global_vl_loantermchoice.'127420026',27,
+    global_vl_loantermchoice.'127420027',28,
+    global_vl_loantermchoice.'127420028',29,
+    global_vl_loantermchoice.'127420029',30)
+vl_monthlyassetrental: |-
+    =If(vl_rentalfrequency=global_vl_frequencychoice.'127420001',
+    Decimal(vl_assetrental)*26/12,
+    vl_rentalfrequency=global_vl_frequencychoice.'127420000',
+    Decimal(vl_assetrental)*52/12,
+    vl_rentalfrequency=global_vl_frequencychoice.'127420003',
+    Decimal(vl_assetrental)/12,
+    vl_rentalfrequency=global_vl_frequencychoice.'127420002',
+    Decimal(vl_assetrental))
+vl_negativegearing: |-
+    =If(vl_negativelygeared=true,
+    vl_ApplicationID.vl_requiredloanamountserviceability*vl_ApplicationID.vl_applicableinterestrate/100,0)
+vl_newloanamountassessmentmonthlyrepayment: |-
+    =If(vl_tobeusedassecurity=true,
+     (1 + vl_assessmentrepaymentbuffer / 100) * ((Decimal(vl_ApplicationID.vl_requiredloanamountserviceability) - Decimal(vl_refinancecost) * vl_totalownership / 100) + Decimal(vl_creditadjustmentfordebtbalance)) * ((vl_ApplicationID.vl_productinterestrate+vl_ApplicationID.vl_interestratemargin+vl_assessmentratebuffer) / 12) / 100 / (1 - Power(
+                    (1 + ((vl_ApplicationID.vl_productinterestrate+vl_ApplicationID.vl_interestratemargin+vl_assessmentratebuffer) / 12) / 100),
+                    -((vl_loanterm*12) - vl_interestonlyperiodmonths)
+                )) + Decimal(vl_creditadjustmentforrepayment)
+    ,0)

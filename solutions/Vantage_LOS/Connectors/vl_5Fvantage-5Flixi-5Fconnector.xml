@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Connector xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <connectorid>d2a635a5-4886-4efd-b634-7bd0b670e5bb</connectorid>
+  <description></description>
+  <displayname>Vantage_LIXI_connector</displayname>
+  <iconbrandcolor>#007ee5</iconbrandcolor>
+  <name>vl_5Fvantage-5Flixi-5Fconnector</name>
+  <connectortype>1</connectortype>
+  <openapidefinition>/Connector/vl_5Fvantage-5Flixi-5Fconnector_openapidefinition.json</openapidefinition>
+  <connectionparameters>/Connector/vl_5Fvantage-5Flixi-5Fconnector_connectionparameters.json</connectionparameters>
+  <policytemplateinstances>/Connector/vl_5Fvantage-5Flixi-5Fconnector_policytemplateinstances.json</policytemplateinstances>
+  <iconblob>/Connector/vl_5Fvantage-5Flixi-5Fconnector_iconblob.Png</iconblob>
+</Connector>

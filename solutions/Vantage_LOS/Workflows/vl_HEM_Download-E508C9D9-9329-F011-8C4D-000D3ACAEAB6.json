@@ -1,0 +1,257 @@
+{
+  "properties": {
+    "connectionReferences": {
+      "shared_commondataserviceforapps": {
+        "runtimeSource": "embedded",
+        "connection": {
+          "connectionReferenceLogicalName": "vl_sharedcommondataserviceforapps_04816"
+        },
+        "api": {
+          "name": "shared_commondataserviceforapps"
+        }
+      },
+      "shared_smtp": {
+        "runtimeSource": "embedded",
+        "connection": {
+          "connectionReferenceLogicalName": "vl_Con_VantageLOS_SMTP"
+        },
+        "api": {
+          "name": "shared_smtp"
+        }
+      }
+    },
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "parameters": {
+        "$connections": {
+          "defaultValue": {},
+          "type": "Object"
+        },
+        "$authentication": {
+          "defaultValue": {},
+          "type": "SecureObject"
+        },
+        "Envar_VantageLOS_SMTPSendFrom (vl_Envar_VantageLOS_SMTPSendFrom)": {
+          "defaultValue": "zeal.uat@in1bank.com.au",
+          "type": "String",
+          "metadata": {
+            "schemaName": "vl_Envar_VantageLOS_SMTPSendFrom"
+          }
+        }
+      },
+      "triggers": {
+        "When_HEM_Download_Request_Received": {
+          "metadata": {
+            "operationMetadataId": "f908b396-e050-4598-a746-7e8d0e37ef15"
+          },
+          "type": "OpenApiConnectionWebhook",
+          "inputs": {
+            "host": {
+              "connectionName": "shared_commondataserviceforapps",
+              "operationId": "SubscribeWebhookTrigger",
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+            },
+            "parameters": {
+              "subscriptionRequest/message": 1,
+              "subscriptionRequest/entityname": "vl_workflowqueue",
+              "subscriptionRequest/scope": 4,
+              "subscriptionRequest/filterexpression": "vl_queuetype eq 127420002"
+            },
+            "authentication": "@parameters('$authentication')"
+          }
+        }
+      },
+      "actions": {
+        "Compose": {
+          "runAfter": {},
+          "metadata": {
+            "operationMetadataId": "fcad17b3-e860-46e1-aa7b-a64833e69c57"
+          },
+          "type": "Compose",
+          "inputs": "@triggerOutputs()?['body/vl_processing']"
+        },
+        "Main": {
+          "actions": {
+            "Get_HEM_Data": {
+              "runAfter": {},
+              "metadata": {
+                "operationMetadataId": "81a2cbb3-1058-43c7-8dec-4902bce95369"
+              },
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_commondataserviceforapps",
+                  "operationId": "ListRecords",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                },
+                "parameters": {
+                  "entityName": "vl_hems"
+                },
+                "authentication": "@parameters('$authentication')"
+              }
+            },
+            "Create_CSV_Table": {
+              "runAfter": {
+                "Get_HEM_Data": [
+                  "Succeeded"
+                ]
+              },
+              "metadata": {
+                "operationMetadataId": "998f1052-1ea5-44d1-9251-bcaf320e35ff"
+              },
+              "type": "Table",
+              "inputs": {
+                "from": "@outputs('Get_HEM_Data')?['body/value']",
+                "format": "CSV",
+                "columns": [
+                  {
+                    "header": "HEM Location",
+                    "value": "@item()?['vl_hemlocation']"
+                  },
+                  {
+                    "header": "HEM House Hold",
+                    "value": "@item()?['vl_hemhousehold']"
+                  },
+                  {
+                    "header": "HEM Income",
+                    "value": "@item()?['vl_hemincomerange']"
+                  },
+                  {
+                    "header": "HEM Minimum Income",
+                    "value": "@item()?['vl_hemincomeminimum']"
+                  },
+                  {
+                    "header": "HEM Maximum Income",
+                    "value": "@item()?['vl_hemincomemaximum']"
+                  },
+                  {
+                    "header": "HEM Expense No Dependant",
+                    "value": "@item()?['vl_hemexpense0dependant']"
+                  },
+                  {
+                    "header": "HEM Expense 1 Dependant",
+                    "value": "@item()?['vl_hemexpense1dependant']"
+                  },
+                  {
+                    "header": "HEM Expense 2 Dependant",
+                    "value": "@item()?['vl_hemexpense2dependant']"
+                  },
+                  {
+                    "header": "HEM Expense 3 Dependant",
+                    "value": "@item()?['vl_hemexpense3dependant']"
+                  },
+                  {
+                    "header": "HEM Expense 4 Dependant",
+                    "value": "@item()?['vl_hemexpense4dependant']"
+                  },
+                  {
+                    "header": "HEM Expense 5 Dependant",
+                    "value": "@item()?['vl_hemexpense5dependant']"
+                  },
+                  {
+                    "header": "HEM Expense Per Dependant",
+                    "value": "@item()?['vl_hemexpenseperdependant']"
+                  },
+                  {
+                    "header": "HEM Financial Year",
+                    "value": "@item()?['vl_hemincomerange']"
+                  }
+                ]
+              }
+            },
+            "Send_Email_(V3)": {
+              "runAfter": {
+                "Create_CSV_Table": [
+                  "Succeeded"
+                ]
+              },
+              "metadata": {
+                "operationMetadataId": "1ae8e2da-1a48-411d-b3f4-5c507b533804"
+              },
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_smtp",
+                  "operationId": "SendEmailV3",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_smtp"
+                },
+                "parameters": {
+                  "emailMessage/From": "@parameters('Envar_VantageLOS_SMTPSendFrom (vl_Envar_VantageLOS_SMTPSendFrom)')",
+                  "emailMessage/To": "@triggerOutputs()?['body/vl_email']",
+                  "emailMessage/Subject": "HEM File",
+                  "emailMessage/Body": "<p>Please find the atached document.</p>"
+                },
+                "authentication": "@parameters('$authentication')"
+              }
+            }
+          },
+          "runAfter": {
+            "Compose": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "f24ca284-568e-4b36-ba16-0f500dad3d2a"
+          },
+          "type": "Scope"
+        },
+        "On_Error": {
+          "actions": {
+            "Filter_Error_Details": {
+              "runAfter": {},
+              "metadata": {
+                "operationMetadataId": "28dd84d6-19ef-4b1e-8408-a311f9141420"
+              },
+              "type": "Query",
+              "inputs": {
+                "from": "@result('Main')",
+                "where": "@equals(item()?['status'], 'Failed')"
+              }
+            },
+            "Add_Error_Details": {
+              "runAfter": {
+                "Filter_Error_Details": [
+                  "Succeeded"
+                ]
+              },
+              "metadata": {
+                "operationMetadataId": "7a22044a-9ffe-4c68-bc2e-a1996f036684"
+              },
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_commondataserviceforapps",
+                  "operationId": "CreateRecord",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                },
+                "parameters": {
+                  "entityName": "vl_errorhandlings",
+                  "item/vl_component": "@first(body('Filter_Error_Details'))?['name']",
+                  "item/vl_errorcode": "@first(body('Filter_Error_Details'))?['error']?['code']",
+                  "item/vl_errormessage": "@first(body('Filter_Error_Details'))?['error']?['message']",
+                  "item/vl_errorsource": 127420001,
+                  "item/vl_sourcename": "@workflow().tags.flowDisplayName"
+                },
+                "authentication": "@parameters('$authentication')"
+              }
+            }
+          },
+          "runAfter": {
+            "Main": [
+              "Failed",
+              "Skipped",
+              "TimedOut"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "a5dfaf66-0ba2-4f3f-9cd4-c6cd3c4e9b5c"
+          },
+          "type": "Scope"
+        }
+      }
+    },
+    "templateName": ""
+  },
+  "schemaVersion": "1.0.0.0"
+}

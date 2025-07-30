@@ -1,0 +1,364 @@
+{
+  "properties": {
+    "connectionReferences": {
+      "shared_commondataserviceforapps": {
+        "runtimeSource": "embedded",
+        "connection": {
+          "connectionReferenceLogicalName": "vl_sharedcommondataserviceforapps_04816"
+        },
+        "api": {
+          "name": "shared_commondataserviceforapps"
+        }
+      }
+    },
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "parameters": {
+        "$connections": {
+          "defaultValue": {},
+          "type": "Object"
+        },
+        "$authentication": {
+          "defaultValue": {},
+          "type": "SecureObject"
+        }
+      },
+      "triggers": {
+        "When_An_Employment_Is_Created": {
+          "metadata": {
+            "operationMetadataId": "7fe4ba5d-feb6-457b-aca7-423423bd770d"
+          },
+          "type": "OpenApiConnectionWebhook",
+          "inputs": {
+            "host": {
+              "connectionName": "shared_commondataserviceforapps",
+              "operationId": "SubscribeWebhookTrigger",
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+            },
+            "parameters": {
+              "subscriptionRequest/message": 4,
+              "subscriptionRequest/entityname": "vl_employment",
+              "subscriptionRequest/scope": 4
+            },
+            "authentication": "@parameters('$authentication')"
+          }
+        }
+      },
+      "actions": {
+        "Main": {
+          "actions": {
+            "Get_Active_License": {
+              "runAfter": {},
+              "metadata": {
+                "operationMetadataId": "555421b2-63d8-4047-8f30-a285a2fe92d0"
+              },
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_commondataserviceforapps",
+                  "operationId": "ListRecords",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                },
+                "parameters": {
+                  "entityName": "vl_licenses",
+                  "$filter": "vl_licensestatus eq true"
+                },
+                "authentication": "@parameters('$authentication')"
+              }
+            },
+            "Get_Employment_Shading": {
+              "runAfter": {
+                "Get_Active_License": [
+                  "Succeeded"
+                ]
+              },
+              "metadata": {
+                "operationMetadataId": "4b27f727-c7d8-4d75-ba8c-b0b085458163"
+              },
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_commondataserviceforapps",
+                  "operationId": "ListRecords",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                },
+                "parameters": {
+                  "entityName": "vl_configurationsettingses",
+                  "$filter": "_vl_licenseid_value eq '@{first(body('Get_Active_License')?['value'])?['vl_licenseid']}'",
+                  "$top": 1
+                },
+                "authentication": "@parameters('$authentication')"
+              }
+            },
+            "Income_Type": {
+              "runAfter": {
+                "Get_Employment_Shading": [
+                  "Succeeded"
+                ]
+              },
+              "cases": {
+                "PAYG": {
+                  "case": 127420000,
+                  "actions": {
+                    "Get_PAYG_Employment": {
+                      "runAfter": {},
+                      "metadata": {
+                        "operationMetadataId": "0f02c622-7cb6-436a-a102-d35bf5adcee7"
+                      },
+                      "type": "OpenApiConnection",
+                      "inputs": {
+                        "host": {
+                          "connectionName": "shared_commondataserviceforapps",
+                          "operationId": "ListRecords",
+                          "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                        },
+                        "parameters": {
+                          "entityName": "vl_paygemployments",
+                          "$filter": "_vl_employmentuserid_value eq '@{triggerOutputs()?['body/vl_employmentid']}'",
+                          "$top": 1
+                        },
+                        "authentication": "@parameters('$authentication')"
+                      }
+                    },
+                    "Update_PAYG_Shading": {
+                      "runAfter": {
+                        "Get_PAYG_Employment": [
+                          "Succeeded"
+                        ]
+                      },
+                      "metadata": {
+                        "operationMetadataId": "062b4c5f-0b7d-4fcd-be1d-b98873800d45"
+                      },
+                      "type": "OpenApiConnection",
+                      "inputs": {
+                        "host": {
+                          "connectionName": "shared_commondataserviceforapps",
+                          "operationId": "UpdateOnlyRecord",
+                          "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                        },
+                        "parameters": {
+                          "entityName": "vl_paygemployments",
+                          "recordId": "@first(body('Get_PAYG_Employment')?['value'])?['vl_paygemploymentid']",
+                          "item/vl_eligiblebonusshading": "@if(equals(first(body('Get_PAYG_Employment')?['value'])?['vl_incomestatus'],127420000),first(body('Get_Employment_Shading')?['value'])?['vl_paygbonusshading'],if(equals(first(body('Get_PAYG_Employment')?['value'])?['vl_incomestatus'],127420001),first(body('Get_Employment_Shading')?['value'])?['vl_paygparttimebonusshading'],if(equals(first(body('Get_PAYG_Employment')?['value'])?['vl_incomestatus'],127420002),first(body('Get_Employment_Shading')?['value'])?['vl_paygcasualbonusshading'],0)))",
+                          "item/vl_eligiblecommissionshading": "@if(equals(first(body('Get_PAYG_Employment')?['value'])?['vl_incomestatus'],127420000),first(body('Get_Employment_Shading')?['value'])?['vl_paygcommisionshading'],if(equals(first(body('Get_PAYG_Employment')?['value'])?['vl_incomestatus'],127420001),first(body('Get_Employment_Shading')?['value'])?['vl_paygparttimecommisionshading'],if(equals(first(body('Get_PAYG_Employment')?['value'])?['vl_incomestatus'],127420002),first(body('Get_Employment_Shading')?['value'])?['vl_paygcasualcommisionshading'],0)))",
+                          "item/vl_eligiblegrosscarallowanceshading": "@if(equals(first(body('Get_PAYG_Employment')?['value'])?['vl_incomestatus'],127420000),first(body('Get_Employment_Shading')?['value'])?['vl_paygcarallowanceshading'],if(equals(first(body('Get_PAYG_Employment')?['value'])?['vl_incomestatus'],127420001),first(body('Get_Employment_Shading')?['value'])?['vl_paygparttimecarallowanceshading'],if(equals(first(body('Get_PAYG_Employment')?['value'])?['vl_incomestatus'],127420002),first(body('Get_Employment_Shading')?['value'])?['vl_paygcasualcarallowanceshading'],0)))",
+                          "item/vl_eligiblegrossovertimeshading": "@if(equals(first(body('Get_PAYG_Employment')?['value'])?['vl_incomestatus'],127420000),first(body('Get_Employment_Shading')?['value'])?['vl_paygovertimeshading'],if(equals(first(body('Get_PAYG_Employment')?['value'])?['vl_incomestatus'],127420001),first(body('Get_Employment_Shading')?['value'])?['vl_paygparttimeovertimeshading'],if(equals(first(body('Get_PAYG_Employment')?['value'])?['vl_incomestatus'],127420002),first(body('Get_Employment_Shading')?['value'])?['vl_paygovertimeshading'],0)))",
+                          "item/vl_paygeligiblegrosssalaryshading": "@if(equals(first(body('Get_PAYG_Employment')?['value'])?['vl_incomestatus'],127420000),first(body('Get_Employment_Shading')?['value'])?['vl_paygsalaryshading'],if(equals(first(body('Get_PAYG_Employment')?['value'])?['vl_incomestatus'],127420001),first(body('Get_Employment_Shading')?['value'])?['vl_paygparttimesalaryshading'],if(equals(first(body('Get_PAYG_Employment')?['value'])?['vl_incomestatus'],127420002),first(body('Get_Employment_Shading')?['value'])?['vl_paygcasualsalaryshading'],0)))",
+                          "item/vl_eligibleotherdeductionsshading": "@if(equals(first(body('Get_PAYG_Employment')?['value'])?['vl_incomestatus'],127420000),first(body('Get_Employment_Shading')?['value'])?['vl_paygotherdeductionsshading'],if(equals(first(body('Get_PAYG_Employment')?['value'])?['vl_incomestatus'],127420001),first(body('Get_Employment_Shading')?['value'])?['vl_paygparttimeotherdeductionsshading'],if(equals(first(body('Get_PAYG_Employment')?['value'])?['vl_incomestatus'],127420002),first(body('Get_Employment_Shading')?['value'])?['vl_paygcasualotherdeductionsshading'],0)))",
+                          "item/vl_eligibleparentalleaveshading": "@if(equals(first(body('Get_PAYG_Employment')?['value'])?['vl_incomestatus'],127420000),first(body('Get_Employment_Shading')?['value'])?['vl_paygparentalleaveshading'],if(equals(first(body('Get_PAYG_Employment')?['value'])?['vl_incomestatus'],127420001),first(body('Get_Employment_Shading')?['value'])?['vl_paygparttimeparentalleaveshading'],if(equals(first(body('Get_PAYG_Employment')?['value'])?['vl_incomestatus'],127420002),first(body('Get_Employment_Shading')?['value'])?['vl_paygcasualparentalleaveshading'],0)))",
+                          "item/vl_eligiblesalarysacrificeshading": "@if(equals(first(body('Get_PAYG_Employment')?['value'])?['vl_incomestatus'],127420000),first(body('Get_Employment_Shading')?['value'])?['vl_paygsalarysacrificeshading'],if(equals(first(body('Get_PAYG_Employment')?['value'])?['vl_incomestatus'],127420001),first(body('Get_Employment_Shading')?['value'])?['vl_paygparttimesalarysacrificeshading'],if(equals(first(body('Get_PAYG_Employment')?['value'])?['vl_incomestatus'],127420002),first(body('Get_Employment_Shading')?['value'])?['vl_paygcasualsalarysacrificeshading'],0)))",
+                          "item/vl_eligibleshiftotherallowanceshading": "@if(equals(first(body('Get_PAYG_Employment')?['value'])?['vl_incomestatus'],127420000),first(body('Get_Employment_Shading')?['value'])?['vl_paygshiftotherallowanceshading'],if(equals(first(body('Get_PAYG_Employment')?['value'])?['vl_incomestatus'],127420001),first(body('Get_Employment_Shading')?['value'])?['vl_paygparttimeshiftotherallowanceshading'],if(equals(first(body('Get_PAYG_Employment')?['value'])?['vl_incomestatus'],127420002),first(body('Get_Employment_Shading')?['value'])?['vl_paygcasualshiftotherallowanceshading'],0)))",
+                          "item/vl_eligibleworkallowanceshading": "@if(equals(first(body('Get_PAYG_Employment')?['value'])?['vl_incomestatus'],127420000),first(body('Get_Employment_Shading')?['value'])?['vl_paygworkallowanceshading'],if(equals(first(body('Get_PAYG_Employment')?['value'])?['vl_incomestatus'],127420001),first(body('Get_Employment_Shading')?['value'])?['vl_paygparttimeworkallowanceshading'],if(equals(first(body('Get_PAYG_Employment')?['value'])?['vl_incomestatus'],127420002),first(body('Get_Employment_Shading')?['value'])?['vl_paygcasualworkallowanceshading'],0)))",
+                          "item/vl_eligibleworkerscompensationshading": "@if(equals(first(body('Get_PAYG_Employment')?['value'])?['vl_incomestatus'],127420000),first(body('Get_Employment_Shading')?['value'])?['vl_paygworkerscompensationshading'],if(equals(first(body('Get_PAYG_Employment')?['value'])?['vl_incomestatus'],127420001),first(body('Get_Employment_Shading')?['value'])?['vl_paygparttimeworkerscompensationshading'],if(equals(first(body('Get_PAYG_Employment')?['value'])?['vl_incomestatus'],127420002),first(body('Get_Employment_Shading')?['value'])?['vl_paygcasualworkerscompensationshading'],0)))"
+                        },
+                        "authentication": "@parameters('$authentication')"
+                      }
+                    }
+                  }
+                },
+                "Self_Employed": {
+                  "case": 127420001,
+                  "actions": {
+                    "Get_SelfEmployed_Employment": {
+                      "runAfter": {},
+                      "metadata": {
+                        "operationMetadataId": "7c3539db-6355-4227-9f6a-f9cf94c4d411"
+                      },
+                      "type": "OpenApiConnection",
+                      "inputs": {
+                        "host": {
+                          "connectionName": "shared_commondataserviceforapps",
+                          "operationId": "ListRecords",
+                          "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                        },
+                        "parameters": {
+                          "entityName": "vl_selfemployedemployments",
+                          "$filter": "_vl_employmentuserid_value eq '@{triggerOutputs()?['body/vl_employmentid']}'",
+                          "$top": 1
+                        },
+                        "authentication": "@parameters('$authentication')"
+                      }
+                    },
+                    "Update_SelfEmployed_Shading": {
+                      "runAfter": {
+                        "Get_SelfEmployed_Employment": [
+                          "Succeeded"
+                        ]
+                      },
+                      "metadata": {
+                        "operationMetadataId": "2b194975-f435-4156-9c21-d31b2da24733"
+                      },
+                      "type": "OpenApiConnection",
+                      "inputs": {
+                        "host": {
+                          "connectionName": "shared_commondataserviceforapps",
+                          "operationId": "UpdateOnlyRecord",
+                          "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                        },
+                        "parameters": {
+                          "entityName": "vl_selfemployedemployments",
+                          "recordId": "@first(body('Get_SelfEmployed_Employment')?['value'])?['vl_selfemployedemploymentid']",
+                          "item/vl_currentallowancesshading": "@first(body('Get_Employment_Shading')?['value'])?['vl_seallowancesshading']",
+                          "item/vl_currentamortizationofgoodwillshading": "@first(body('Get_Employment_Shading')?['value'])?['vl_seamortizationofgoodwillshading']",
+                          "item/vl_currentbonusshading": "@first(body('Get_Employment_Shading')?['value'])?['vl_sebonusshading']",
+                          "item/vl_currentcarryforwardlossesshading": "@first(body('Get_Employment_Shading')?['value'])?['vl_secarryforwardlossesshading']",
+                          "item/vl_currentdepreciationshading": "@first(body('Get_Employment_Shading')?['value'])?['vl_sedepreciationshading']",
+                          "item/vl_currentinterestshading": "@first(body('Get_Employment_Shading')?['value'])?['vl_seinterestshading']",
+                          "item/vl_currentleaseshading": "@first(body('Get_Employment_Shading')?['value'])?['vl_seleaseshading']",
+                          "item/vl_currentloanrepaymentshading": "@first(body('Get_Employment_Shading')?['value'])?['vl_seloanrepaymentshading']",
+                          "item/vl_currentnoncashbenefitsshading": "@first(body('Get_Employment_Shading')?['value'])?['vl_senoncashbenefitsshading']",
+                          "item/vl_currentnonrecurringexpensesshading": "@first(body('Get_Employment_Shading')?['value'])?['vl_senonrecurringexpensesshading']",
+                          "item/vl_currentnonrecurringincomeshading": "@first(body('Get_Employment_Shading')?['value'])?['vl_senonrecurringincomeshading']",
+                          "item/vl_currentprofitbeforetaxshading": "@first(body('Get_Employment_Shading')?['value'])?['vl_seprofitbeforetaxshading']",
+                          "item/vl_currentsalaryshading": "@first(body('Get_Employment_Shading')?['value'])?['vl_sesalaryshading']",
+                          "item/vl_currentsuperannuationexcessshading": "@first(body('Get_Employment_Shading')?['value'])?['vl_sesuperannuationexcessshading']",
+                          "item/vl_currentsuperannuationshading": "@first(body('Get_Employment_Shading')?['value'])?['vl_sesuperannuationshading']",
+                          "item/vl_previousallowancesshading": "@first(body('Get_Employment_Shading')?['value'])?['vl_seallowancesshading']",
+                          "item/vl_previousamortizationofgoodwillshading": "@first(body('Get_Employment_Shading')?['value'])?['vl_seamortizationofgoodwillshading']",
+                          "item/vl_previousbonusshading": "@first(body('Get_Employment_Shading')?['value'])?['vl_sebonusshading']",
+                          "item/vl_previouscarryforwardlossesshading": "@first(body('Get_Employment_Shading')?['value'])?['vl_secarryforwardlossesshading']",
+                          "item/vl_previousdepreciationshading": "@first(body('Get_Employment_Shading')?['value'])?['vl_sedepreciationshading']",
+                          "item/vl_previousinterestshading": "@first(body('Get_Employment_Shading')?['value'])?['vl_seinterestshading']",
+                          "item/vl_previousleaseshading": "@first(body('Get_Employment_Shading')?['value'])?['vl_seleaseshading']",
+                          "item/vl_previousloanrepaymentshading": "@first(body('Get_Employment_Shading')?['value'])?['vl_seloanrepaymentshading']",
+                          "item/vl_previousnoncashbenefitsshading": "@first(body('Get_Employment_Shading')?['value'])?['vl_senoncashbenefitsshading']",
+                          "item/vl_previousnonrecurringexpensesshading": "@first(body('Get_Employment_Shading')?['value'])?['vl_senonrecurringexpensesshading']",
+                          "item/vl_previousnonrecurringincomeshading": "@first(body('Get_Employment_Shading')?['value'])?['vl_senonrecurringincomeshading']",
+                          "item/vl_previousprofitbeforetaxshading": "@first(body('Get_Employment_Shading')?['value'])?['vl_seprofitbeforetaxshading']",
+                          "item/vl_previoussalaryshading": "@first(body('Get_Employment_Shading')?['value'])?['vl_sesalaryshading']",
+                          "item/vl_previoussuperannuationexcessshading": "@first(body('Get_Employment_Shading')?['value'])?['vl_sesuperannuationexcessshading']",
+                          "item/vl_previoussuperannuationshading": "@first(body('Get_Employment_Shading')?['value'])?['vl_sesuperannuationshading']"
+                        },
+                        "authentication": "@parameters('$authentication')"
+                      }
+                    }
+                  }
+                },
+                "UnEmployed": {
+                  "case": 127420002,
+                  "actions": {
+                    "Get_UnEmployed_Employment": {
+                      "runAfter": {},
+                      "metadata": {
+                        "operationMetadataId": "fafeec02-3a6f-44a4-ab54-dc38d41060e8"
+                      },
+                      "type": "OpenApiConnection",
+                      "inputs": {
+                        "host": {
+                          "connectionName": "shared_commondataserviceforapps",
+                          "operationId": "ListRecords",
+                          "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                        },
+                        "parameters": {
+                          "entityName": "vl_unemployedemployments",
+                          "$filter": "_vl_employmentuserid_value eq '@{triggerOutputs()?['body/vl_employmentid']}'",
+                          "$top": 1
+                        },
+                        "authentication": "@parameters('$authentication')"
+                      }
+                    },
+                    "Update_UnEmployed_Shading": {
+                      "runAfter": {
+                        "Get_UnEmployed_Employment": [
+                          "Succeeded"
+                        ]
+                      },
+                      "metadata": {
+                        "operationMetadataId": "e4e43b20-6728-49c5-a56b-c38c623fa175"
+                      },
+                      "type": "OpenApiConnection",
+                      "inputs": {
+                        "host": {
+                          "connectionName": "shared_commondataserviceforapps",
+                          "operationId": "UpdateOnlyRecord",
+                          "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                        },
+                        "parameters": {
+                          "entityName": "vl_unemployedemployments",
+                          "recordId": "@first(body('Get_UnEmployed_Employment')?['value'])?['vl_unemployedemploymentid']",
+                          "item/vl_otherincomeshading": "@first(body('Get_Employment_Shading')?['value'])?['vl_unemployedotherincomeshading']",
+                          "item/vl_privatepensionshading": "@first(body('Get_Employment_Shading')?['value'])?['vl_unemployedprivatepensionshading']",
+                          "item/vl_unemployedbenefitsshading": "@first(body('Get_Employment_Shading')?['value'])?['vl_unemployedbenefitsshading']"
+                        },
+                        "authentication": "@parameters('$authentication')"
+                      }
+                    }
+                  }
+                }
+              },
+              "default": {
+                "actions": {}
+              },
+              "expression": "@triggerOutputs()?['body/vl_incometype']",
+              "metadata": {
+                "operationMetadataId": "9fa70229-1af1-4ed5-9f30-3865a89f9e82"
+              },
+              "type": "Switch"
+            }
+          },
+          "runAfter": {},
+          "metadata": {
+            "operationMetadataId": "cbe65449-551f-4233-865d-33ed57337422"
+          },
+          "type": "Scope"
+        },
+        "Scope": {
+          "actions": {
+            "Filter_Error_Details": {
+              "runAfter": {},
+              "metadata": {
+                "operationMetadataId": "9270b653-ccb0-4ab6-9bf2-3047d8547bcf"
+              },
+              "type": "Query",
+              "inputs": {
+                "from": "@result('Main')",
+                "where": "@equals(item()?['status'], 'Failed')"
+              }
+            },
+            "Add_Error_Details": {
+              "runAfter": {
+                "Filter_Error_Details": [
+                  "Succeeded"
+                ]
+              },
+              "metadata": {
+                "operationMetadataId": "e40b9f0e-25f5-4bbb-b4d5-88807f289a7c"
+              },
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_commondataserviceforapps",
+                  "operationId": "CreateRecord",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                },
+                "parameters": {
+                  "entityName": "vl_errorhandlings",
+                  "item/vl_component": "@first(body('Filter_Error_Details'))?['name']",
+                  "item/vl_errorcode": "@first(body('Filter_Error_Details'))?['error']?['code']",
+                  "item/vl_errormessage": "@first(body('Filter_Error_Details'))?['error']?['message']",
+                  "item/vl_errorsource": 127420001,
+                  "item/vl_sourcename": "@workflow().tags.flowDisplayName"
+                },
+                "authentication": "@parameters('$authentication')"
+              }
+            }
+          },
+          "runAfter": {
+            "Main": [
+              "Failed",
+              "TimedOut",
+              "Skipped"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "f0b2a3c8-428d-4cc4-b8ee-4d2d39fc61ee"
+          },
+          "type": "Scope"
+        }
+      }
+    },
+    "templateName": ""
+  },
+  "schemaVersion": "1.0.0.0"
+}

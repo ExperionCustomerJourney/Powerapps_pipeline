@@ -1,0 +1,351 @@
+{
+  "properties": {
+    "connectionReferences": {
+      "shared_commondataserviceforapps": {
+        "runtimeSource": "embedded",
+        "connection": {
+          "connectionReferenceLogicalName": "vl_sharedcommondataserviceforapps_04816"
+        },
+        "api": {
+          "name": "shared_commondataserviceforapps"
+        }
+      }
+    },
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "parameters": {
+        "$connections": {
+          "defaultValue": {},
+          "type": "Object"
+        },
+        "$authentication": {
+          "defaultValue": {},
+          "type": "SecureObject"
+        }
+      },
+      "triggers": {
+        "When_Income_Added_Or_Modified": {
+          "metadata": {
+            "operationMetadataId": "884a2666-0764-4f1d-ba0d-7f6a0853efd0"
+          },
+          "type": "OpenApiConnectionWebhook",
+          "inputs": {
+            "host": {
+              "connectionName": "shared_commondataserviceforapps",
+              "operationId": "SubscribeWebhookTrigger",
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+            },
+            "parameters": {
+              "subscriptionRequest/message": 4,
+              "subscriptionRequest/entityname": "vl_income",
+              "subscriptionRequest/scope": 4,
+              "subscriptionRequest/filteringattributes": "vl_otherincometype",
+              "subscriptionRequest/filterexpression": "vl_otherincometype ne 127420008"
+            },
+            "authentication": "@parameters('$authentication')"
+          }
+        }
+      },
+      "actions": {
+        "Main": {
+          "actions": {
+            "Get_Active_License": {
+              "runAfter": {},
+              "metadata": {
+                "operationMetadataId": "895d5b11-dbe4-43a5-9fdd-7f07c73221b8"
+              },
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_commondataserviceforapps",
+                  "operationId": "ListRecords",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                },
+                "parameters": {
+                  "entityName": "vl_licenses",
+                  "$filter": "vl_licensestatus eq true",
+                  "$top": 1
+                },
+                "authentication": "@parameters('$authentication')"
+              }
+            },
+            "Get_Active_Configuration": {
+              "runAfter": {
+                "Get_Active_License": [
+                  "Succeeded"
+                ]
+              },
+              "metadata": {
+                "operationMetadataId": "e84c98ef-7d34-43ea-a4f1-f2bdc0903275"
+              },
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_commondataserviceforapps",
+                  "operationId": "ListRecords",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                },
+                "parameters": {
+                  "entityName": "vl_configurationsettingses",
+                  "$filter": "_vl_licenseid_value eq '@{first(body('Get_Active_License')?['value'])?['vl_licenseid']}'",
+                  "$top": 1
+                },
+                "authentication": "@parameters('$authentication')"
+              }
+            },
+            "Switch_Other_Income_Type": {
+              "runAfter": {
+                "Get_Active_Configuration": [
+                  "Succeeded"
+                ]
+              },
+              "cases": {
+                "Annuities": {
+                  "case": 127420000,
+                  "actions": {
+                    "Set_varShading_Annuities": {
+                      "runAfter": {},
+                      "metadata": {
+                        "operationMetadataId": "3b7b4a08-5600-43e2-bb3b-57481e90b74b"
+                      },
+                      "type": "SetVariable",
+                      "inputs": {
+                        "name": "varShading",
+                        "value": "@first(body('Get_Active_Configuration')?['value'])?['vl_otherincomeannuitiesshading']"
+                      }
+                    }
+                  }
+                },
+                "Child_Maintenance": {
+                  "case": 127420001,
+                  "actions": {
+                    "Set_varShading_Child_Maintenance": {
+                      "runAfter": {},
+                      "metadata": {
+                        "operationMetadataId": "47810ac9-1e88-4823-a474-19047695c924"
+                      },
+                      "type": "SetVariable",
+                      "inputs": {
+                        "name": "varShading",
+                        "value": "@first(body('Get_Active_Configuration')?['value'])?['vl_otherincomechildmaintenanceshading']"
+                      }
+                    }
+                  }
+                },
+                "Dividends": {
+                  "case": 127420002,
+                  "actions": {
+                    "Set_varShading_Dividends": {
+                      "runAfter": {},
+                      "metadata": {
+                        "operationMetadataId": "5c0f5130-1c2a-4911-a462-a5de0886ac9a"
+                      },
+                      "type": "SetVariable",
+                      "inputs": {
+                        "name": "varShading",
+                        "value": "@first(body('Get_Active_Configuration')?['value'])?['vl_otherincomedividendsshading']"
+                      }
+                    }
+                  }
+                },
+                "Foreign_Sourced": {
+                  "case": 127420003,
+                  "actions": {
+                    "Set_varShading_Foreign_Sourced": {
+                      "runAfter": {},
+                      "metadata": {
+                        "operationMetadataId": "4db8130b-6a9d-4119-ad85-ccef74358fa9"
+                      },
+                      "type": "SetVariable",
+                      "inputs": {
+                        "name": "varShading",
+                        "value": "@first(body('Get_Active_Configuration')?['value'])?['vl_otherincomeforeignsourcedshading']"
+                      }
+                    }
+                  }
+                },
+                "Government_Benefits": {
+                  "case": 127420004,
+                  "actions": {
+                    "Set_varShading_Government_Benefits": {
+                      "runAfter": {},
+                      "metadata": {
+                        "operationMetadataId": "25d33818-7fed-4764-b71b-5f9dbf46e0a2"
+                      },
+                      "type": "SetVariable",
+                      "inputs": {
+                        "name": "varShading",
+                        "value": "@first(body('Get_Active_Configuration')?['value'])?['vl_otherincomegovernmentbenefitsshading']"
+                      }
+                    }
+                  }
+                },
+                "Investment_Income": {
+                  "case": 127420005,
+                  "actions": {
+                    "Set_varShading_Investment_Income": {
+                      "runAfter": {},
+                      "metadata": {
+                        "operationMetadataId": "a542b7dd-1e99-4297-a3f1-b50bcf742da4"
+                      },
+                      "type": "SetVariable",
+                      "inputs": {
+                        "name": "varShading",
+                        "value": "@first(body('Get_Active_Configuration')?['value'])?['vl_otherincomeinvestmentshading']"
+                      }
+                    }
+                  }
+                },
+                "Workers_Compensation": {
+                  "case": 127420006,
+                  "actions": {
+                    "Set_varShading_Workers_Compensation": {
+                      "runAfter": {},
+                      "metadata": {
+                        "operationMetadataId": "3d3630ca-9d08-4fe3-9f10-0ac3ec5fa542"
+                      },
+                      "type": "SetVariable",
+                      "inputs": {
+                        "name": "varShading",
+                        "value": "@first(body('Get_Active_Configuration')?['value'])?['vl_otherincomeworkerscompensationshading']"
+                      }
+                    }
+                  }
+                },
+                "Other_Income": {
+                  "case": 127420007,
+                  "actions": {
+                    "Set_varShading_Other_Income": {
+                      "runAfter": {},
+                      "metadata": {
+                        "operationMetadataId": "ad77b13d-a483-4947-8702-b3e20b1cf855"
+                      },
+                      "type": "SetVariable",
+                      "inputs": {
+                        "name": "varShading",
+                        "value": "@first(body('Get_Active_Configuration')?['value'])?['vl_otherincomeothershading']"
+                      }
+                    }
+                  }
+                }
+              },
+              "default": {
+                "actions": {}
+              },
+              "expression": "@triggerOutputs()?['body/vl_otherincometype']",
+              "metadata": {
+                "operationMetadataId": "84ebd2ab-a104-4bd3-86a4-c11e10d246ad"
+              },
+              "type": "Switch"
+            },
+            "Update_Shading": {
+              "runAfter": {
+                "Switch_Other_Income_Type": [
+                  "Succeeded"
+                ]
+              },
+              "metadata": {
+                "operationMetadataId": "be182637-3fdc-4d34-bd78-e516986a1d7b"
+              },
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_commondataserviceforapps",
+                  "operationId": "UpdateOnlyRecord",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                },
+                "parameters": {
+                  "entityName": "vl_incomes",
+                  "recordId": "@triggerOutputs()?['body/vl_incomeid']",
+                  "item/vl_shading": "@variables('varShading')"
+                },
+                "authentication": "@parameters('$authentication')"
+              }
+            }
+          },
+          "runAfter": {
+            "Initialize_varShading": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "85b85fc4-4abd-4abb-ab1c-6c54548ccfcd"
+          },
+          "type": "Scope"
+        },
+        "Initialize_varShading": {
+          "runAfter": {},
+          "metadata": {
+            "operationMetadataId": "af6b63b5-5c63-4ac3-a0da-98ac0721beaf"
+          },
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "varShading",
+                "type": "float",
+                "value": 0
+              }
+            ]
+          }
+        },
+        "On_Error": {
+          "actions": {
+            "Filter_Error_Details": {
+              "runAfter": {},
+              "metadata": {
+                "operationMetadataId": "851a2d2d-5a93-460c-8eee-35bd7b21ebca"
+              },
+              "type": "Query",
+              "inputs": {
+                "from": "@result('Main')",
+                "where": "@equals(item()?['status'], 'Failed')"
+              }
+            },
+            "Add_Error_Details": {
+              "runAfter": {
+                "Filter_Error_Details": [
+                  "Succeeded"
+                ]
+              },
+              "metadata": {
+                "operationMetadataId": "fd682e3e-9a62-48a9-9e74-e2d2b37ac5f3"
+              },
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_commondataserviceforapps",
+                  "operationId": "CreateRecord",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                },
+                "parameters": {
+                  "entityName": "vl_errorhandlings",
+                  "item/vl_component": "@first(body('Filter_Error_Details'))?['name']",
+                  "item/vl_errorcode": "@first(body('Filter_Error_Details'))?['error']?['code']",
+                  "item/vl_errormessage": "@first(body('Filter_Error_Details'))?['error']?['message']",
+                  "item/vl_errorsource": 127420001,
+                  "item/vl_sourcename": "@workflow().tags.flowDisplayName"
+                },
+                "authentication": "@parameters('$authentication')"
+              }
+            }
+          },
+          "runAfter": {
+            "Main": [
+              "Failed",
+              "Skipped",
+              "TimedOut"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "ed44e4ac-8f70-4d01-91ae-72ec2ed51ef7"
+          },
+          "type": "Scope"
+        }
+      }
+    },
+    "templateName": ""
+  },
+  "schemaVersion": "1.0.0.0"
+}

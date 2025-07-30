@@ -1,0 +1,8 @@
+{
+  "environmentvariablevalues": {
+    "environmentvariablevalue": {
+      "iscustomizable": "1",
+      "value": "appres://datasources/Envar_VantageLOS_SupportingDocumentsList/table/fac2cbae-cc5e-4f44-a570-dea5d150fb5b/rows/100/reference/https:%2F%2F840eae7c-0b4e-ed6b-ad48-67eea9882ccb.04.common.australia.azure-apihub.net%2Fapim%2Fsharepointonline%2F625fa877acaa4e0ba108e95a1b73cc1a%2Fdatasets%2Fhttps%25253a%25252f%25252fexperionloancentral.sharepoint.com%25252fsites%25252fVantage_Dev%2FGetFileContentByPath%3Fpath=%252f"
+    }
+  }
+}

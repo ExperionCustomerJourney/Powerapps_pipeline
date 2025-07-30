@@ -1,0 +1,659 @@
+{
+  "properties": {
+    "connectionReferences": {
+      "shared_commondataserviceforapps": {
+        "runtimeSource": "embedded",
+        "connection": {
+          "connectionReferenceLogicalName": "vl_sharedcommondataserviceforapps_04816"
+        },
+        "api": {
+          "name": "shared_commondataserviceforapps"
+        }
+      }
+    },
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "parameters": {
+        "$connections": {
+          "defaultValue": {},
+          "type": "Object"
+        },
+        "$authentication": {
+          "defaultValue": {},
+          "type": "SecureObject"
+        }
+      },
+      "triggers": {
+        "When_A_Asset_Created_Or_Updated": {
+          "metadata": {
+            "operationMetadataId": "247587e0-b9cc-4120-bdb0-7e0780c377a3"
+          },
+          "type": "OpenApiConnectionWebhook",
+          "inputs": {
+            "host": {
+              "connectionName": "shared_commondataserviceforapps",
+              "operationId": "SubscribeWebhookTrigger",
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+            },
+            "parameters": {
+              "subscriptionRequest/message": 4,
+              "subscriptionRequest/entityname": "vl_assets",
+              "subscriptionRequest/scope": 4,
+              "subscriptionRequest/filteringattributes": "vl_assetmortgage, vl_totalownership, vl_ownershipproportions, vl_applicant1ownership, vl_applicant2ownership, vl_propertyaddress"
+            },
+            "authentication": "@parameters('$authentication')"
+          }
+        }
+      },
+      "actions": {
+        "Main": {
+          "actions": {
+            "Get_Liabilities_Details": {
+              "runAfter": {},
+              "metadata": {
+                "operationMetadataId": "54df9cde-913e-4702-a35b-fc37b0ac181e"
+              },
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_commondataserviceforapps",
+                  "operationId": "ListRecords",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                },
+                "parameters": {
+                  "entityName": "vl_liabilitieses",
+                  "$filter": "_vl_assetid_value eq '@{triggerOutputs()?['body/vl_assetsid']}'"
+                },
+                "authentication": "@parameters('$authentication')"
+              }
+            },
+            "Check_Asset_Mortgage_False": {
+              "actions": {
+                "For_Each_Existing_Liabilities": {
+                  "foreach": "@outputs('Get_Liabilities_Details')?['body/value']",
+                  "actions": {
+                    "Delete_Existing_Liability_Record": {
+                      "runAfter": {},
+                      "metadata": {
+                        "operationMetadataId": "27ab4b3f-1593-4040-93d6-a7882cf83676"
+                      },
+                      "type": "OpenApiConnection",
+                      "inputs": {
+                        "host": {
+                          "connectionName": "shared_commondataserviceforapps",
+                          "operationId": "DeleteRecord",
+                          "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                        },
+                        "parameters": {
+                          "entityName": "vl_liabilitieses",
+                          "recordId": "@items('For_Each_Existing_Liabilities')?['vl_liabilitiesid']"
+                        },
+                        "authentication": "@parameters('$authentication')"
+                      }
+                    }
+                  },
+                  "runAfter": {},
+                  "metadata": {
+                    "operationMetadataId": "2893e7b5-c7ee-40c2-8bae-b30bcfe4de24"
+                  },
+                  "type": "Foreach"
+                }
+              },
+              "runAfter": {
+                "Get_Liabilities_Details": [
+                  "Succeeded"
+                ]
+              },
+              "expression": {
+                "and": [
+                  {
+                    "equals": [
+                      "@triggerOutputs()?['body/vl_assetmortgage']",
+                      "@false"
+                    ]
+                  }
+                ]
+              },
+              "metadata": {
+                "operationMetadataId": "90579c78-1ff5-45b8-9f0b-3fd72c053eb1"
+              },
+              "type": "If"
+            },
+            "Check_Asset_Mortgage_True": {
+              "actions": {
+                "Get_Active_License": {
+                  "runAfter": {},
+                  "metadata": {
+                    "operationMetadataId": "0b0e6331-f504-475c-a129-1e6600fd2cd0"
+                  },
+                  "type": "OpenApiConnection",
+                  "inputs": {
+                    "host": {
+                      "connectionName": "shared_commondataserviceforapps",
+                      "operationId": "ListRecords",
+                      "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                    },
+                    "parameters": {
+                      "entityName": "vl_licenses",
+                      "$filter": "vl_licensestatus eq true"
+                    },
+                    "authentication": "@parameters('$authentication')"
+                  }
+                },
+                "Get_Assessment_Rates": {
+                  "runAfter": {
+                    "Get_Active_License": [
+                      "Succeeded"
+                    ]
+                  },
+                  "metadata": {
+                    "operationMetadataId": "3e93e525-f4f9-48d6-a0db-5f96719c2131"
+                  },
+                  "type": "OpenApiConnection",
+                  "inputs": {
+                    "host": {
+                      "connectionName": "shared_commondataserviceforapps",
+                      "operationId": "ListRecords",
+                      "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                    },
+                    "parameters": {
+                      "entityName": "vl_configurationsettingses",
+                      "$filter": "_vl_licenseid_value eq '@{first(body('Get_Active_License')?['value'])?['vl_licenseid']}'"
+                    },
+                    "authentication": "@parameters('$authentication')"
+                  }
+                },
+                "Switch_Asset_Type": {
+                  "runAfter": {
+                    "Get_Assessment_Rates": [
+                      "Succeeded"
+                    ]
+                  },
+                  "cases": {
+                    "New_Property": {
+                      "case": 127420005,
+                      "actions": {
+                        "Set_varAssessmentRateBuffer_New_Property": {
+                          "runAfter": {},
+                          "metadata": {
+                            "operationMetadataId": "9649983f-0c01-4b20-b61a-bbdc1ac4df5b"
+                          },
+                          "type": "SetVariable",
+                          "inputs": {
+                            "name": "varAssessmentRateBuffer",
+                            "value": "@first(body('Get_Assessment_Rates')?['value'])?['vl_newassessmentratebuffer']"
+                          }
+                        }
+                      }
+                    },
+                    "Existing_Property": {
+                      "case": 127420004,
+                      "actions": {
+                        "Set_varAssessmentRateBuffer_Existing_Property": {
+                          "runAfter": {},
+                          "metadata": {
+                            "operationMetadataId": "8e9b1174-8f9c-472b-b23b-d540cd52df86"
+                          },
+                          "type": "SetVariable",
+                          "inputs": {
+                            "name": "varAssessmentRateBuffer",
+                            "value": "@first(body('Get_Assessment_Rates')?['value'])?['vl_existingassessmentratebuffer']"
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "default": {
+                    "actions": {}
+                  },
+                  "expression": "@triggerOutputs()?['body/vl_assettype']",
+                  "metadata": {
+                    "operationMetadataId": "6b1d2dd8-231d-4591-b500-bb88c9e5ae71"
+                  },
+                  "type": "Switch"
+                },
+                "Check_Mortgage_Already_Exist": {
+                  "actions": {
+                    "Check_Applicant_1_Ownership": {
+                      "actions": {
+                        "Add_New_Mortgage_Applicant_1": {
+                          "runAfter": {
+                            "Check_Applicant_2": [
+                              "Succeeded"
+                            ]
+                          },
+                          "metadata": {
+                            "operationMetadataId": "21c74c40-ed87-42cf-8a6c-da688162c367"
+                          },
+                          "type": "OpenApiConnection",
+                          "inputs": {
+                            "host": {
+                              "connectionName": "shared_commondataserviceforapps",
+                              "operationId": "CreateRecord",
+                              "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                            },
+                            "parameters": {
+                              "entityName": "vl_liabilitieses",
+                              "item/vl_Applicant1ID@odata.bind": "/vl_applicants(@{triggerOutputs()?['body/_vl_applicant1id_value']})",
+                              "item/vl_applicant1ownership": "@triggerOutputs()?['body/vl_applicant1ownership']",
+                              "item/vl_Applicant2ID@odata.bind": "@variables('varApplicant2')",
+                              "item/vl_applicant2ownership": "@triggerOutputs()?['body/vl_applicant2ownership']",
+                              "item/vl_ApplicationID@odata.bind": "/vl_applicationses(@{triggerOutputs()?['body/_vl_applicationid_value']})",
+                              "item/vl_assessmentratebuffer": "@variables('varAssessmentRateBuffer')",
+                              "item/vl_AssetID@odata.bind": "/vl_assetses(@{triggerOutputs()?['body/vl_assetsid']})",
+                              "item/vl_clearingfromthisloan": "@if(equals(triggerOutputs()?['body/vl_tobeusedassecurity'],true),127420000,127420001)",
+                              "item/vl_liabilitytype": 127420003,
+                              "item/vl_occupancy": "@triggerOutputs()?['body/vl_occupancy']",
+                              "item/vl_ownershipproportions": "@triggerOutputs()?['body/vl_ownershipproportions']",
+                              "item/vl_propertyaddress": "@triggerOutputs()?['body/vl_propertyaddress']",
+                              "item/vl_totalownership": "@triggerOutputs()?['body/vl_totalownership']"
+                            },
+                            "authentication": "@parameters('$authentication')"
+                          }
+                        },
+                        "Update_Applicant_1_liability_ID": {
+                          "runAfter": {
+                            "Add_New_Mortgage_Applicant_1": [
+                              "Succeeded"
+                            ]
+                          },
+                          "metadata": {
+                            "operationMetadataId": "56580dae-3066-4db0-86db-591a02dbcdeb"
+                          },
+                          "type": "OpenApiConnection",
+                          "inputs": {
+                            "host": {
+                              "connectionName": "shared_commondataserviceforapps",
+                              "operationId": "UpdateOnlyRecord",
+                              "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                            },
+                            "parameters": {
+                              "entityName": "vl_assetses",
+                              "recordId": "@triggerOutputs()?['body/vl_assetsid']",
+                              "item/vl_LiabilityID@odata.bind": "/vl_liabilitieses(@{outputs('Add_New_Mortgage_Applicant_1')?['body/vl_liabilitiesid']})"
+                            },
+                            "authentication": "@parameters('$authentication')"
+                          }
+                        },
+                        "Check_Applicant_2": {
+                          "actions": {
+                            "Set_varApplicant2": {
+                              "runAfter": {},
+                              "metadata": {
+                                "operationMetadataId": "6591eb43-1c6e-4c9a-9920-84e071cffa7e"
+                              },
+                              "type": "SetVariable",
+                              "inputs": {
+                                "name": "varApplicant2",
+                                "value": "/vl_applicants(@{triggerOutputs()?['body/_vl_applicant2id_value']})"
+                              }
+                            }
+                          },
+                          "runAfter": {},
+                          "expression": {
+                            "not": {
+                              "equals": [
+                                "@triggerOutputs()?['body/_vl_applicant2id_value']",
+                                "@null"
+                              ]
+                            }
+                          },
+                          "metadata": {
+                            "operationMetadataId": "7640b2f8-367c-41b9-871e-beeed49b4951"
+                          },
+                          "type": "If"
+                        }
+                      },
+                      "runAfter": {},
+                      "expression": {
+                        "and": [
+                          {
+                            "greater": [
+                              "@triggerOutputs()?['body/vl_applicant1ownership']",
+                              0
+                            ]
+                          },
+                          {
+                            "not": {
+                              "equals": [
+                                "@triggerOutputs()?['body/_vl_applicant1id_value']",
+                                "@null"
+                              ]
+                            }
+                          }
+                        ]
+                      },
+                      "metadata": {
+                        "operationMetadataId": "2c70b087-528d-427e-9af5-fd92a244397f"
+                      },
+                      "type": "If"
+                    }
+                  },
+                  "runAfter": {
+                    "Switch_Asset_Type": [
+                      "Succeeded"
+                    ]
+                  },
+                  "else": {
+                    "actions": {
+                      "Check_Applicant_2_Exist": {
+                        "actions": {
+                          "Set_varApplicant2_Update": {
+                            "runAfter": {},
+                            "metadata": {
+                              "operationMetadataId": "13fdf7d9-3081-403e-aafd-65a89fe95393"
+                            },
+                            "type": "SetVariable",
+                            "inputs": {
+                              "name": "varApplicant2",
+                              "value": "/vl_applicants(@{triggerOutputs()?['body/_vl_applicant2id_value']})"
+                            }
+                          }
+                        },
+                        "runAfter": {
+                          "Check_Applicant_1": [
+                            "Succeeded"
+                          ]
+                        },
+                        "expression": {
+                          "not": {
+                            "equals": [
+                              "@triggerOutputs()?['body/_vl_applicant2id_value']",
+                              "@null"
+                            ]
+                          }
+                        },
+                        "metadata": {
+                          "operationMetadataId": "a92740db-73bd-41e3-9304-5a6a95c25195"
+                        },
+                        "type": "If"
+                      },
+                      "Check_Applicant_1": {
+                        "actions": {
+                          "Set_varApplicant1_Update": {
+                            "runAfter": {},
+                            "metadata": {
+                              "operationMetadataId": "63e85ad8-d9f8-4dc7-8e6e-80328e818463"
+                            },
+                            "type": "SetVariable",
+                            "inputs": {
+                              "name": "varApplicant1",
+                              "value": "/vl_applicants(@{triggerOutputs()?['body/_vl_applicant1id_value']})"
+                            }
+                          }
+                        },
+                        "runAfter": {},
+                        "expression": {
+                          "and": [
+                            {
+                              "greater": [
+                                "@triggerOutputs()?['body/vl_applicant1ownership']",
+                                0
+                              ]
+                            },
+                            {
+                              "not": {
+                                "equals": [
+                                  "@triggerOutputs()?['body/_vl_applicant1id_value']",
+                                  "@null"
+                                ]
+                              }
+                            }
+                          ]
+                        },
+                        "metadata": {
+                          "operationMetadataId": "348d6de5-7f79-4d4a-830a-f08e7bd8e576"
+                        },
+                        "type": "If"
+                      },
+                      "For_Each_Liability_For_Update": {
+                        "foreach": "@outputs('Get_Liabilities_Details')?['body/value']",
+                        "actions": {
+                          "Update_Liability_Details": {
+                            "runAfter": {},
+                            "metadata": {
+                              "operationMetadataId": "44ece657-2916-473d-821a-062ecc995fda"
+                            },
+                            "type": "OpenApiConnection",
+                            "inputs": {
+                              "host": {
+                                "connectionName": "shared_commondataserviceforapps",
+                                "operationId": "UpdateOnlyRecord",
+                                "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                              },
+                              "parameters": {
+                                "entityName": "vl_liabilitieses",
+                                "recordId": "@items('For_Each_Liability_For_Update')?['vl_liabilitiesid']",
+                                "item/vl_applicant1ownership": "@triggerOutputs()?['body/vl_applicant1ownership']",
+                                "item/vl_applicant2ownership": "@triggerOutputs()?['body/vl_applicant2ownership']",
+                                "item/vl_clearingfromthisloan": "@if(equals(triggerOutputs()?['body/vl_tobeusedassecurity'],true),127420000,127420001)",
+                                "item/vl_occupancy": "@triggerOutputs()?['body/vl_occupancy']",
+                                "item/vl_ownershipproportions": "@triggerOutputs()?['body/vl_ownershipproportions']",
+                                "item/vl_propertyaddress": "@triggerOutputs()?['body/vl_propertyaddress']",
+                                "item/vl_totalownership": "@triggerOutputs()?['body/vl_totalownership']"
+                              },
+                              "authentication": "@parameters('$authentication')"
+                            }
+                          }
+                        },
+                        "runAfter": {
+                          "Check_Applicant_2_Exist": [
+                            "Succeeded"
+                          ]
+                        },
+                        "metadata": {
+                          "operationMetadataId": "b483ebbd-1ad5-4233-b96a-d07ec241b11f"
+                        },
+                        "type": "Foreach"
+                      }
+                    }
+                  },
+                  "expression": {
+                    "equals": [
+                      "@length(body('Get_Liabilities_Details')?['value'])",
+                      0
+                    ]
+                  },
+                  "metadata": {
+                    "operationMetadataId": "d75f1233-a146-4532-bee2-951abbf9eb55"
+                  },
+                  "type": "If"
+                }
+              },
+              "runAfter": {
+                "Check_Asset_Mortgage_False": [
+                  "Succeeded"
+                ]
+              },
+              "else": {
+                "actions": {
+                  "Get_Mortgage_Support_Documents": {
+                    "runAfter": {},
+                    "metadata": {
+                      "operationMetadataId": "c2f92d43-1895-4930-942f-7b19628fbca4"
+                    },
+                    "type": "OpenApiConnection",
+                    "inputs": {
+                      "host": {
+                        "connectionName": "shared_commondataserviceforapps",
+                        "operationId": "ListRecords",
+                        "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                      },
+                      "parameters": {
+                        "entityName": "vl_supportingdocumentses",
+                        "$filter": "vl_supportid eq '@{triggerOutputs()?['body/_vl_liabilityid_value']}'"
+                      },
+                      "authentication": "@parameters('$authentication')"
+                    }
+                  },
+                  "For_Each_Support_Document": {
+                    "foreach": "@outputs('Get_Mortgage_Support_Documents')?['body/value']",
+                    "actions": {
+                      "Delete_a_row": {
+                        "runAfter": {},
+                        "metadata": {
+                          "operationMetadataId": "63d42d49-fec9-4731-b294-2b92408ccbed"
+                        },
+                        "type": "OpenApiConnection",
+                        "inputs": {
+                          "host": {
+                            "connectionName": "shared_commondataserviceforapps",
+                            "operationId": "DeleteRecord",
+                            "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                          },
+                          "parameters": {
+                            "entityName": "vl_supportingdocumentses",
+                            "recordId": "@items('For_Each_Support_Document')?['vl_supportingdocumentsid']"
+                          },
+                          "authentication": "@parameters('$authentication')"
+                        }
+                      }
+                    },
+                    "runAfter": {
+                      "Get_Mortgage_Support_Documents": [
+                        "Succeeded"
+                      ]
+                    },
+                    "metadata": {
+                      "operationMetadataId": "04048fa4-b362-42ae-ab56-6279a1cf1bc2"
+                    },
+                    "type": "Foreach"
+                  }
+                }
+              },
+              "expression": {
+                "equals": [
+                  "@triggerOutputs()?['body/vl_assetmortgage']",
+                  "@true"
+                ]
+              },
+              "metadata": {
+                "operationMetadataId": "2849139c-9706-4081-aa95-8bc3f7bd1f37"
+              },
+              "type": "If"
+            }
+          },
+          "runAfter": {
+            "Initialize_varApplicant2": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "3b39b99b-d54a-4c63-a569-6fadc8280b2f"
+          },
+          "type": "Scope"
+        },
+        "Initialize_varAssessmentRateBuffer": {
+          "runAfter": {},
+          "metadata": {
+            "operationMetadataId": "d1b1a2fa-e5f5-4cae-a229-109e7fcd786b"
+          },
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "varAssessmentRateBuffer",
+                "type": "float",
+                "value": 0
+              }
+            ]
+          }
+        },
+        "Initialize_varApplicant1": {
+          "runAfter": {
+            "Initialize_varAssessmentRateBuffer": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "5f961ed9-6cda-4062-a480-ab1b867aed42"
+          },
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "varApplicant1",
+                "type": "string"
+              }
+            ]
+          }
+        },
+        "Initialize_varApplicant2": {
+          "runAfter": {
+            "Initialize_varApplicant1": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "dfda9534-de3e-4402-a602-f784f7c75d74"
+          },
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "varApplicant2",
+                "type": "string"
+              }
+            ]
+          }
+        },
+        "On_Error": {
+          "actions": {
+            "Filter_Error_Details": {
+              "runAfter": {},
+              "metadata": {
+                "operationMetadataId": "10bffdb6-af7b-452a-a7db-2564ba0d64fa"
+              },
+              "type": "Query",
+              "inputs": {
+                "from": "@result('Main')",
+                "where": "@equals(item()?['status'], 'Failed')"
+              }
+            },
+            "Add_Error_Details": {
+              "runAfter": {
+                "Filter_Error_Details": [
+                  "Succeeded"
+                ]
+              },
+              "metadata": {
+                "operationMetadataId": "359d348f-a41b-4785-9b4b-5c64f879ca42"
+              },
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_commondataserviceforapps",
+                  "operationId": "CreateRecord",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                },
+                "parameters": {
+                  "entityName": "vl_errorhandlings",
+                  "item/vl_component": "@first(body('Filter_Error_Details'))?['name']",
+                  "item/vl_errorcode": "@first(body('Filter_Error_Details'))?['error']?['code']",
+                  "item/vl_errormessage": "@first(body('Filter_Error_Details'))?['error']?['message']",
+                  "item/vl_errorsource": 127420001,
+                  "item/vl_sourcename": "@workflow().tags.flowDisplayName"
+                },
+                "authentication": "@parameters('$authentication')"
+              }
+            }
+          },
+          "runAfter": {
+            "Main": [
+              "Failed",
+              "Skipped",
+              "TimedOut"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "d9476c7a-86de-4769-aa7c-b3cd85d00512"
+          },
+          "type": "Scope"
+        }
+      }
+    },
+    "templateName": ""
+  },
+  "schemaVersion": "1.0.0.0"
+}

@@ -1,0 +1,322 @@
+{
+  "properties": {
+    "connectionReferences": {
+      "shared_commondataserviceforapps": {
+        "runtimeSource": "embedded",
+        "connection": {
+          "connectionReferenceLogicalName": "vl_sharedcommondataserviceforapps_04816"
+        },
+        "api": {
+          "name": "shared_commondataserviceforapps"
+        }
+      }
+    },
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "parameters": {
+        "$connections": {
+          "defaultValue": {},
+          "type": "Object"
+        },
+        "$authentication": {
+          "defaultValue": {},
+          "type": "SecureObject"
+        }
+      },
+      "triggers": {
+        "When_An_Employment_Is_Created": {
+          "metadata": {
+            "operationMetadataId": "eebb4731-c7ad-4c1a-a6be-3079f5189233"
+          },
+          "type": "OpenApiConnectionWebhook",
+          "inputs": {
+            "host": {
+              "connectionName": "shared_commondataserviceforapps",
+              "operationId": "SubscribeWebhookTrigger",
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+            },
+            "parameters": {
+              "subscriptionRequest/message": 4,
+              "subscriptionRequest/entityname": "vl_employment",
+              "subscriptionRequest/scope": 4,
+              "subscriptionRequest/filterexpression": "vl_employmenttype eq 127420000"
+            },
+            "authentication": "@parameters('$authentication')"
+          }
+        }
+      },
+      "actions": {
+        "Main": {
+          "actions": {
+            "Get_Support_Documents_For_Employment": {
+              "runAfter": {},
+              "metadata": {
+                "operationMetadataId": "45a40cf8-d025-43b7-8eb4-6787becfedd5"
+              },
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_commondataserviceforapps",
+                  "operationId": "ListRecords",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                },
+                "parameters": {
+                  "entityName": "vl_supportingdocumentsmatrixes",
+                  "$filter": "vl_documentsubcategory eq 127420000",
+                  "$orderby": "vl_supportingdocumentsmatrixprimaryid asc"
+                },
+                "authentication": "@parameters('$authentication')"
+              }
+            },
+            "Get_Employment_Support_Document": {
+              "runAfter": {
+                "Get_Support_Documents_For_Employment": [
+                  "Succeeded"
+                ]
+              },
+              "metadata": {
+                "operationMetadataId": "f990d36f-e862-4a2b-9dd1-f91536edb897"
+              },
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_commondataserviceforapps",
+                  "operationId": "ListRecords",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                },
+                "parameters": {
+                  "entityName": "vl_supportingdocumentses",
+                  "$filter": "_vl_employmentuserid_value eq '@{triggerOutputs()?['body/vl_employmentid']}' and vl_documentsubcategory eq 127420000"
+                },
+                "authentication": "@parameters('$authentication')"
+              }
+            },
+            "For_Each_Existing_Support_Documents": {
+              "foreach": "@outputs('Get_Employment_Support_Document')?['body/value']",
+              "actions": {
+                "Delete_Existing_Support_Documents": {
+                  "runAfter": {},
+                  "metadata": {
+                    "operationMetadataId": "9210ce5f-edd2-4d40-9af2-b2d9e4afee51"
+                  },
+                  "type": "OpenApiConnection",
+                  "inputs": {
+                    "host": {
+                      "connectionName": "shared_commondataserviceforapps",
+                      "operationId": "DeleteRecord",
+                      "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                    },
+                    "parameters": {
+                      "entityName": "vl_supportingdocumentses",
+                      "recordId": "@items('For_Each_Existing_Support_Documents')?['vl_supportingdocumentsid']"
+                    },
+                    "authentication": "@parameters('$authentication')"
+                  }
+                }
+              },
+              "runAfter": {
+                "Get_Employment_Support_Document": [
+                  "Succeeded"
+                ]
+              },
+              "metadata": {
+                "operationMetadataId": "b2ba000b-c4cd-4d30-9687-c7de9263663d"
+              },
+              "type": "Foreach"
+            },
+            "Income_Type": {
+              "runAfter": {
+                "For_Each_Existing_Support_Documents": [
+                  "Succeeded"
+                ]
+              },
+              "cases": {
+                "PAYG": {
+                  "case": 127420000,
+                  "actions": {
+                    "Get_PAYG_Documents": {
+                      "runAfter": {},
+                      "metadata": {
+                        "operationMetadataId": "f3e15f50-5c9a-4ac4-86c1-92d83963c6d6"
+                      },
+                      "type": "Query",
+                      "inputs": {
+                        "from": "@outputs('Get_Support_Documents_For_Employment')?['body/value']",
+                        "where": "@equals(item()?['vl_incometype'],127420000)"
+                      }
+                    },
+                    "For_Each_Employment_Support_Documents": {
+                      "foreach": "@body('Get_PAYG_Documents')",
+                      "actions": {
+                        "Add_PAYG_Support_Documents": {
+                          "runAfter": {},
+                          "metadata": {
+                            "operationMetadataId": "2141eb2d-3895-4d60-b605-641039ddd426"
+                          },
+                          "type": "OpenApiConnection",
+                          "inputs": {
+                            "host": {
+                              "connectionName": "shared_commondataserviceforapps",
+                              "operationId": "CreateRecord",
+                              "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                            },
+                            "parameters": {
+                              "entityName": "vl_supportingdocumentses",
+                              "item/vl_ApplicantID@odata.bind": "/vl_applicants(@{triggerOutputs()?['body/_vl_applicantid_value']})",
+                              "item/vl_ApplicationID@odata.bind": "/vl_applicationses(@{triggerOutputs()?['body/_vl_applicationid_value']})",
+                              "item/vl_documentname": "@item()?['vl_documentname']",
+                              "item/vl_documentside": 127420002,
+                              "item/vl_documentsubcategory": 127420000,
+                              "item/vl_documenttype": "@item()?['vl_documenttype']",
+                              "item/vl_EmploymentUserID@odata.bind": "/vl_employments(@{triggerOutputs()?['body/vl_employmentid']})",
+                              "item/vl_supportid": "@triggerOutputs()?['body/vl_employmentid']"
+                            },
+                            "authentication": "@parameters('$authentication')"
+                          }
+                        }
+                      },
+                      "runAfter": {
+                        "Get_PAYG_Documents": [
+                          "Succeeded"
+                        ]
+                      },
+                      "metadata": {
+                        "operationMetadataId": "fb53e0b5-f724-4ff1-ba81-d8f7080c219b"
+                      },
+                      "type": "Foreach"
+                    }
+                  }
+                },
+                "Self_Employment": {
+                  "case": 127420001,
+                  "actions": {
+                    "Get_SelfEmployment_Documents": {
+                      "runAfter": {},
+                      "metadata": {
+                        "operationMetadataId": "edae6d51-458d-45bd-a41c-46c764f2e90f"
+                      },
+                      "type": "Query",
+                      "inputs": {
+                        "from": "@outputs('Get_Support_Documents_For_Employment')?['body/value']",
+                        "where": "@equals(item()?['vl_incometype'],127420001)"
+                      }
+                    },
+                    "For_Each_Employment_Support_Documents_2": {
+                      "foreach": "@body('Get_SelfEmployment_Documents')",
+                      "actions": {
+                        "Add_SelfEmployment_Support_Documents": {
+                          "runAfter": {},
+                          "metadata": {
+                            "operationMetadataId": "b6bc030f-6f6c-4173-a879-d701181e9707"
+                          },
+                          "type": "OpenApiConnection",
+                          "inputs": {
+                            "host": {
+                              "connectionName": "shared_commondataserviceforapps",
+                              "operationId": "CreateRecord",
+                              "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                            },
+                            "parameters": {
+                              "entityName": "vl_supportingdocumentses",
+                              "item/vl_ApplicantID@odata.bind": "/vl_applicants(@{triggerOutputs()?['body/_vl_applicantid_value']})",
+                              "item/vl_ApplicationID@odata.bind": "/vl_applicationses(@{triggerOutputs()?['body/_vl_applicationid_value']})",
+                              "item/vl_documentname": "@item()?['vl_documentname']",
+                              "item/vl_documentside": 127420002,
+                              "item/vl_documentsubcategory": 127420000,
+                              "item/vl_documenttype": "@item()?['vl_documenttype']",
+                              "item/vl_EmploymentUserID@odata.bind": "/vl_employments(@{triggerOutputs()?['body/vl_employmentid']})",
+                              "item/vl_supportid": "@triggerOutputs()?['body/vl_employmentid']"
+                            },
+                            "authentication": "@parameters('$authentication')"
+                          }
+                        }
+                      },
+                      "runAfter": {
+                        "Get_SelfEmployment_Documents": [
+                          "Succeeded"
+                        ]
+                      },
+                      "metadata": {
+                        "operationMetadataId": "6f26bd04-e5d0-429e-9c0d-9805d2a33641"
+                      },
+                      "type": "Foreach"
+                    }
+                  }
+                }
+              },
+              "default": {
+                "actions": {}
+              },
+              "expression": "@triggerOutputs()?['body/vl_incometype']",
+              "metadata": {
+                "operationMetadataId": "61f88016-9980-4790-9827-d8ca0c653716"
+              },
+              "type": "Switch"
+            }
+          },
+          "runAfter": {},
+          "metadata": {
+            "operationMetadataId": "b4fcb099-eb6a-4661-ad15-191fdc13340d"
+          },
+          "type": "Scope"
+        },
+        "On_Error": {
+          "actions": {
+            "Filter_Error_Details": {
+              "runAfter": {},
+              "metadata": {
+                "operationMetadataId": "46707542-64d7-46c6-90f0-283376aa540a"
+              },
+              "type": "Query",
+              "inputs": {
+                "from": "@result('Main')",
+                "where": "@equals(item()?['status'], 'Failed')"
+              }
+            },
+            "Add_Error_Details": {
+              "runAfter": {
+                "Filter_Error_Details": [
+                  "Succeeded"
+                ]
+              },
+              "metadata": {
+                "operationMetadataId": "fab8bd50-3fbf-4fcc-81e9-c515b6a4890b"
+              },
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_commondataserviceforapps",
+                  "operationId": "CreateRecord",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                },
+                "parameters": {
+                  "entityName": "vl_errorhandlings",
+                  "item/vl_component": "@first(body('Filter_Error_Details'))?['name']",
+                  "item/vl_errorcode": "@first(body('Filter_Error_Details'))?['error']?['code']",
+                  "item/vl_errormessage": "@first(body('Filter_Error_Details'))?['error']?['message']",
+                  "item/vl_errorsource": 127420001,
+                  "item/vl_sourcename": "@workflow().tags.flowDisplayName"
+                },
+                "authentication": "@parameters('$authentication')"
+              }
+            }
+          },
+          "runAfter": {
+            "Main": [
+              "Failed",
+              "TimedOut",
+              "Skipped"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "f84aba52-5885-4cd6-bd32-aa0b8e7e86c0"
+          },
+          "type": "Scope"
+        }
+      }
+    },
+    "templateName": ""
+  },
+  "schemaVersion": "1.0.0.0"
+}

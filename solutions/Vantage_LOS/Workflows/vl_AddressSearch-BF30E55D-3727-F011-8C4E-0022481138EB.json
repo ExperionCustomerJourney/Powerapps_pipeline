@@ -1,0 +1,243 @@
+{
+  "properties": {
+    "connectionReferences": {
+      "shared_commondataserviceforapps": {
+        "runtimeSource": "embedded",
+        "connection": {
+          "connectionReferenceLogicalName": "vl_sharedcommondataserviceforapps_04816"
+        },
+        "api": {
+          "name": "shared_commondataserviceforapps"
+        }
+      }
+    },
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "parameters": {
+        "$connections": {
+          "defaultValue": {},
+          "type": "Object"
+        },
+        "$authentication": {
+          "defaultValue": {},
+          "type": "SecureObject"
+        }
+      },
+      "triggers": {
+        "manual": {
+          "metadata": {
+            "operationMetadataId": "bcfcdc75-8658-45a7-a283-0c7b3a3ac3b3"
+          },
+          "type": "Request",
+          "kind": "PowerAppV2",
+          "inputs": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "text": {
+                  "title": "AddressInput",
+                  "type": "string",
+                  "x-ms-dynamically-added": true,
+                  "description": "Please enter your input",
+                  "x-ms-content-hint": "TEXT"
+                }
+              },
+              "required": [
+                "text"
+              ]
+            }
+          }
+        }
+      },
+      "actions": {
+        "Initialize_varAPIKey": {
+          "runAfter": {},
+          "metadata": {
+            "operationMetadataId": "e7002f7a-9fff-4994-b0e1-ebdba2cf9af0"
+          },
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "varAPIKey",
+                "type": "string",
+                "value": "AIzaSyCjPpvI0bxU-BKsVWsaFPMz2e3VlPErnts"
+              }
+            ]
+          }
+        },
+        "Initialize_varGoogleURL": {
+          "runAfter": {
+            "Initialize_varAPIKey": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "8bb15816-5e7a-4d03-bb1f-ae5e134d58ca"
+          },
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "varGoogleURL",
+                "type": "string",
+                "value": "https://maps.googleapis.com/maps/api/place/autocomplete/json"
+              }
+            ]
+          }
+        },
+        "Initialize_varCountry": {
+          "runAfter": {
+            "Initialize_varGoogleURL": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "2a2b5097-a88f-4d93-a45f-5eec650b971f"
+          },
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "varCountry",
+                "type": "string",
+                "value": "au"
+              }
+            ]
+          }
+        },
+        "Main": {
+          "actions": {
+            "Get_Address_Suggestion": {
+              "runAfter": {},
+              "metadata": {
+                "operationMetadataId": "a3d10df5-1043-47f0-997f-ba1d15c4653a"
+              },
+              "type": "Http",
+              "inputs": {
+                "method": "GET",
+                "uri": "@variables('varGoogleURL')",
+                "queries": {
+                  "input": "@triggerBody()['text']",
+                  "types": "route",
+                  "components": "country:@{variables('varCountry')}",
+                  "key": "@variables('varAPIKey')"
+                }
+              }
+            },
+            "Select_Address": {
+              "runAfter": {
+                "Get_Address_Suggestion": [
+                  "Succeeded"
+                ]
+              },
+              "metadata": {
+                "operationMetadataId": "d2f3a5a1-a577-43f5-9a77-68195671d3c3"
+              },
+              "type": "Select",
+              "inputs": {
+                "from": "@body('Get_Address_Suggestion')?['predictions']",
+                "select": {
+                  "Address": "@item()?['description']"
+                }
+              }
+            },
+            "Respond_to_a_Power_App_or_flow": {
+              "runAfter": {
+                "Select_Address": [
+                  "Succeeded"
+                ]
+              },
+              "metadata": {
+                "operationMetadataId": "54a404c9-6409-4495-9072-6d2618e27794"
+              },
+              "type": "Response",
+              "kind": "PowerApp",
+              "inputs": {
+                "statusCode": 200,
+                "body": {
+                  "addresssuggestions": "@{body('Select_Address')}"
+                },
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "addresssuggestions": {
+                      "title": "AddressSuggestions",
+                      "x-ms-dynamically-added": true,
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "runAfter": {
+            "Initialize_varCountry": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "e058f8fe-a10a-4e84-81f3-907e1557ef7f"
+          },
+          "type": "Scope"
+        },
+        "On_Error": {
+          "actions": {
+            "Filter_Error_Details": {
+              "runAfter": {},
+              "metadata": {
+                "operationMetadataId": "e9558055-5dee-4158-af45-71210380acf8"
+              },
+              "type": "Query",
+              "inputs": {
+                "from": "@result('Main')",
+                "where": "@equals(item()?['status'], 'Failed')"
+              }
+            },
+            "Add_Error_Details": {
+              "runAfter": {
+                "Filter_Error_Details": [
+                  "Succeeded"
+                ]
+              },
+              "metadata": {
+                "operationMetadataId": "aebc9563-3e12-4eff-b607-ccae9d9c2e36"
+              },
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_commondataserviceforapps",
+                  "operationId": "CreateRecord",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                },
+                "parameters": {
+                  "entityName": "vl_errorhandlings",
+                  "item/vl_component": "@first(body('Filter_Error_Details'))?['name']",
+                  "item/vl_errorcode": "@first(body('Filter_Error_Details'))?['error']?['code']",
+                  "item/vl_errormessage": "@first(body('Filter_Error_Details'))?['error']?['message']",
+                  "item/vl_errorsource": 127420001,
+                  "item/vl_sourcename": "@workflow().tags.flowDisplayName"
+                },
+                "authentication": "@parameters('$authentication')"
+              }
+            }
+          },
+          "runAfter": {
+            "Main": [
+              "Failed",
+              "Skipped",
+              "TimedOut"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "f30b726e-c9df-4b23-ba8d-1d6f93ef98d4"
+          },
+          "type": "Scope"
+        }
+      }
+    },
+    "templateName": ""
+  },
+  "schemaVersion": "1.0.0.0"
+}

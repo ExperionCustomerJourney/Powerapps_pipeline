@@ -1,0 +1,140 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<forms xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <systemform>
+    <formid>{5fdbcc23-6975-4bb8-978c-158c643e1498}</formid>
+    <IntroducedVersion>1.0</IntroducedVersion>
+    <FormPresentation>1</FormPresentation>
+    <FormActivationState>1</FormActivationState>
+    <form headerdensity="HighWithControls">
+      <tabs>
+        <tab verticallayout="true" id="{8791a065-b163-44d4-a7db-3123e8136c39}" IsUserDefined="1">
+          <labels>
+            <label description="General" languagecode="1033" />
+          </labels>
+          <columns>
+            <column width="100%">
+              <sections>
+                <section showlabel="false" showbar="false" IsUserDefined="0" id="{5075683f-6b6b-43b9-b01d-633912dbd9c7}">
+                  <labels>
+                    <label description="General" languagecode="1033" />
+                  </labels>
+                  <rows>
+                    <row>
+                      <cell id="{780f9eea-1646-4734-a9a1-ef2398903a95}">
+                        <labels>
+                          <label description="Support Document ID" languagecode="1033" />
+                        </labels>
+                        <control id="vl_supportdocumentid" classid="{4273EDBD-AC1D-40d3-9FB2-095C621B552D}" datafieldname="vl_supportdocumentid" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{940303e3-d708-4709-a1a6-c4acad09af0d}">
+                        <labels>
+                          <label description="Owner" languagecode="1033" />
+                        </labels>
+                        <control id="ownerid" classid="{270BD3DB-D9AF-4782-9025-509E298DEC0A}" datafieldname="ownerid" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{df0fc73a-c8bc-4519-ad97-8f369f9fc3f5}" locklevel="0" colspan="1" rowspan="1">
+                        <labels>
+                          <label description="Document Side" languagecode="1033" />
+                        </labels>
+                        <control id="vl_documentside" classid="{3EF39988-22BB-4F0B-BBBE-64B5A3748AEE}" datafieldname="vl_documentside" disabled="false" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{cbfb9f85-6315-4ab4-9998-88d865bb1934}" locklevel="0" colspan="1" rowspan="1">
+                        <labels>
+                          <label description="Document Type" languagecode="1033" />
+                        </labels>
+                        <control id="vl_documenttype" classid="{3EF39988-22BB-4F0B-BBBE-64B5A3748AEE}" datafieldname="vl_documenttype" disabled="false" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{9f3f819d-b5c4-4281-b26e-e0d920f171bc}" locklevel="0" colspan="1" rowspan="1">
+                        <labels>
+                          <label description="Applicant ID" languagecode="1033" />
+                        </labels>
+                        <control id="vl_applicantid" classid="{270BD3DB-D9AF-4782-9025-509E298DEC0A}" datafieldname="vl_applicantid" disabled="false" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{7e846130-fc71-44b6-a010-1564c96a63e8}" locklevel="0" colspan="1" rowspan="1">
+                        <labels>
+                          <label description="Application ID" languagecode="1033" />
+                        </labels>
+                        <control id="vl_applicationid" classid="{270BD3DB-D9AF-4782-9025-509E298DEC0A}" datafieldname="vl_applicationid" disabled="false" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{cfcd0c11-b7e6-4e3a-9dbc-00a4d3c1148f}" locklevel="0" colspan="1" rowspan="1">
+                        <labels>
+                          <label description="Support Document" languagecode="1033" />
+                        </labels>
+                        <control id="vl_supportdocument" classid="{0A7FF475-B016-4687-9CE5-042BFDBD6519}" datafieldname="vl_supportdocument" disabled="false" />
+                      </cell>
+                    </row>
+                  </rows>
+                </section>
+              </sections>
+            </column>
+          </columns>
+        </tab>
+      </tabs>
+      <header id="{7eb5e8e8-86a2-40d8-89d1-52d08bdbe11c}" celllabelposition="Top" columns="111" labelwidth="115" celllabelalignment="Left">
+        <rows>
+          <row>
+            <cell id="{7a702509-912a-4233-87da-89ad23a29925}" showlabel="false">
+              <labels>
+                <label description="" languagecode="1033" />
+              </labels>
+            </cell>
+            <cell id="{5c3cec2a-815b-4709-b08f-f0d7bf36fb30}" showlabel="false">
+              <labels>
+                <label description="" languagecode="1033" />
+              </labels>
+            </cell>
+            <cell id="{d83a8940-a642-42fb-9850-956e26d0bb70}" showlabel="false">
+              <labels>
+                <label description="" languagecode="1033" />
+              </labels>
+            </cell>
+          </row>
+        </rows>
+      </header>
+      <footer id="{059c152a-b472-40b5-bf98-23cea5b7f22d}" celllabelposition="Top" columns="111" labelwidth="115" celllabelalignment="Left">
+        <rows>
+          <row>
+            <cell id="{57c310f2-c7db-420c-8ad3-9aa7b0a7e752}" showlabel="false">
+              <labels>
+                <label description="" languagecode="1033" />
+              </labels>
+            </cell>
+            <cell id="{185eba77-6576-4d98-b541-75af2bbeb47b}" showlabel="false">
+              <labels>
+                <label description="" languagecode="1033" />
+              </labels>
+            </cell>
+            <cell id="{68dec1a4-fa19-468e-bcad-f1799bafbf4c}" showlabel="false">
+              <labels>
+                <label description="" languagecode="1033" />
+              </labels>
+            </cell>
+          </row>
+        </rows>
+      </footer>
+      <DisplayConditions Order="0" FallbackForm="true">
+        <Everyone />
+      </DisplayConditions>
+    </form>
+    <IsCustomizable>1</IsCustomizable>
+    <CanBeDeleted>1</CanBeDeleted>
+    <LocalizedNames>
+      <LocalizedName description="Information" languagecode="1033" />
+    </LocalizedNames>
+    <Descriptions>
+      <Description description="A form for this entity." languagecode="1033" />
+    </Descriptions>
+  </systemform>
+</forms>

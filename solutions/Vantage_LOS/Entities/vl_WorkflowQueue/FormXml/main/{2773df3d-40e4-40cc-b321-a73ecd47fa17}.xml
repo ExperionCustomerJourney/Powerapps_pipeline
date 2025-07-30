@@ -1,0 +1,140 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<forms xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <systemform>
+    <formid>{2773df3d-40e4-40cc-b321-a73ecd47fa17}</formid>
+    <IntroducedVersion>1.0</IntroducedVersion>
+    <FormPresentation>1</FormPresentation>
+    <FormActivationState>1</FormActivationState>
+    <form headerdensity="HighWithControls">
+      <tabs>
+        <tab verticallayout="true" id="{20fb1624-b8bd-4dba-bd80-270f4a8bb2a8}" IsUserDefined="1">
+          <labels>
+            <label description="General" languagecode="1033" />
+          </labels>
+          <columns>
+            <column width="100%">
+              <sections>
+                <section showlabel="false" showbar="false" IsUserDefined="0" id="{6cd1acdb-6332-49e6-bbb9-5cc72cf3903e}">
+                  <labels>
+                    <label description="General" languagecode="1033" />
+                  </labels>
+                  <rows>
+                    <row>
+                      <cell id="{09960d61-69f3-4ffa-9071-3b4dc731ce73}" visible="false">
+                        <labels>
+                          <label description="Queue ID" languagecode="1033" />
+                        </labels>
+                        <control id="vl_queueid" classid="{4273EDBD-AC1D-40d3-9FB2-095C621B552D}" datafieldname="vl_queueid" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{b84d08f7-c716-43fd-9596-95cd28a64be8}" visible="false">
+                        <labels>
+                          <label description="Owner" languagecode="1033" />
+                        </labels>
+                        <control id="ownerid" classid="{270BD3DB-D9AF-4782-9025-509E298DEC0A}" datafieldname="ownerid" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{e1a53363-057c-4b25-85e9-0a8cfbbaf211}" locklevel="0" colspan="1" rowspan="1">
+                        <labels>
+                          <label description="Application ID" languagecode="1033" />
+                        </labels>
+                        <control id="vl_applicationid" classid="{270BD3DB-D9AF-4782-9025-509E298DEC0A}" datafieldname="vl_applicationid" disabled="false" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{f14626bf-3c85-49da-9079-412e7d428f5f}" locklevel="0" colspan="1" rowspan="1">
+                        <labels>
+                          <label description="Email" languagecode="1033" />
+                        </labels>
+                        <control id="vl_email" classid="{ADA2203E-B4CD-49BE-9DDF-234642B43B52}" datafieldname="vl_email" disabled="false" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{ee531efb-1451-436f-bb41-ff6c94c749b9}" locklevel="0" colspan="1" rowspan="1">
+                        <labels>
+                          <label description="Queue Type" languagecode="1033" />
+                        </labels>
+                        <control id="vl_queuetype" classid="{3EF39988-22BB-4F0B-BBBE-64B5A3748AEE}" datafieldname="vl_queuetype" disabled="false" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{8719a109-6b9b-4255-8d86-c3f720314cfa}" locklevel="0" colspan="1" rowspan="1">
+                        <labels>
+                          <label description="Applicant ID" languagecode="1033" />
+                        </labels>
+                        <control id="vl_applicantid" classid="{270BD3DB-D9AF-4782-9025-509E298DEC0A}" datafieldname="vl_applicantid" disabled="false" />
+                      </cell>
+                    </row>
+                    <row>
+                      <cell id="{897d1c12-a726-46fa-be1e-acfb5873fa39}" locklevel="0" colspan="1" rowspan="1">
+                        <labels>
+                          <label description="Trigger Count" languagecode="1033" />
+                        </labels>
+                        <control id="vl_triggercount" classid="{C6D124CA-7EDA-4A60-AEA9-7FB8D318B68F}" datafieldname="vl_triggercount" disabled="false" />
+                      </cell>
+                    </row>
+                  </rows>
+                </section>
+              </sections>
+            </column>
+          </columns>
+        </tab>
+      </tabs>
+      <header id="{21571d2b-870c-4a09-b052-30b9409a5cbc}" celllabelposition="Top" columns="111" labelwidth="115" celllabelalignment="Left">
+        <rows>
+          <row>
+            <cell id="{85135808-5f2a-48c2-973f-547dd1507140}" showlabel="false">
+              <labels>
+                <label description="" languagecode="1033" />
+              </labels>
+            </cell>
+            <cell id="{cfb14fdc-9d73-4a2f-9165-39688c01fe0f}" showlabel="false">
+              <labels>
+                <label description="" languagecode="1033" />
+              </labels>
+            </cell>
+            <cell id="{94cd65af-14c1-4bbb-8e54-b2d4afa37a21}" showlabel="false">
+              <labels>
+                <label description="" languagecode="1033" />
+              </labels>
+            </cell>
+          </row>
+        </rows>
+      </header>
+      <footer id="{11aabd28-3840-40e3-94da-52e800c78a5b}" celllabelposition="Top" columns="111" labelwidth="115" celllabelalignment="Left">
+        <rows>
+          <row>
+            <cell id="{e9923c77-6d5b-446b-a241-06ad60f1d428}" showlabel="false">
+              <labels>
+                <label description="" languagecode="1033" />
+              </labels>
+            </cell>
+            <cell id="{dc638c16-ca42-4914-969b-b8e03d80b9db}" showlabel="false">
+              <labels>
+                <label description="" languagecode="1033" />
+              </labels>
+            </cell>
+            <cell id="{d31f4fee-9bdc-46ec-a320-b30a67304e4b}" showlabel="false">
+              <labels>
+                <label description="" languagecode="1033" />
+              </labels>
+            </cell>
+          </row>
+        </rows>
+      </footer>
+      <DisplayConditions Order="0" FallbackForm="true">
+        <Everyone />
+      </DisplayConditions>
+    </form>
+    <IsCustomizable>1</IsCustomizable>
+    <CanBeDeleted>1</CanBeDeleted>
+    <LocalizedNames>
+      <LocalizedName description="Information" languagecode="1033" />
+    </LocalizedNames>
+    <Descriptions>
+      <Description description="A form for this entity." languagecode="1033" />
+    </Descriptions>
+  </systemform>
+</forms>

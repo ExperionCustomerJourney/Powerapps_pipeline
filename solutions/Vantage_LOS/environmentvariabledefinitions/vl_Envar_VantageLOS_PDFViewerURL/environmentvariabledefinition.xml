@@ -1,0 +1,10 @@
+<environmentvariabledefinition schemaname="vl_Envar_VantageLOS_PDFViewerURL">
+  <displayname default="Envar_VantageLOS_PDFViewerURL">
+    <label description="Envar_VantageLOS_PDFViewerURL" languagecode="1033" />
+  </displayname>
+  <introducedversion>1.0.0.9</introducedversion>
+  <iscustomizable>1</iscustomizable>
+  <isrequired>0</isrequired>
+  <secretstore>0</secretstore>
+  <type>100000000</type>
+</environmentvariabledefinition>

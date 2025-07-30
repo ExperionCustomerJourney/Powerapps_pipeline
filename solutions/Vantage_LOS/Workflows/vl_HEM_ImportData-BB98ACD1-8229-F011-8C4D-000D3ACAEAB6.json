@@ -1,0 +1,375 @@
+{
+  "properties": {
+    "connectionReferences": {
+      "shared_excelonlinebusiness": {
+        "runtimeSource": "embedded",
+        "connection": {
+          "connectionReferenceLogicalName": "vl_sharedexcelonlinebusiness_4e530"
+        },
+        "api": {
+          "name": "shared_excelonlinebusiness"
+        }
+      },
+      "shared_commondataserviceforapps": {
+        "runtimeSource": "embedded",
+        "connection": {
+          "connectionReferenceLogicalName": "vl_sharedcommondataserviceforapps_04816"
+        },
+        "api": {
+          "name": "shared_commondataserviceforapps"
+        }
+      },
+      "shared_smtp": {
+        "runtimeSource": "embedded",
+        "connection": {
+          "connectionReferenceLogicalName": "vl_Con_VantageLOS_SMTP"
+        },
+        "api": {
+          "name": "shared_smtp"
+        }
+      }
+    },
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "parameters": {
+        "$connections": {
+          "defaultValue": {},
+          "type": "Object"
+        },
+        "$authentication": {
+          "defaultValue": {},
+          "type": "SecureObject"
+        },
+        "Envar_VantageLOS_SharepointSite (vl_Envar_VantageLOS_SharepointSite)": {
+          "defaultValue": "https://experionloancentral.sharepoint.com/sites/Vantage_Dev",
+          "type": "String",
+          "metadata": {
+            "schemaName": "vl_Envar_VantageLOS_SharepointSite"
+          }
+        },
+        "Envar_VantageLOS_SMTPSendFrom (vl_Envar_VantageLOS_SMTPSendFrom)": {
+          "defaultValue": "zeal.uat@in1bank.com.au",
+          "type": "String",
+          "metadata": {
+            "schemaName": "vl_Envar_VantageLOS_SMTPSendFrom"
+          }
+        }
+      },
+      "triggers": {
+        "When_HEM_Upload_Request_Received": {
+          "metadata": {
+            "operationMetadataId": "6f46fc0c-28a7-40dd-acfb-0f8757fc6c4e"
+          },
+          "type": "OpenApiConnectionWebhook",
+          "inputs": {
+            "host": {
+              "connectionName": "shared_commondataserviceforapps",
+              "operationId": "SubscribeWebhookTrigger",
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+            },
+            "parameters": {
+              "subscriptionRequest/message": 1,
+              "subscriptionRequest/entityname": "vl_workflowqueue",
+              "subscriptionRequest/scope": 4,
+              "subscriptionRequest/filterexpression": "vl_queuetype eq 127420003"
+            },
+            "authentication": "@parameters('$authentication')"
+          }
+        }
+      },
+      "actions": {
+        "Compose": {
+          "runAfter": {},
+          "metadata": {
+            "operationMetadataId": "155452af-a0fc-47cc-bcc4-a3301ff5a039"
+          },
+          "type": "Compose",
+          "inputs": "@triggerOutputs()?['body/vl_processing']"
+        },
+        "Main": {
+          "actions": {
+            "Get_Excel_Table": {
+              "runAfter": {},
+              "metadata": {
+                "operationMetadataId": "04b3e83a-3a93-4804-8c0d-9cf70366d994",
+                "tableId": null
+              },
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_excelonlinebusiness",
+                  "operationId": "GetTables",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_excelonlinebusiness"
+                },
+                "parameters": {
+                  "source": "@parameters('Envar_VantageLOS_SharepointSite (vl_Envar_VantageLOS_SharepointSite)')",
+                  "drive": "b!rBdSnPVInUyFMrUur-4RIu8CEElc0aZAsn4aL8VsmlHUUnUrZlFMQYuky6RfLQhm",
+                  "file": "@triggerOutputs()?['body/vl_hemfileid']"
+                },
+                "authentication": "@parameters('$authentication')"
+              }
+            },
+            "Check_Table_Count": {
+              "actions": {
+                "Get_HEM_File_Data": {
+                  "runAfter": {},
+                  "metadata": {
+                    "operationMetadataId": "a266220d-f50a-495a-8921-5aaa32ba3f71",
+                    "tableId": "@first(outputs('Get_Excel_Table')?['body/value'])['name']"
+                  },
+                  "type": "OpenApiConnection",
+                  "inputs": {
+                    "host": {
+                      "connectionName": "shared_excelonlinebusiness",
+                      "operationId": "GetItems",
+                      "apiId": "/providers/Microsoft.PowerApps/apis/shared_excelonlinebusiness"
+                    },
+                    "parameters": {
+                      "source": "@parameters('Envar_VantageLOS_SharepointSite (vl_Envar_VantageLOS_SharepointSite)')",
+                      "drive": "b!rBdSnPVInUyFMrUur-4RIu8CEElc0aZAsn4aL8VsmlHUUnUrZlFMQYuky6RfLQhm",
+                      "file": "@triggerOutputs()?['body/vl_hemfileid']",
+                      "table": "@first(outputs('Get_Excel_Table')?['body/value'])['name']"
+                    },
+                    "authentication": "@parameters('$authentication')"
+                  }
+                },
+                "Parse_HEM_File": {
+                  "runAfter": {
+                    "Get_HEM_File_Data": [
+                      "Succeeded"
+                    ]
+                  },
+                  "metadata": {
+                    "operationMetadataId": "84bb5315-fdea-4862-84dc-71690e38fd52"
+                  },
+                  "type": "ParseJson",
+                  "inputs": {
+                    "content": "@outputs('Get_HEM_File_Data')?['body/value']",
+                    "schema": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "@@odata.etag": {
+                            "type": "string"
+                          },
+                          "ItemInternalId": {
+                            "type": "string"
+                          },
+                          "HEM Location": {
+                            "type": "string"
+                          },
+                          "HEM House Hold": {
+                            "type": "string"
+                          },
+                          "HEM Income": {
+                            "type": "string"
+                          },
+                          "HEM Minimum Income": {
+                            "type": "string"
+                          },
+                          "HEM Maximum Income": {
+                            "type": "string"
+                          },
+                          "HEM Expense No Dependant": {
+                            "type": "string"
+                          },
+                          "HEM Expense 1 Dependant": {
+                            "type": "string"
+                          },
+                          "HEM Expense 2 Dependant": {
+                            "type": "string"
+                          },
+                          "HEM Expense 3 Dependant": {
+                            "type": "string"
+                          },
+                          "HEM Expense 4 Dependant": {
+                            "type": "string"
+                          },
+                          "HEM Expense 5 Dependant": {
+                            "type": "string"
+                          },
+                          "HEM Expense Per Dependant": {
+                            "type": "string"
+                          },
+                          "HEM Financial Year": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "@@odata.etag",
+                          "ItemInternalId",
+                          "HEM Location",
+                          "HEM House Hold",
+                          "HEM Income",
+                          "HEM Minimum Income",
+                          "HEM Maximum Income",
+                          "HEM Expense No Dependant",
+                          "HEM Expense 1 Dependant",
+                          "HEM Expense 2 Dependant",
+                          "HEM Expense 3 Dependant",
+                          "HEM Expense 4 Dependant",
+                          "HEM Expense 5 Dependant",
+                          "HEM Expense Per Dependant",
+                          "HEM Financial Year"
+                        ]
+                      }
+                    }
+                  }
+                },
+                "For_Each_HEM_Records": {
+                  "foreach": "@body('Parse_HEM_File')",
+                  "actions": {
+                    "Add_HEM_Record": {
+                      "runAfter": {},
+                      "metadata": {
+                        "operationMetadataId": "1dab862d-45e5-4edc-8336-8294ac0b36fc"
+                      },
+                      "type": "OpenApiConnection",
+                      "inputs": {
+                        "host": {
+                          "connectionName": "shared_commondataserviceforapps",
+                          "operationId": "CreateRecord",
+                          "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                        },
+                        "parameters": {
+                          "entityName": "vl_hems",
+                          "item/vl_hemexpense0dependant": "@items('For_Each_HEM_Records')['HEM Expense No Dependant']",
+                          "item/vl_hemexpense1dependant": "@items('For_Each_HEM_Records')['HEM Expense 1 Dependant']",
+                          "item/vl_hemexpense2dependant": "@items('For_Each_HEM_Records')['HEM Expense 2 Dependant']",
+                          "item/vl_hemexpense3dependant": "@items('For_Each_HEM_Records')['HEM Expense 3 Dependant']",
+                          "item/vl_hemexpense4dependant": "@items('For_Each_HEM_Records')['HEM Expense 4 Dependant']",
+                          "item/vl_hemexpense5dependant": "@items('For_Each_HEM_Records')['HEM Expense 5 Dependant']",
+                          "item/vl_hemexpenseperdependant": "@items('For_Each_HEM_Records')['HEM Expense Per Dependant']",
+                          "item/vl_hemhousehold": "@if(equals(item()['HEM House Hold'],'Single'),127420000,if(equals(item()['HEM House Hold'],'Couple'),127420001,''))",
+                          "item/vl_hemincomemaximum": "@items('For_Each_HEM_Records')['HEM Maximum Income']",
+                          "item/vl_hemincomeminimum": "@items('For_Each_HEM_Records')['HEM Minimum Income']",
+                          "item/vl_hemincomerange": "@items('For_Each_HEM_Records')['HEM Income']"
+                        },
+                        "authentication": "@parameters('$authentication')"
+                      }
+                    }
+                  },
+                  "runAfter": {
+                    "Parse_HEM_File": [
+                      "Succeeded"
+                    ]
+                  },
+                  "metadata": {
+                    "operationMetadataId": "4baaf9c9-d55f-4144-851d-5c319b38f6ae"
+                  },
+                  "type": "Foreach"
+                },
+                "Send_Email_(V3)": {
+                  "runAfter": {
+                    "For_Each_HEM_Records": [
+                      "Succeeded"
+                    ]
+                  },
+                  "metadata": {
+                    "operationMetadataId": "a6ec8c22-0184-4f57-b664-9d63000b3501"
+                  },
+                  "type": "OpenApiConnection",
+                  "inputs": {
+                    "host": {
+                      "connectionName": "shared_smtp",
+                      "operationId": "SendEmailV3",
+                      "apiId": "/providers/Microsoft.PowerApps/apis/shared_smtp"
+                    },
+                    "parameters": {
+                      "emailMessage/From": "@parameters('Envar_VantageLOS_SMTPSendFrom (vl_Envar_VantageLOS_SMTPSendFrom)')",
+                      "emailMessage/To": "@triggerOutputs()?['body/vl_email']",
+                      "emailMessage/Subject": "HEM FIle Uploaded",
+                      "emailMessage/Body": "<p>Hi,<br>\n<br>\nHEM file uploaded successfully.<br>\n<br>\nThank you</p>"
+                    },
+                    "authentication": "@parameters('$authentication')"
+                  }
+                }
+              },
+              "runAfter": {
+                "Get_Excel_Table": [
+                  "Succeeded"
+                ]
+              },
+              "expression": {
+                "greater": [
+                  "@length(body('Get_Excel_Table')?['value'])",
+                  0
+                ]
+              },
+              "metadata": {
+                "operationMetadataId": "f14ec814-ff01-47ff-a3f9-ad67e402f1a1"
+              },
+              "type": "If"
+            }
+          },
+          "runAfter": {
+            "Compose": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "fe6bba30-b9f1-4b34-88f7-edf3f7823fcb"
+          },
+          "type": "Scope"
+        },
+        "On_Error": {
+          "actions": {
+            "Filter_Error_Details": {
+              "runAfter": {},
+              "metadata": {
+                "operationMetadataId": "64646f57-0a0e-4a07-8e8d-35fcfbae62fa"
+              },
+              "type": "Query",
+              "inputs": {
+                "from": "@result('Main')",
+                "where": "@equals(item()?['status'], 'Failed')"
+              }
+            },
+            "Add_Error_Details": {
+              "runAfter": {
+                "Filter_Error_Details": [
+                  "Succeeded"
+                ]
+              },
+              "metadata": {
+                "operationMetadataId": "dacf9a8c-9893-4052-925d-dd75e16d7b8c"
+              },
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_commondataserviceforapps",
+                  "operationId": "CreateRecord",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                },
+                "parameters": {
+                  "entityName": "vl_errorhandlings",
+                  "item/vl_component": "@first(body('Filter_Error_Details'))?['name']",
+                  "item/vl_errorcode": "@first(body('Filter_Error_Details'))?['error']?['code']",
+                  "item/vl_errormessage": "@first(body('Filter_Error_Details'))?['error']?['message']",
+                  "item/vl_errorsource": 127420001,
+                  "item/vl_sourcename": "@workflow().tags.flowDisplayName"
+                },
+                "authentication": "@parameters('$authentication')"
+              }
+            }
+          },
+          "runAfter": {
+            "Main": [
+              "Failed",
+              "TimedOut",
+              "Skipped"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "30d1db4a-3662-4cea-ace6-b48d583b7e7f"
+          },
+          "type": "Scope"
+        }
+      }
+    },
+    "templateName": ""
+  },
+  "schemaVersion": "1.0.0.0"
+}

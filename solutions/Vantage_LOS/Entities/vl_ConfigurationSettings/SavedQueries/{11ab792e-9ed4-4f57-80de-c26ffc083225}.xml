@@ -1,0 +1,37 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<savedqueries xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <savedquery>
+    <IsCustomizable>1</IsCustomizable>
+    <CanBeDeleted>0</CanBeDeleted>
+    <isquickfindquery>0</isquickfindquery>
+    <isprivate>0</isprivate>
+    <isdefault>1</isdefault>
+    <savedqueryid>{11ab792e-9ed4-4f57-80de-c26ffc083225}</savedqueryid>
+    <layoutxml>
+      <grid name="vl_configurationsettingses" jump="vl_configurationid" select="1" icon="1" preview="1">
+        <row name="vl_configurationsettings" id="vl_configurationsettingsid">
+          <cell name="vl_configurationid" width="300" />
+          <cell name="createdon" width="125" />
+        </row>
+      </grid>
+    </layoutxml>
+    <querytype>2</querytype>
+    <fetchxml>
+      <fetch version="1.0" mapping="logical">
+        <entity name="vl_configurationsettings">
+          <attribute name="vl_configurationsettingsid" />
+          <attribute name="vl_configurationid" />
+          <attribute name="createdon" />
+          <order attribute="vl_configurationid" descending="false" />
+          <filter type="and">
+            <condition attribute="statecode" operator="eq" value="0" />
+          </filter>
+        </entity>
+      </fetch>
+    </fetchxml>
+    <IntroducedVersion>1.0</IntroducedVersion>
+    <LocalizedNames>
+      <LocalizedName description="Configuration Settings Associated View" languagecode="1033" />
+    </LocalizedNames>
+  </savedquery>
+</savedqueries>
