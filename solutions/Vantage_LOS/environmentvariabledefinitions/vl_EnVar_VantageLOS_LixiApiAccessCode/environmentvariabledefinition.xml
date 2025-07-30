@@ -1,0 +1,10 @@
+<environmentvariabledefinition schemaname="vl_EnVar_VantageLOS_LixiApiAccessCode">
+  <displayname default="EnVar_VantageLOS_LixiApiAccessCode">
+    <label description="EnVar_VantageLOS_LixiApiAccessCode" languagecode="1033" />
+  </displayname>
+  <introducedversion>1.0.0.3</introducedversion>
+  <iscustomizable>1</iscustomizable>
+  <isrequired>0</isrequired>
+  <secretstore>0</secretstore>
+  <type>100000000</type>
+</environmentvariabledefinition>

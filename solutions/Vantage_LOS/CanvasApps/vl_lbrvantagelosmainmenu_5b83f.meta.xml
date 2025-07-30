@@ -1,0 +1,34 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<CanvasApp xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <Name>vl_lbrvantagelosmainmenu_5b83f</Name>
+  <AppVersion>2025-06-25T10:02:38Z</AppVersion>
+  <Status>Ready</Status>
+  <CreatedByClientVersion>3.25063.6.0</CreatedByClientVersion>
+  <MinClientVersion>3.25063.6.0</MinClientVersion>
+  <Tags>{"primaryDeviceWidth":"200","primaryDeviceHeight":"640","supportsPortrait":"true","supportsLandscape":"true","primaryFormFactor":"Phone","showStatusBar":"false","publisherVersion":"3.25063.6","minimumRequiredApiVersion":"2.2.0","hasComponent":"true","hasUnlockedComponent":"true","isUnifiedRootApp":"false","sienaVersion":"20250619T091408Z-3.25062.8.0"}</Tags>
+  <IsCdsUpgraded>0</IsCdsUpgraded>
+  <GalleryItemId xsi:nil="true"></GalleryItemId>
+  <BackgroundColor>RGBA(251,101,60,1)</BackgroundColor>
+  <DisplayName>Lbr_VantageLOS_MainMenu</DisplayName>
+  <Description xsi:nil="true"></Description>
+  <CommitMessage xsi:nil="true"></CommitMessage>
+  <Publisher xsi:nil="true"></Publisher>
+  <AuthorizationReferences>[]</AuthorizationReferences>
+  <ConnectionReferences>{}</ConnectionReferences>
+  <DatabaseReferences>{}</DatabaseReferences>
+  <AppComponents>[{"appComponentName":"b2bf2452306346bd9394a52ef4baf878","displayName":"MainMenu","description":"Main Menu","appName":"27d712a5-788e-4780-a5eb-199d1ed8b293","appVersion":"2025-06-25T10:02:38Z","appComponentLibraryLogicalName":"vl_lbrvantagelosmainmenu_5b83f","appDisplayName":"Lbr_VantageLOS_MainMenu","environmentName":"840eae7c-0b4e-ed6b-ad48-67eea9882ccb","owner":{"id":"f3bf82c6-cd3d-47a9-8546-bf41120764e4","displayName":"Originations Global Admin","email":"ogn.admin@exp-loancentral.com","type":"User","tenantId":"32e7edcf-d71e-4bde-99c9-64cefc67003f","userPrincipalName":"ogn.admin@exp-loancentral.com"},"allowCustomization":true,"createdOn":"2025-06-09T10:30:59.952Z","lastModifiedOn":"2025-06-25T09:44:07.215Z","connectionReferences":{},"databaseReferences":{}}]</AppComponents>
+  <AppComponentDependencies>[]</AppComponentDependencies>
+  <CanConsumeAppPass>1</CanConsumeAppPass>
+  <CanvasAppType>1</CanvasAppType>
+  <BypassConsent>0</BypassConsent>
+  <AdminControlBypassConsent>0</AdminControlBypassConsent>
+  <EmbeddedApp xsi:nil="true"></EmbeddedApp>
+  <IntroducedVersion>1.0</IntroducedVersion>
+  <CdsDependencies>{"cdsdependencies":[]}</CdsDependencies>
+  <IsCustomizable>1</IsCustomizable>
+  <BackgroundImageUri>/CanvasApps/vl_lbrvantagelosmainmenu_5b83f_BackgroundImageUri</BackgroundImageUri>
+  <DocumentUri>/CanvasApps/vl_lbrvantagelosmainmenu_5b83f_DocumentUri.msapp</DocumentUri>
+  <AdditionalUris>
+    <AdditionalUri>/CanvasApps/vl_lbrvantagelosmainmenu_5b83f_AdditionalUris0_identity.json</AdditionalUri>
+  </AdditionalUris>
+</CanvasApp>

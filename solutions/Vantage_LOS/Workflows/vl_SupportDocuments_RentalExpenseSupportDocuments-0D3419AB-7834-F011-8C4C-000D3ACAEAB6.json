@@ -1,0 +1,264 @@
+{
+  "properties": {
+    "connectionReferences": {
+      "shared_commondataserviceforapps": {
+        "runtimeSource": "embedded",
+        "connection": {
+          "connectionReferenceLogicalName": "vl_sharedcommondataserviceforapps_04816"
+        },
+        "api": {
+          "name": "shared_commondataserviceforapps"
+        }
+      }
+    },
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "parameters": {
+        "$connections": {
+          "defaultValue": {},
+          "type": "Object"
+        },
+        "$authentication": {
+          "defaultValue": {},
+          "type": "SecureObject"
+        }
+      },
+      "triggers": {
+        "When_Rental_Expense_Added_Or_Modified": {
+          "metadata": {
+            "operationMetadataId": "69f30403-58f7-4ebc-9e1a-13dc9f19fc6c"
+          },
+          "type": "OpenApiConnectionWebhook",
+          "inputs": {
+            "host": {
+              "connectionName": "shared_commondataserviceforapps",
+              "operationId": "SubscribeWebhookTrigger",
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+            },
+            "parameters": {
+              "subscriptionRequest/message": 4,
+              "subscriptionRequest/entityname": "vl_expense",
+              "subscriptionRequest/scope": 4,
+              "subscriptionRequest/filteringattributes": "vl_rental"
+            },
+            "authentication": "@parameters('$authentication')"
+          }
+        }
+      },
+      "actions": {
+        "Main": {
+          "actions": {
+            "Get_Existing_Rental_Expense_Support_Document": {
+              "runAfter": {},
+              "metadata": {
+                "operationMetadataId": "82afb608-d312-4a21-9d87-0cb29b91cad3"
+              },
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_commondataserviceforapps",
+                  "operationId": "ListRecords",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                },
+                "parameters": {
+                  "entityName": "vl_supportingdocumentses",
+                  "$filter": "_vl_expenseid_value eq '@{triggerOutputs()?['body/vl_expenseid']}' and vl_documentsubcategory eq 127420003"
+                },
+                "authentication": "@parameters('$authentication')"
+              }
+            },
+            "Get_Expense_Support_Documents": {
+              "runAfter": {
+                "Get_Existing_Rental_Expense_Support_Document": [
+                  "Succeeded"
+                ]
+              },
+              "metadata": {
+                "operationMetadataId": "67221cc0-5b90-4da0-a902-5cf7fa9fbb02"
+              },
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_commondataserviceforapps",
+                  "operationId": "ListRecords",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                },
+                "parameters": {
+                  "entityName": "vl_supportingdocumentsmatrixes",
+                  "$filter": "vl_documentsubcategory eq 127420003",
+                  "$orderby": "vl_supportingdocumentsmatrixprimaryid asc"
+                },
+                "authentication": "@parameters('$authentication')"
+              }
+            },
+            "Check_Rental_Expense": {
+              "actions": {
+                "For_Each_Rental_Expense_Support_Documents": {
+                  "foreach": "@outputs('Get_Expense_Support_Documents')?['body/value']",
+                  "actions": {
+                    "Add_Rental_Expense_Support_Documents": {
+                      "runAfter": {},
+                      "metadata": {
+                        "operationMetadataId": "d81a55ac-10b0-462f-b260-fd6c28af5a19"
+                      },
+                      "type": "OpenApiConnection",
+                      "inputs": {
+                        "host": {
+                          "connectionName": "shared_commondataserviceforapps",
+                          "operationId": "CreateRecord",
+                          "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                        },
+                        "parameters": {
+                          "entityName": "vl_supportingdocumentses",
+                          "item/vl_ApplicantID@odata.bind": "/vl_applicants(@{triggerOutputs()?['body/_vl_applicantid_value']})",
+                          "item/vl_ApplicationID@odata.bind": "/vl_applicationses(@{triggerOutputs()?['body/_vl_applicationid_value']})",
+                          "item/vl_documentname": "@items('For_Each_Rental_Expense_Support_Documents')?['vl_documentname']",
+                          "item/vl_documentside": 127420002,
+                          "item/vl_documentsubcategory": 127420003,
+                          "item/vl_documenttype": "@item()?['vl_documenttype']",
+                          "item/vl_ExpenseID@odata.bind": "/vl_expenses(@{triggerOutputs()?['body/vl_expenseid']})",
+                          "item/vl_supportid": "@triggerOutputs()?['body/vl_expenseid']"
+                        },
+                        "authentication": "@parameters('$authentication')"
+                      }
+                    }
+                  },
+                  "runAfter": {},
+                  "metadata": {
+                    "operationMetadataId": "a0b9e153-bf04-41fe-91a9-b80d5b7e16e8"
+                  },
+                  "type": "Foreach"
+                }
+              },
+              "runAfter": {
+                "Rental_Value": [
+                  "Succeeded"
+                ]
+              },
+              "else": {
+                "actions": {
+                  "For_Each_Existing_Rental_Expense_Support_Documents": {
+                    "foreach": "@outputs('Get_Existing_Rental_Expense_Support_Document')?['body/value']",
+                    "actions": {
+                      "Delete_Existing_Support_Document": {
+                        "runAfter": {},
+                        "metadata": {
+                          "operationMetadataId": "1041b22d-77b0-4784-bdd1-6ded726551f9"
+                        },
+                        "type": "OpenApiConnection",
+                        "inputs": {
+                          "host": {
+                            "connectionName": "shared_commondataserviceforapps",
+                            "operationId": "DeleteRecord",
+                            "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                          },
+                          "parameters": {
+                            "entityName": "vl_supportingdocumentses",
+                            "recordId": "@items('For_Each_Existing_Rental_Expense_Support_Documents')?['vl_supportingdocumentsid']"
+                          },
+                          "authentication": "@parameters('$authentication')"
+                        }
+                      }
+                    },
+                    "runAfter": {},
+                    "metadata": {
+                      "operationMetadataId": "928ea8f6-d0c2-4e70-abfd-7cbc08350a03"
+                    },
+                    "type": "Foreach"
+                  }
+                }
+              },
+              "expression": {
+                "and": [
+                  {
+                    "greater": [
+                      "@outputs('Rental_Value')",
+                      0
+                    ]
+                  }
+                ]
+              },
+              "metadata": {
+                "operationMetadataId": "76e28516-c1a4-456c-9458-7022bfd0a4a0"
+              },
+              "type": "If"
+            },
+            "Rental_Value": {
+              "runAfter": {
+                "Get_Expense_Support_Documents": [
+                  "Succeeded"
+                ]
+              },
+              "metadata": {
+                "operationMetadataId": "8a3b3ce2-1b3f-4ccd-849a-ff2dd14e4454"
+              },
+              "type": "Compose",
+              "inputs": "@if(equals(triggerOutputs()?['body/vl_rental'],null),0,triggerOutputs()?['body/vl_rental'])"
+            }
+          },
+          "runAfter": {},
+          "metadata": {
+            "operationMetadataId": "831d4228-69f0-4027-bcde-3a47b248fdbe"
+          },
+          "type": "Scope"
+        },
+        "On_Error": {
+          "actions": {
+            "Filter_Error_Details": {
+              "runAfter": {},
+              "metadata": {
+                "operationMetadataId": "1a5c3ab8-99af-4af3-9397-aef6d20efe05"
+              },
+              "type": "Query",
+              "inputs": {
+                "from": "@result('Main')",
+                "where": "@equals(item()?['status'], 'Failed')"
+              }
+            },
+            "Add_Error_Details": {
+              "runAfter": {
+                "Filter_Error_Details": [
+                  "Succeeded"
+                ]
+              },
+              "metadata": {
+                "operationMetadataId": "19590c54-d095-4e29-be5c-53ba2367ef38"
+              },
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_commondataserviceforapps",
+                  "operationId": "CreateRecord",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                },
+                "parameters": {
+                  "entityName": "vl_errorhandlings",
+                  "item/vl_component": "@first(body('Filter_Error_Details'))?['name']",
+                  "item/vl_errorcode": "@first(body('Filter_Error_Details'))?['error']?['code']",
+                  "item/vl_errormessage": "@first(body('Filter_Error_Details'))?['error']?['message']",
+                  "item/vl_errorsource": 127420001,
+                  "item/vl_sourcename": "@workflow().tags.flowDisplayName"
+                },
+                "authentication": "@parameters('$authentication')"
+              }
+            }
+          },
+          "runAfter": {
+            "Main": [
+              "Failed",
+              "Skipped",
+              "TimedOut"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "30816f80-9856-452a-b463-9684549b7cac"
+          },
+          "type": "Scope"
+        }
+      }
+    },
+    "templateName": ""
+  },
+  "schemaVersion": "1.0.0.0"
+}

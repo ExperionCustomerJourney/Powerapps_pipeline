@@ -1,0 +1,196 @@
+{
+  "properties": {
+    "connectionReferences": {
+      "shared_commondataserviceforapps": {
+        "runtimeSource": "embedded",
+        "connection": {
+          "connectionReferenceLogicalName": "vl_sharedcommondataserviceforapps_04816"
+        },
+        "api": {
+          "name": "shared_commondataserviceforapps"
+        }
+      }
+    },
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "parameters": {
+        "$connections": {
+          "defaultValue": {},
+          "type": "Object"
+        },
+        "$authentication": {
+          "defaultValue": {},
+          "type": "SecureObject"
+        }
+      },
+      "triggers": {
+        "When_Application_Loan_Purpose_Type_Updated": {
+          "metadata": {
+            "operationMetadataId": "7872097d-e07f-4493-871d-220cd4b640c0"
+          },
+          "type": "OpenApiConnectionWebhook",
+          "inputs": {
+            "host": {
+              "connectionName": "shared_commondataserviceforapps",
+              "operationId": "SubscribeWebhookTrigger",
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+            },
+            "parameters": {
+              "subscriptionRequest/message": 4,
+              "subscriptionRequest/entityname": "vl_applications",
+              "subscriptionRequest/scope": 4,
+              "subscriptionRequest/filteringattributes": "vl_primaryloanpurpose"
+            },
+            "authentication": "@parameters('$authentication')"
+          }
+        }
+      },
+      "actions": {
+        "Main": {
+          "actions": {
+            "Get_Application_Support_Documents": {
+              "runAfter": {},
+              "metadata": {
+                "operationMetadataId": "9f051cbd-4dee-4ab0-bfb5-a0a5b8c7f64e"
+              },
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_commondataserviceforapps",
+                  "operationId": "ListRecords",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                },
+                "parameters": {
+                  "entityName": "vl_supportingdocumentses",
+                  "$filter": "_vl_applicationid_value eq '@{triggerOutputs()?['body/vl_applicationsid']}' and vl_documentsubcategory eq 127420001"
+                },
+                "authentication": "@parameters('$authentication')"
+              }
+            },
+            "For_Each_Support_Documents": {
+              "foreach": "@outputs('Get_Application_Support_Documents')?['body/value']",
+              "actions": {
+                "Delete_Existing_Support_Document": {
+                  "runAfter": {},
+                  "metadata": {
+                    "operationMetadataId": "942c98b7-2ebe-4f11-972c-3b511e55ffc0"
+                  },
+                  "type": "OpenApiConnection",
+                  "inputs": {
+                    "host": {
+                      "connectionName": "shared_commondataserviceforapps",
+                      "operationId": "DeleteRecord",
+                      "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                    },
+                    "parameters": {
+                      "entityName": "vl_supportingdocumentses",
+                      "recordId": "@items('For_Each_Support_Documents')?['vl_supportingdocumentsid']"
+                    },
+                    "authentication": "@parameters('$authentication')"
+                  }
+                }
+              },
+              "runAfter": {
+                "Get_Application_Support_Documents": [
+                  "Succeeded"
+                ]
+              },
+              "metadata": {
+                "operationMetadataId": "cfa71bfb-89bf-4fc3-bf9c-dae72394fc90"
+              },
+              "type": "Foreach"
+            },
+            "Add_Support_Document_Request": {
+              "runAfter": {
+                "For_Each_Support_Documents": [
+                  "Succeeded"
+                ]
+              },
+              "metadata": {
+                "operationMetadataId": "a4fbe9ec-eb0e-4aff-aaf1-b22fbaf2c7f8"
+              },
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_commondataserviceforapps",
+                  "operationId": "CreateRecord",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                },
+                "parameters": {
+                  "entityName": "vl_supportingdocumentses",
+                  "item/vl_ApplicationID@odata.bind": "/vl_applicationses(@{triggerOutputs()?['body/vl_applicationsid']})",
+                  "item/vl_documentname": "@if(equals(triggerOutputs()?['body/vl_primarypurpose'],127420000),'Purchase Contract/ Offer',if(equals(triggerOutputs()?['body/vl_primarypurpose'],127420001),'Council Rate Notice',''))",
+                  "item/vl_documentside": 127420002,
+                  "item/vl_documentsubcategory": 127420001,
+                  "item/vl_documenttype": "@if(equals(triggerOutputs()?['body/vl_primaryloanpurpose'],127420000),127420006,if(equals(triggerOutputs()?['body/vl_primaryloanpurpose'],127420001),127420026,''))"
+                },
+                "authentication": "@parameters('$authentication')"
+              }
+            }
+          },
+          "runAfter": {},
+          "metadata": {
+            "operationMetadataId": "ee6fe48f-86cd-4bac-b60a-736336d5aa23"
+          },
+          "type": "Scope"
+        },
+        "On_Error": {
+          "actions": {
+            "Filter_Error_Details": {
+              "runAfter": {},
+              "metadata": {
+                "operationMetadataId": "a0dfa942-4721-4ad5-9c40-674bc56875c9"
+              },
+              "type": "Query",
+              "inputs": {
+                "from": "@result('Main')",
+                "where": "@equals(item()?['status'], 'Failed')"
+              }
+            },
+            "Add_Error_Details": {
+              "runAfter": {
+                "Filter_Error_Details": [
+                  "Succeeded"
+                ]
+              },
+              "metadata": {
+                "operationMetadataId": "d876d89c-6dc6-490c-9af2-2a8ecd4aadb5"
+              },
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_commondataserviceforapps",
+                  "operationId": "CreateRecord",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                },
+                "parameters": {
+                  "entityName": "vl_errorhandlings",
+                  "item/vl_component": "@first(body('Filter_Error_Details'))?['name']",
+                  "item/vl_errorcode": "@first(body('Filter_Error_Details'))?['error']?['code']",
+                  "item/vl_errormessage": "@first(body('Filter_Error_Details'))?['error']?['message']",
+                  "item/vl_errorsource": 127420001,
+                  "item/vl_sourcename": "@workflow().tags.flowDisplayName"
+                },
+                "authentication": "@parameters('$authentication')"
+              }
+            }
+          },
+          "runAfter": {
+            "Main": [
+              "Failed",
+              "Skipped",
+              "TimedOut"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "bd4e24cc-f369-4739-975d-61c5504980a4"
+          },
+          "type": "Scope"
+        }
+      }
+    },
+    "templateName": ""
+  },
+  "schemaVersion": "1.0.0.0"
+}

@@ -1,0 +1,2412 @@
+{
+  "properties": {
+    "connectionReferences": {
+      "shared_commondataserviceforapps-1": {
+        "runtimeSource": "embedded",
+        "connection": {
+          "connectionReferenceLogicalName": "vl_sharedcommondataserviceforapps_04816"
+        },
+        "api": {
+          "name": "shared_commondataserviceforapps"
+        }
+      },
+      "shared_wordonlinebusiness": {
+        "runtimeSource": "embedded",
+        "connection": {
+          "connectionReferenceLogicalName": "new_sharedwordonlinebusiness_a72c4"
+        },
+        "api": {
+          "name": "shared_wordonlinebusiness"
+        }
+      },
+      "shared_sharepointonline_1": {
+        "runtimeSource": "embedded",
+        "connection": {
+          "connectionReferenceLogicalName": "vl_sharedsharepointonline_b9297"
+        },
+        "api": {
+          "name": "shared_sharepointonline"
+        }
+      },
+      "shared_smtp": {
+        "runtimeSource": "embedded",
+        "connection": {
+          "connectionReferenceLogicalName": "vl_Con_VantageLOS_SMTP"
+        },
+        "api": {
+          "name": "shared_smtp"
+        }
+      }
+    },
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "parameters": {
+        "$connections": {
+          "defaultValue": {},
+          "type": "Object"
+        },
+        "$authentication": {
+          "defaultValue": {},
+          "type": "SecureObject"
+        },
+        "Envar_VantageLOS_SharepointDocumentLibrary (vl_Envar_VantageLOS_SharepointDocumentLibrary)": {
+          "defaultValue": "b!rBdSnPVInUyFMrUur-4RIu8CEElc0aZAsn4aL8VsmlHUUnUrZlFMQYuky6RfLQhm",
+          "type": "String",
+          "metadata": {
+            "schemaName": "vl_Envar_VantageLOS_SharepointDocumentLibrary"
+          }
+        },
+        "Envar_VantageLOS_SharepointSite (vl_Envar_VantageLOS_SharepointSite)": {
+          "defaultValue": "https://experionloancentral.sharepoint.com/sites/Vantage_Dev",
+          "type": "String",
+          "metadata": {
+            "schemaName": "vl_Envar_VantageLOS_SharepointSite"
+          }
+        },
+        "Envar_VantageLOS_SMTPSendFrom (vl_Envar_VantageLOS_SMTPSendFrom)": {
+          "defaultValue": "zeal.uat@in1bank.com.au",
+          "type": "String",
+          "metadata": {
+            "schemaName": "vl_Envar_VantageLOS_SMTPSendFrom"
+          }
+        }
+      },
+      "triggers": {
+        "manual": {
+          "metadata": {
+            "operationMetadataId": "12f930eb-3e4d-456c-b553-71c917e5bac7"
+          },
+          "type": "Request",
+          "kind": "Http",
+          "inputs": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "applicationId": {
+                  "type": "string"
+                },
+                "isSubmit": {
+                  "type": "boolean"
+                },
+                "isUW": {
+                  "type": "boolean"
+                }
+              }
+            },
+            "triggerAuthenticationType": "All"
+          }
+        }
+      },
+      "actions": {
+        "Initialize_varAppSummaryTemplate": {
+          "runAfter": {},
+          "metadata": {
+            "operationMetadataId": "946ce2b8-d193-43ae-b3e0-b5385ce8d7c4"
+          },
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "varAppSummaryTemplate",
+                "type": "string"
+              }
+            ]
+          }
+        },
+        "Initialize_salary_incomes": {
+          "runAfter": {
+            "Initialize_varAppSummaryTemplate": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "3ea2d7ac-bada-4a99-9978-85d4d790f004"
+          },
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "Salary Incomes",
+                "type": "array"
+              }
+            ]
+          }
+        },
+        "Initialize_applicants": {
+          "runAfter": {
+            "Initialize_varAppSummaryTemplate": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "d1cd4d91-e7c2-47e9-8374-d3882a1c08a7"
+          },
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "Applicants",
+                "type": "array"
+              }
+            ]
+          }
+        },
+        "Initialize_employments": {
+          "runAfter": {
+            "Initialize_varAppSummaryTemplate": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "6e5d707c-2532-41c3-88d5-6125f263aea2"
+          },
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "Employments",
+                "type": "array"
+              }
+            ]
+          }
+        },
+        "Initialize_assets": {
+          "runAfter": {
+            "Initialize_varAppSummaryTemplate": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "65e3cc2b-15dc-45ec-bd07-a35e65ccddc7"
+          },
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "Assets",
+                "type": "array"
+              }
+            ]
+          }
+        },
+        "Initialize_liabilities": {
+          "runAfter": {
+            "Initialize_varAppSummaryTemplate": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "d7171e50-c51c-4d87-8b87-6d1252f01e9c"
+          },
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "Liabilities",
+                "type": "array"
+              }
+            ]
+          }
+        },
+        "Initialize_self-employed_incomes": {
+          "runAfter": {
+            "Initialize_varAppSummaryTemplate": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "4044aa8b-da84-473c-887f-b43692352ac0"
+          },
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "Self-Employed Incomes",
+                "type": "array"
+              }
+            ]
+          }
+        },
+        "Initialize_living_expenses": {
+          "runAfter": {
+            "Initialize_varAppSummaryTemplate": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "cfce75fe-52fc-4d3d-96ec-1e7b84643d81"
+          },
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "Living Expenses",
+                "type": "array"
+              }
+            ]
+          }
+        },
+        "Initialize_securities": {
+          "runAfter": {
+            "Initialize_varAppSummaryTemplate": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "3379c3f4-5696-4b2f-8ead-3d4cb49dd5d0"
+          },
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "Securities",
+                "type": "array"
+              }
+            ]
+          }
+        },
+        "Initialize_solicitors": {
+          "runAfter": {
+            "Initialize_varAppSummaryTemplate": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "852b7f4c-49fa-4efb-afd1-f80e84cca28e"
+          },
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "Solicitors",
+                "type": "array"
+              }
+            ]
+          }
+        },
+        "Main": {
+          "actions": {
+            "Get_a_row_by_ID": {
+              "runAfter": {},
+              "metadata": {
+                "operationMetadataId": "a5c777fa-569f-4ffe-b929-5bd1c740c008"
+              },
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_commondataserviceforapps-1",
+                  "operationId": "GetItem",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                },
+                "parameters": {
+                  "entityName": "vl_applicationses",
+                  "recordId": "@triggerBody()?['applicationId']"
+                },
+                "authentication": "@parameters('$authentication')"
+              }
+            },
+            "List_rows": {
+              "runAfter": {
+                "Get_a_row_by_ID": [
+                  "Succeeded"
+                ]
+              },
+              "metadata": {
+                "operationMetadataId": "44ad947c-adf0-460f-b81d-e451c24e344f"
+              },
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_commondataserviceforapps-1",
+                  "operationId": "ListRecords",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                },
+                "parameters": {
+                  "entityName": "vl_licenses",
+                  "$filter": "vl_licensestatus eq true",
+                  "$top": 1
+                },
+                "authentication": "@parameters('$authentication')"
+              }
+            },
+            "List_liabilities": {
+              "runAfter": {
+                "List_rows": [
+                  "Succeeded"
+                ]
+              },
+              "metadata": {
+                "operationMetadataId": "5a07c1aa-55e2-45ff-97de-97f322c7396e"
+              },
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_commondataserviceforapps-1",
+                  "operationId": "ListRecords",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                },
+                "parameters": {
+                  "entityName": "vl_liabilitieses",
+                  "$filter": "_vl_applicationid_value eq '@{outputs('Get_a_row_by_ID')?['body/vl_applicationsid']}'"
+                },
+                "authentication": "@parameters('$authentication')"
+              }
+            },
+            "List_applicants": {
+              "runAfter": {
+                "List_rows": [
+                  "Succeeded"
+                ]
+              },
+              "metadata": {
+                "operationMetadataId": "6667b444-c4b7-4bc5-9a3a-efe95b399140"
+              },
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_commondataserviceforapps-1",
+                  "operationId": "ListRecords",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                },
+                "parameters": {
+                  "entityName": "vl_applicants",
+                  "$filter": "_vl_applicationid_value eq '@{outputs('Get_a_row_by_ID')?['body/vl_applicationsid']}'"
+                },
+                "authentication": "@parameters('$authentication')"
+              }
+            },
+            "List_employments": {
+              "runAfter": {
+                "List_rows": [
+                  "Succeeded"
+                ]
+              },
+              "metadata": {
+                "operationMetadataId": "f0c2d195-855a-43b2-8b68-5a96aa79212f"
+              },
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_commondataserviceforapps-1",
+                  "operationId": "ListRecords",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                },
+                "parameters": {
+                  "entityName": "vl_employments",
+                  "$filter": "_vl_applicationid_value eq '@{outputs('Get_a_row_by_ID')?['body/vl_applicationsid']}'"
+                },
+                "authentication": "@parameters('$authentication')"
+              }
+            },
+            "List_assets": {
+              "runAfter": {
+                "List_rows": [
+                  "Succeeded"
+                ]
+              },
+              "metadata": {
+                "operationMetadataId": "4b2049f4-8ac3-4e21-bb66-530d14aacb62"
+              },
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_commondataserviceforapps-1",
+                  "operationId": "ListRecords",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                },
+                "parameters": {
+                  "entityName": "vl_assetses",
+                  "$filter": "_vl_applicationid_value eq '@{outputs('Get_a_row_by_ID')?['body/vl_applicationsid']}'"
+                },
+                "authentication": "@parameters('$authentication')"
+              }
+            },
+            "List_expenses": {
+              "runAfter": {
+                "List_rows": [
+                  "Succeeded"
+                ]
+              },
+              "metadata": {
+                "operationMetadataId": "cc03623f-a914-415c-a437-e7a6fec3439c"
+              },
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_commondataserviceforapps-1",
+                  "operationId": "ListRecords",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                },
+                "parameters": {
+                  "entityName": "vl_expenses",
+                  "$filter": "_vl_applicationid_value eq '@{outputs('Get_a_row_by_ID')?['body/vl_applicationsid']}'"
+                },
+                "authentication": "@parameters('$authentication')"
+              }
+            },
+            "List_accountants": {
+              "runAfter": {
+                "List_rows": [
+                  "Succeeded"
+                ]
+              },
+              "metadata": {
+                "operationMetadataId": "6c0de6a5-03bf-49af-bf93-53fced684598"
+              },
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_commondataserviceforapps-1",
+                  "operationId": "ListRecords",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                },
+                "parameters": {
+                  "entityName": "vl_professionalcontactses",
+                  "$filter": "_vl_applicationid_value eq '@{outputs('Get_a_row_by_ID')?['body/vl_applicationsid']}' and vl_contacttype eq 127420000"
+                },
+                "authentication": "@parameters('$authentication')"
+              }
+            },
+            "List_contributions": {
+              "runAfter": {
+                "List_liabilities": [
+                  "Succeeded"
+                ],
+                "List_applicants": [
+                  "Succeeded"
+                ],
+                "List_employments": [
+                  "Succeeded"
+                ],
+                "List_assets": [
+                  "Succeeded"
+                ],
+                "List_expenses": [
+                  "Succeeded"
+                ],
+                "List_Solicitors": [
+                  "Succeeded"
+                ]
+              },
+              "metadata": {
+                "operationMetadataId": "d7e58048-177b-4881-98d1-d17ea953724c"
+              },
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_commondataserviceforapps-1",
+                  "operationId": "ListRecords",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                },
+                "parameters": {
+                  "entityName": "vl_contributionfundses",
+                  "$filter": "_vl_applicationid_value eq '@{outputs('Get_a_row_by_ID')?['body/vl_applicationsid']}'"
+                },
+                "authentication": "@parameters('$authentication')"
+              }
+            },
+            "List_other_incomes": {
+              "runAfter": {
+                "List_contributions": [
+                  "Succeeded"
+                ]
+              },
+              "metadata": {
+                "operationMetadataId": "70073c69-21b4-4202-b74b-a82736c184cd"
+              },
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_commondataserviceforapps-1",
+                  "operationId": "ListRecords",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                },
+                "parameters": {
+                  "entityName": "vl_incomes",
+                  "$filter": "_vl_applicationid_value eq '@{outputs('Get_a_row_by_ID')?['body/vl_applicationsid']}'"
+                },
+                "authentication": "@parameters('$authentication')"
+              }
+            },
+            "Apply_to_each": {
+              "foreach": "@outputs('List_expenses')?['body/value']",
+              "actions": {
+                "Get_Expense_Results": {
+                  "runAfter": {},
+                  "metadata": {
+                    "operationMetadataId": "8ff6cb83-17b7-431a-afc5-efa2ec8aa106"
+                  },
+                  "type": "OpenApiConnection",
+                  "inputs": {
+                    "host": {
+                      "connectionName": "shared_commondataserviceforapps-1",
+                      "operationId": "ListRecords",
+                      "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                    },
+                    "parameters": {
+                      "entityName": "vl_expenseresultses",
+                      "$filter": "_vl_expenseprimaryid_value eq '@{items('Apply_to_each')?['vl_expenseid']}'",
+                      "$top": 1
+                    },
+                    "authentication": "@parameters('$authentication')"
+                  }
+                },
+                "Append_to_expenses_array": {
+                  "runAfter": {
+                    "Get_Expense_Results": [
+                      "Succeeded"
+                    ]
+                  },
+                  "metadata": {
+                    "operationMetadataId": "ff18e24a-d0e0-4dc3-8b5f-6724f813dff1"
+                  },
+                  "type": "AppendToArrayVariable",
+                  "inputs": {
+                    "name": "Living Expenses",
+                    "value": {
+                      "expenseApplicantName": "@{items('Apply_to_each')?['vl_applicantname']}",
+                      "expenseChildcare": "@{items('Apply_to_each')?['vl_childcaremonthlyexpense@OData.Community.Display.V1.FormattedValue']}",
+                      "expenseTax": "",
+                      "expenseClothing": "@{items('Apply_to_each')?['vl_clothingandpersonalcaremonthlyexpense@OData.Community.Display.V1.FormattedValue']}",
+                      "expenseHECS": "@{items('Apply_to_each')?['vl_highereducationmonthlyexpense@OData.Community.Display.V1.FormattedValue']}",
+                      "expensePrimaryEd": "@{items('Apply_to_each')?['vl_publiceducationmonthlyexpense@OData.Community.Display.V1.FormattedValue']}",
+                      "expensePrivateEd": "@{items('Apply_to_each')?['vl_privateeducationmonthlyexpense@OData.Community.Display.V1.FormattedValue']}",
+                      "expenseGroceries": "@{items('Apply_to_each')?['vl_groceriesmonthlyexpense@OData.Community.Display.V1.FormattedValue']}",
+                      "expensePropertyRunningCost": "@{items('Apply_to_each')?['vl_investmentpropertyrunningcostmonthlyexpense@OData.Community.Display.V1.FormattedValue']}",
+                      "expensePropertyRates": "",
+                      "expenseMedical": "@{items('Apply_to_each')?['vl_medicalandhealthmonthlyexpense@OData.Community.Display.V1.FormattedValue']}",
+                      "expensePetCare": "@{items('Apply_to_each')?['vl_petcaremonthlyexpense@OData.Community.Display.V1.FormattedValue']}",
+                      "expenseResidenceRunningCost": "@{items('Apply_to_each')?['vl_ooprimaryresidencerunningcostmonthlyexpense@OData.Community.Display.V1.FormattedValue']}",
+                      "expenseRecreation": "@{items('Apply_to_each')?['vl_recreationandentertainmentmonthlyexpense@OData.Community.Display.V1.FormattedValue']}",
+                      "expenseSecondaryResidenceRunningCost": "@{items('Apply_to_each')?['vl_oosecresidencerunningcostmonthlyexpense@OData.Community.Display.V1.FormattedValue']}",
+                      "expenseLifeInsurance": "@{items('Apply_to_each')?['vl_lifeinsurancecostmonthlyexpense@OData.Community.Display.V1.FormattedValue']}",
+                      "expenseTelephone": "@{items('Apply_to_each')?['vl_phoneandsubscriptionsmonthlyexpense@OData.Community.Display.V1.FormattedValue']}",
+                      "expenseTransport": "@{items('Apply_to_each')?['vl_transportmonthlyexpense@OData.Community.Display.V1.FormattedValue']}",
+                      "expenseHealthInsurance": "@{items('Apply_to_each')?['vl_healthinsurancemonthlyexpense@OData.Community.Display.V1.FormattedValue']}",
+                      "expenseHomeInsurance": "@{items('Apply_to_each')?['vl_oohomeinsurancemonthlyexpense@OData.Community.Display.V1.FormattedValue']}",
+                      "expenseTPDInsurance": "@{items('Apply_to_each')?['vl_lifetpdinsurancemonthlyexpense@OData.Community.Display.V1.FormattedValue']}",
+                      "expenseMotorInsurance": "@{items('Apply_to_each')?['vl_vehicleinsurancemonthlyexpense@OData.Community.Display.V1.FormattedValue']}",
+                      "expensePetInsurance": "@{items('Apply_to_each')?['vl_petinsurancemonthlyexpense@OData.Community.Display.V1.FormattedValue']}",
+                      "expenseOtherInsurance": "@{items('Apply_to_each')?['vl_otherinsurancemonthlyexpense@OData.Community.Display.V1.FormattedValue']}",
+                      "expenseRental": "@{items('Apply_to_each')?['vl_rentalmonthlyexpense@OData.Community.Display.V1.FormattedValue']}",
+                      "expenseBoard": "@{items('Apply_to_each')?['vl_boardmonthlyexpense@OData.Community.Display.V1.FormattedValue']}",
+                      "expenseChildMaintenance": "@{items('Apply_to_each')?['vl_childmaintenancemonthlyexpense@OData.Community.Display.V1.FormattedValue']}",
+                      "expenseOtherRecurring": "",
+                      "expenseTotalMonthly": "@{first(body('Get_Expense_Results')?['value'])?['vl_totalmonthlylivingexpense@OData.Community.Display.V1.FormattedValue']}"
+                    }
+                  }
+                }
+              },
+              "runAfter": {
+                "List_other_incomes": [
+                  "Succeeded"
+                ]
+              },
+              "metadata": {
+                "operationMetadataId": "4b1d0988-ee75-4166-b2aa-3765fe474717"
+              },
+              "type": "Foreach"
+            },
+            "Apply_to_other_incomes": {
+              "foreach": "@outputs('List_other_incomes')?['body/value']",
+              "actions": {
+                "Rental_other_income": {
+                  "actions": {
+                    "Append_to_array_variable": {
+                      "runAfter": {},
+                      "metadata": {
+                        "operationMetadataId": "3c10e834-85e9-4f94-aefd-b4a568fd1ab3"
+                      },
+                      "type": "AppendToArrayVariable",
+                      "inputs": {
+                        "name": "Other Incomes",
+                        "value": {
+                          "otherIncomeApplicant": "@{items('Apply_to_other_incomes')?['vl_applicantname']}",
+                          "otherIncomeType": "@{items('Apply_to_other_incomes')?['vl_otherincometype@OData.Community.Display.V1.FormattedValue']}",
+                          "otherIncomeCurrrentYear": "@{items('Apply_to_other_incomes')?['vl_currentyearincome@OData.Community.Display.V1.FormattedValue']}",
+                          "otherIncomeLastYear": "@{items('Apply_to_other_incomes')?['vl_lastyearincome@OData.Community.Display.V1.FormattedValue']}"
+                        }
+                      }
+                    }
+                  },
+                  "runAfter": {},
+                  "expression": {
+                    "not": {
+                      "equals": [
+                        "@items('Apply_to_other_incomes')?['vl_otherincometype']",
+                        127420008
+                      ]
+                    }
+                  },
+                  "metadata": {
+                    "operationMetadataId": "53f48ebc-911b-472e-812b-32d350d5ba55"
+                  },
+                  "type": "If"
+                }
+              },
+              "runAfter": {
+                "Apply_to_each": [
+                  "Succeeded"
+                ]
+              },
+              "metadata": {
+                "operationMetadataId": "75e72cec-f2ce-45c8-b545-4c6bc042f4ae"
+              },
+              "type": "Foreach"
+            },
+            "Apply_to_each_contributions": {
+              "foreach": "@outputs('List_contributions')?['body/value']",
+              "actions": {
+                "Append_to_array_variable_2": {
+                  "runAfter": {},
+                  "metadata": {
+                    "operationMetadataId": "e2beda6e-d1d4-41fa-9639-8ad0e25abb6e"
+                  },
+                  "type": "AppendToArrayVariable",
+                  "inputs": {
+                    "name": "Source of Funds",
+                    "value": {
+                      "sourceFunds": "@{items('Apply_to_each_contributions')?['vl_typeofcontributionfund@OData.Community.Display.V1.FormattedValue']}",
+                      "sourceValue": "@{items('Apply_to_each_contributions')?['vl_amount@OData.Community.Display.V1.FormattedValue']}"
+                    }
+                  }
+                }
+              },
+              "runAfter": {
+                "Apply_to_other_incomes": [
+                  "Succeeded"
+                ]
+              },
+              "metadata": {
+                "operationMetadataId": "7c9ca5be-869e-46c1-9489-dfe969ab7421"
+              },
+              "type": "Foreach"
+            },
+            "Apply_to_each_applicant": {
+              "foreach": "@outputs('List_applicants')?['body/value']",
+              "actions": {
+                "Append_to_applicants": {
+                  "runAfter": {},
+                  "metadata": {
+                    "operationMetadataId": "78be6b6a-052e-45e0-b5b1-a9be60f2c06b"
+                  },
+                  "type": "AppendToArrayVariable",
+                  "inputs": {
+                    "name": "Applicants",
+                    "value": {
+                      "primaryCustomerId": "@{items('Apply_to_each_applicant')?['vl_customerid']}",
+                      "primaryCurrentStreetAddress": "@{items('Apply_to_each_applicant')?['vl_currentresidentialaddress']}",
+                      "primaryTitle": "@{items('Apply_to_each_applicant')?['vl_nametitle@OData.Community.Display.V1.FormattedValue']}",
+                      "primaryFirstName": "@{items('Apply_to_each_applicant')?['vl_firstname']}",
+                      "primaryMiddleName": "@{items('Apply_to_each_applicant')?['vl_middlename']}",
+                      "primarySurname": "@{items('Apply_to_each_applicant')?['vl_lastname']}",
+                      "primaryDateOfBirth": "@{items('Apply_to_each_applicant')?['vl_dateofbirth']}",
+                      "primaryMaritalStatus": "@{items('Apply_to_each_applicant')?['vl_maritalstatus@OData.Community.Display.V1.FormattedValue']}",
+                      "primaryNoOfDependencies": "@{items('Apply_to_each_applicant')?['vl_noofdependents']}",
+                      "primaryAgeDependent1": "@{items('Apply_to_each_applicant')?['vl_dependent1age']}",
+                      "primaryAgeDependent2": "@{items('Apply_to_each_applicant')?['vl_dependent2age']}",
+                      "primaryAgeDependent3": "@{items('Apply_to_each_applicant')?['vl_dependent3age']}",
+                      "primaryAgeDependent4": "@{items('Apply_to_each_applicant')?['vl_dependent4age']}",
+                      "primaryAgeDependent5": "@{items('Apply_to_each_applicant')?['vl_dependent5age']}",
+                      "primaryHomeNumber": "@{items('Apply_to_each_applicant')?['vl_homephone']}",
+                      "primaryMobileNumber": "@{items('Apply_to_each_applicant')?['vl_mobile']}",
+                      "primaryWorkNumber": "@{items('Apply_to_each_applicant')?['vl_workphone']}",
+                      "primaryEmailAddress": "@{items('Apply_to_each_applicant')?['vl_emailaddress']}",
+                      "primaryCurrentAddress": "@{items('Apply_to_each_applicant')?['vl_currentlivingarrangements@OData.Community.Display.V1.FormattedValue']}",
+                      "primaryCurrentPreviousAddress": "@{items('Apply_to_each_applicant')?['vl_previousresidentialaddress']}",
+                      "primaryPostSettlementAddress": "@{items('Apply_to_each_applicant')?['vl_postsettlementresidentialaddress']}",
+                      "primaryCurrentDateMovedIn": "@{items('Apply_to_each_applicant')?['vl_currentaddressstartdate']}"
+                    }
+                  }
+                }
+              },
+              "runAfter": {
+                "List_other_incomes": [
+                  "Succeeded"
+                ]
+              },
+              "metadata": {
+                "operationMetadataId": "24a1721c-2c93-4935-aa81-14d929a3b343"
+              },
+              "type": "Foreach"
+            },
+            "Apply_to_each_employment": {
+              "foreach": "@outputs('List_employments')?['body/value']",
+              "actions": {
+                "Condition": {
+                  "actions": {
+                    "PAYG": {
+                      "actions": {
+                        "PAYG_LIST_ROWS": {
+                          "runAfter": {},
+                          "metadata": {
+                            "operationMetadataId": "468cbeef-cf52-4051-95d5-421f67ed276f"
+                          },
+                          "type": "OpenApiConnection",
+                          "inputs": {
+                            "host": {
+                              "connectionName": "shared_commondataserviceforapps-1",
+                              "operationId": "ListRecords",
+                              "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                            },
+                            "parameters": {
+                              "entityName": "vl_paygemployments",
+                              "$filter": "_vl_employmentuserid_value eq '@{items('Apply_to_each_employment')?['vl_employmentid']}'"
+                            },
+                            "authentication": "@parameters('$authentication')"
+                          }
+                        },
+                        "Apply_to_each_3": {
+                          "foreach": "@outputs('PAYG_LIST_ROWS')?['body/value']",
+                          "actions": {
+                            "Append_to_employees": {
+                              "runAfter": {},
+                              "metadata": {
+                                "operationMetadataId": "bc117b69-fc44-4337-860b-03f66e90c803"
+                              },
+                              "type": "AppendToArrayVariable",
+                              "inputs": {
+                                "name": "Employments",
+                                "value": {
+                                  "employmentApplicant": "@{items('Apply_to_each_employment')?['vl_applicantname']}",
+                                  "employmentCategory": "@{items('Apply_to_each_employment')?['vl_employmentcategory@OData.Community.Display.V1.FormattedValue']}",
+                                  "employmentType": "@{items('Apply_to_each_employment')?['vl_employmenttype@OData.Community.Display.V1.FormattedValue']}",
+                                  "employmentIncomeType": "@{items('Apply_to_each_employment')?['vl_incometype@OData.Community.Display.V1.FormattedValue']} - @{items('Apply_to_each_3')?['vl_incomestatus@OData.Community.Display.V1.FormattedValue']}",
+                                  "employmentOccupation": "@{items('Apply_to_each_3')?['vl_occupation']}",
+                                  "employmentTitle": "@{items('Apply_to_each_3')?['vl_positiontitle']}",
+                                  "employmentNoOfEmployees": "",
+                                  "employmentEmpoyerName": "@{items('Apply_to_each_3')?['vl_employer']}",
+                                  "employmentABN": "@{items('Apply_to_each_3')?['vl_abn']}",
+                                  "employmentAddress": "@{items('Apply_to_each_3')?['vl_employeraddress']}",
+                                  "employmentContact": "@{items('Apply_to_each_3')?['vl_employercontactperson']}",
+                                  "employmentPhone": "@{items('Apply_to_each_3')?['vl_employercontactnumber']}",
+                                  "employmentEmail": "@{items('Apply_to_each_3')?['vl_employeremail']}",
+                                  "employmentStart": "@{items('Apply_to_each_3')?['vl_startdate']}",
+                                  "employmentEnd": "@{items('Apply_to_each_3')?['vl_enddate']}",
+                                  "employmentBuisnessStart": "",
+                                  "employmentBuisnessName": "",
+                                  "employmentBuisnessABN": ""
+                                }
+                              }
+                            }
+                          },
+                          "runAfter": {
+                            "PAYG_LIST_ROWS": [
+                              "Succeeded"
+                            ]
+                          },
+                          "metadata": {
+                            "operationMetadataId": "d1df7219-d961-4716-aa8b-3e6f8b2f2ebf"
+                          },
+                          "type": "Foreach"
+                        }
+                      },
+                      "runAfter": {},
+                      "else": {
+                        "actions": {
+                          "SELF_EMPLOYED": {
+                            "runAfter": {},
+                            "metadata": {
+                              "operationMetadataId": "d43e8168-4324-4358-b8f8-0c3729f05983"
+                            },
+                            "type": "OpenApiConnection",
+                            "inputs": {
+                              "host": {
+                                "connectionName": "shared_commondataserviceforapps-1",
+                                "operationId": "ListRecords",
+                                "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                              },
+                              "parameters": {
+                                "entityName": "vl_selfemployedemployments",
+                                "$filter": "_vl_employmentuserid_value eq '@{items('Apply_to_each_employment')?['vl_employmentid']}'"
+                              },
+                              "authentication": "@parameters('$authentication')"
+                            }
+                          },
+                          "Apply_to_each_4": {
+                            "foreach": "@outputs('SELF_EMPLOYED')?['body/value']",
+                            "actions": {
+                              "Append_to_employees_2": {
+                                "runAfter": {},
+                                "metadata": {
+                                  "operationMetadataId": "bc117b69-fc44-4337-860b-03f66e90c803"
+                                },
+                                "type": "AppendToArrayVariable",
+                                "inputs": {
+                                  "name": "Employments",
+                                  "value": {
+                                    "employmentApplicant": "@{items('Apply_to_each_employment')?['vl_applicantname']}",
+                                    "employmentCategory": "@{items('Apply_to_each_employment')?['vl_employmentcategory@OData.Community.Display.V1.FormattedValue']}",
+                                    "employmentType": "@{items('Apply_to_each_employment')?['vl_employmenttype@OData.Community.Display.V1.FormattedValue']}",
+                                    "employmentIncomeType": "@{items('Apply_to_each_employment')?['vl_incometype@OData.Community.Display.V1.FormattedValue']} - @{items('Apply_to_each_4')?['vl_incomestatus@OData.Community.Display.V1.FormattedValue']}",
+                                    "employmentOccupation": "@{items('Apply_to_each_4')?['vl_occupation']}",
+                                    "employmentTitle": "@{items('Apply_to_each_4')?['vl_positiontitle']}",
+                                    "employmentNoOfEmployees": "@{items('Apply_to_each_4')?['vl_numberofemployees']}",
+                                    "employmentEmpoyerName": "",
+                                    "employmentABN": "",
+                                    "employmentAddress": "",
+                                    "employmentContact": "",
+                                    "employmentPhone": "",
+                                    "employmentEmail": "",
+                                    "employmentStart": "@{items('Apply_to_each_4')?['vl_startdate']}",
+                                    "employmentEnd": "@{items('Apply_to_each_4')?['vl_enddate']}",
+                                    "employmentBuisnessStart": "@{items('Apply_to_each_4')?['vl_businessstartdate']}",
+                                    "employmentBuisnessName": "@{items('Apply_to_each_4')?['vl_businessname']}",
+                                    "employmentBuisnessABN": "@{items('Apply_to_each_4')?['vl_businessabn']}"
+                                  }
+                                }
+                              }
+                            },
+                            "runAfter": {
+                              "SELF_EMPLOYED": [
+                                "Succeeded"
+                              ]
+                            },
+                            "metadata": {
+                              "operationMetadataId": "53580267-c0b6-4571-b01c-9252dcf483cf"
+                            },
+                            "type": "Foreach"
+                          }
+                        }
+                      },
+                      "expression": {
+                        "equals": [
+                          "@items('Apply_to_each_employment')?['vl_incometype']",
+                          127420000
+                        ]
+                      },
+                      "metadata": {
+                        "operationMetadataId": "70cb454e-bfda-4790-825f-8d43060bd1b6"
+                      },
+                      "type": "If"
+                    }
+                  },
+                  "runAfter": {},
+                  "expression": {
+                    "not": {
+                      "equals": [
+                        "@items('Apply_to_each_employment')?['vl_incometype']",
+                        127420002
+                      ]
+                    }
+                  },
+                  "metadata": {
+                    "operationMetadataId": "a2bafce6-b858-460b-af2b-bfe9744473c0"
+                  },
+                  "type": "If"
+                }
+              },
+              "runAfter": {
+                "List_other_incomes": [
+                  "Succeeded"
+                ]
+              },
+              "metadata": {
+                "operationMetadataId": "b96f1af8-7295-4758-bb54-1bdbfe59d4f1"
+              },
+              "type": "Foreach"
+            },
+            "Apply_to_each_assets": {
+              "foreach": "@outputs('List_assets')?['body/value']",
+              "actions": {
+                "Switch": {
+                  "runAfter": {},
+                  "cases": {
+                    "Case_existing_property": {
+                      "case": 127420004,
+                      "actions": {
+                        "Append_to_asset_array_for_existing_property": {
+                          "runAfter": {},
+                          "metadata": {
+                            "operationMetadataId": "4f996dbf-5cc5-4486-850d-19d12f880b93"
+                          },
+                          "type": "AppendToArrayVariable",
+                          "inputs": {
+                            "name": "Assets",
+                            "value": {
+                              "assetName": "@{items('Apply_to_each_assets')?['vl_assettype@OData.Community.Display.V1.FormattedValue']} (@{items('Apply_to_each_assets')?['vl_occupancy@OData.Community.Display.V1.FormattedValue']})",
+                              "assetIsSecurity": "@{items('Apply_to_each_assets')?['vl_tobeusedassecurity@OData.Community.Display.V1.FormattedValue']}",
+                              "assetDetails": "Property Title: @{items('Apply_to_each_assets')?['vl_propertytitle@OData.Community.Display.V1.FormattedValue']}, Property Type: @{items('Apply_to_each_assets')?['vl_propertytype@OData.Community.Display.V1.FormattedValue']}, Primary purpose:@{items('Apply_to_each_assets')?['vl_primarypurpose@OData.Community.Display.V1.FormattedValue']}, Address: @{items('Apply_to_each_assets')?['vl_propertyaddress']},@{if(equals(coalesce(items('Apply_to_each_assets')?['vl_term'], ''), ''), '', concat('Term: ', string(items('Apply_to_each_assets')?['vl_term'])))}@{if(equals(coalesce(items('Apply_to_each_assets')?['vl_startdate'], ''), ''), '', concat(', Start date: ', formatDateTime(convertTimeZone(items('Apply_to_each_assets')?['vl_startdate'], 'UTC', 'AUS Eastern Standard Time'), 'dd/MM/yyyy')))}  @{if(equals(coalesce(items('Apply_to_each_assets')?['vl_rentaltype'], ''), ''), '', concat(', Rent Type: ', string(items('Apply_to_each_assets')?['vl_rentaltype@OData.Community.Display.V1.FormattedValue'])))}  @{if(equals(coalesce(items('Apply_to_each_assets')?['vl_contactforaccesscompanyname'], ''), ''), '', concat(', Period: ', string(items('Apply_to_each_assets')?['vl_contactforaccesscompanyname'])))}@{if(equals(coalesce(items('Apply_to_each_assets')?['vl_contactforaccesscontactperson'], ''), ''), '', concat(', Contact: ', string(items('Apply_to_each_assets')?['vl_contactforaccesscontactperson'])))} @{if(equals(coalesce(items('Apply_to_each_assets')?['vl_contactforaccessemail'], ''), ''), '', concat(', Contact: ', string(items('Apply_to_each_assets')?['vl_contactforaccessemail'])))} @{if(equals(coalesce(items('Apply_to_each_assets')?['vl_contactforaccessmobile'], ''), ''), '', concat(', Contact: ', string(items('Apply_to_each_assets')?['vl_contactforaccessmobile'])))}        ",
+                              "assetValue": "@{items('Apply_to_each_assets')?['vl_estimatevalue@OData.Community.Display.V1.FormattedValue']}",
+                              "assetMonthlyRental": "@{items('Apply_to_each_assets')?['vl_monthlyassetrental@OData.Community.Display.V1.FormattedValue']}",
+                              "assetTotalOwnership": "@{items('Apply_to_each_assets')?['vl_totalownership']}",
+                              "assetApplicant1Perc": "@{items('Apply_to_each_assets')?['vl_applicant1ownership']}",
+                              "assetApplicant2Perc": "@{items('Apply_to_each_assets')?['vl_applicant2ownership']}"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "Case_Motor_Vehicle": {
+                      "case": 127420001,
+                      "actions": {
+                        "Append_to_asset_array_for_motor_vehicle": {
+                          "runAfter": {},
+                          "metadata": {
+                            "operationMetadataId": "260986a5-5e39-4bc9-8daf-13a4951713ad"
+                          },
+                          "type": "AppendToArrayVariable",
+                          "inputs": {
+                            "name": "Assets",
+                            "value": {
+                              "assetName": "@{items('Apply_to_each_assets')?['vl_assettype@OData.Community.Display.V1.FormattedValue']} (@{items('Apply_to_each_assets')?['vl_occupancy@OData.Community.Display.V1.FormattedValue']})",
+                              "assetIsSecurity": "@{items('Apply_to_each_assets')?['vl_tobeusedassecurity@OData.Community.Display.V1.FormattedValue']}",
+                              "assetDetails": "Motor asset type: @{items('Apply_to_each_assets')?['vl_motorassettype@OData.Community.Display.V1.FormattedValue']}, Registraton No: @{items('Apply_to_each_assets')?['vl_registrationnumber']}, Make:@{items('Apply_to_each_assets')?['vl_make']} , Model: @{items('Apply_to_each_assets')?['vl_model']}, Year:@{items('Apply_to_each_assets')?['vl_year']} ",
+                              "assetValue": "@{items('Apply_to_each_assets')?['vl_estimatevalue@OData.Community.Display.V1.FormattedValue']}",
+                              "assetTotalOwnership": "@{items('Apply_to_each_assets')?['vl_totalownership']}",
+                              "assetApplicant1Perc": "@{items('Apply_to_each_assets')?['vl_applicant1ownership']}",
+                              "assetApplicant2Perc": "@{items('Apply_to_each_assets')?['vl_applicant2ownership']}"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "Case_Financial_Asset": {
+                      "case": 127420000,
+                      "actions": {
+                        "Append_to_asset_array_for_financial_asset": {
+                          "runAfter": {},
+                          "metadata": {
+                            "operationMetadataId": "9d848642-e4b6-4a27-a98d-76bc3db0a648"
+                          },
+                          "type": "AppendToArrayVariable",
+                          "inputs": {
+                            "name": "Assets",
+                            "value": {
+                              "assetName": "@{items('Apply_to_each_assets')?['vl_assettype@OData.Community.Display.V1.FormattedValue']}",
+                              "assetIsSecurity": "@{items('Apply_to_each_assets')?['vl_tobeusedassecurity@OData.Community.Display.V1.FormattedValue']}",
+                              "assetDetails": "Financial asset: @{items('Apply_to_each_assets')?['vl_financialassettype@OData.Community.Display.V1.FormattedValue']}",
+                              "assetValue": "@{items('Apply_to_each_assets')?['vl_estimatevalue@OData.Community.Display.V1.FormattedValue']}",
+                              "assetTotalOwnership": "@{items('Apply_to_each_assets')?['vl_totalownership']}",
+                              "assetApplicant1Perc": "@{items('Apply_to_each_assets')?['vl_applicant1ownership']}",
+                              "assetApplicant2Perc": "@{items('Apply_to_each_assets')?['vl_applicant2ownership']}"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "Case_Business": {
+                      "case": 127420002,
+                      "actions": {
+                        "Append_to_asset_array_for_buisness": {
+                          "runAfter": {},
+                          "metadata": {
+                            "operationMetadataId": "19d9e556-1b21-4bea-a3cc-747d9ef158c6"
+                          },
+                          "type": "AppendToArrayVariable",
+                          "inputs": {
+                            "name": "Assets",
+                            "value": {
+                              "assetName": "@{items('Apply_to_each_assets')?['vl_assettype@OData.Community.Display.V1.FormattedValue']} (@{items('Apply_to_each_assets')?['vl_occupancy@OData.Community.Display.V1.FormattedValue']})",
+                              "assetIsSecurity": "@{items('Apply_to_each_assets')?['vl_tobeusedassecurity@OData.Community.Display.V1.FormattedValue']}",
+                              "assetDetails": "",
+                              "assetValue": "@{items('Apply_to_each_assets')?['vl_estimatevalue@OData.Community.Display.V1.FormattedValue']}",
+                              "assetTotalOwnership": "@{items('Apply_to_each_assets')?['vl_totalownership']}",
+                              "assetApplicant1Perc": "@{items('Apply_to_each_assets')?['vl_applicant1ownership']}",
+                              "assetApplicant2Perc": "@{items('Apply_to_each_assets')?['vl_applicant2ownership']}"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "Case_New_Property": {
+                      "case": 127420005,
+                      "actions": {
+                        "Append_to_asset_array_for_New_property": {
+                          "runAfter": {},
+                          "metadata": {
+                            "operationMetadataId": "b3afde4f-fd11-4f19-9072-41a3d68c4449"
+                          },
+                          "type": "AppendToArrayVariable",
+                          "inputs": {
+                            "name": "Assets",
+                            "value": {
+                              "assetName": "@{items('Apply_to_each_assets')?['vl_assettype@OData.Community.Display.V1.FormattedValue']} (@{items('Apply_to_each_assets')?['vl_occupancy@OData.Community.Display.V1.FormattedValue']})",
+                              "assetIsSecurity": "@{items('Apply_to_each_assets')?['vl_tobeusedassecurity@OData.Community.Display.V1.FormattedValue']}",
+                              "assetDetails": "Property Title: @{items('Apply_to_each_assets')?['vl_propertytitle@OData.Community.Display.V1.FormattedValue']}, Property Type: @{items('Apply_to_each_assets')?['vl_propertytype@OData.Community.Display.V1.FormattedValue']}, Primary purpose:@{items('Apply_to_each_assets')?['vl_primarypurpose@OData.Community.Display.V1.FormattedValue']}, Address: @{items('Apply_to_each_assets')?['vl_propertyaddress']},@{if(equals(coalesce(items('Apply_to_each_assets')?['vl_term'], ''), ''), '', concat('Term: ', string(items('Apply_to_each_assets')?['vl_term'])))}@{if(equals(coalesce(items('Apply_to_each_assets')?['vl_startdate'], ''), ''), '', concat(', Start date: ', formatDateTime(convertTimeZone(items('Apply_to_each_assets')?['vl_startdate'], 'UTC', 'AUS Eastern Standard Time'), 'dd/MM/yyyy')))}  @{if(equals(coalesce(items('Apply_to_each_assets')?['vl_rentaltype'], ''), ''), '', concat(', Rent Type: ', string(items('Apply_to_each_assets')?['vl_rentaltype@OData.Community.Display.V1.FormattedValue'])))}  @{if(equals(coalesce(items('Apply_to_each_assets')?['vl_contactforaccesscompanyname'], ''), ''), '', concat(', Period: ', string(items('Apply_to_each_assets')?['vl_contactforaccesscompanyname'])))}@{if(equals(coalesce(items('Apply_to_each_assets')?['vl_contactforaccesscontactperson'], ''), ''), '', concat(', Contact: ', string(items('Apply_to_each_assets')?['vl_contactforaccesscontactperson'])))} @{if(equals(coalesce(items('Apply_to_each_assets')?['vl_contactforaccessemail'], ''), ''), '', concat(', Contact: ', string(items('Apply_to_each_assets')?['vl_contactforaccessemail'])))} @{if(equals(coalesce(items('Apply_to_each_assets')?['vl_contactforaccessmobile'], ''), ''), '', concat(', Contact: ', string(items('Apply_to_each_assets')?['vl_contactforaccessmobile'])))}        ",
+                              "assetValue": "@{items('Apply_to_each_assets')?['vl_estimatevalue@OData.Community.Display.V1.FormattedValue']}",
+                              "assetMonthlyRental": "@{items('Apply_to_each_assets')?['vl_monthlyassetrental@OData.Community.Display.V1.FormattedValue']}",
+                              "assetTotalOwnership": "@{items('Apply_to_each_assets')?['vl_totalownership']}",
+                              "assetApplicant1Perc": "@{items('Apply_to_each_assets')?['vl_applicant1ownership']}",
+                              "assetApplicant2Perc": "@{items('Apply_to_each_assets')?['vl_applicant2ownership']}"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "default": {
+                    "actions": {}
+                  },
+                  "expression": "@items('Apply_to_each_assets')?['vl_assettype']",
+                  "metadata": {
+                    "operationMetadataId": "0dacedc5-67ce-4e76-a2b0-d77c1159f48c"
+                  },
+                  "type": "Switch"
+                }
+              },
+              "runAfter": {
+                "List_other_incomes": [
+                  "Succeeded"
+                ]
+              },
+              "metadata": {
+                "operationMetadataId": "4a36fbcb-bd04-493f-a7ba-d73851e705bb"
+              },
+              "type": "Foreach"
+            },
+            "Apply_to_each_liabilities": {
+              "foreach": "@outputs('List_liabilities')?['body/value']",
+              "actions": {
+                "Switch_2": {
+                  "runAfter": {},
+                  "cases": {
+                    "Case_credit_card": {
+                      "case": 127420000,
+                      "actions": {
+                        "Append_to_credit_card_array": {
+                          "runAfter": {},
+                          "metadata": {
+                            "operationMetadataId": "8ea9dda5-5715-47c2-94ba-69efb4a0bb0d"
+                          },
+                          "type": "AppendToArrayVariable",
+                          "inputs": {
+                            "name": "Liabilities",
+                            "value": {
+                              "liabilityType": "@{items('Apply_to_each_liabilities')?['vl_liabilitytype@OData.Community.Display.V1.FormattedValue']}",
+                              "liabilityOutstandingBalance": "@{items('Apply_to_each_liabilities')?['vl_outstandingbalance']}",
+                              "liabilityDescription": "Credit Account:@{items('Apply_to_each_liabilities')?['vl_creditaccount@OData.Community.Display.V1.FormattedValue']} , Limit:@{items('Apply_to_each_liabilities')?['vl_creditlimit']} ",
+                              "liabilitlyArrears": "@{items('Apply_to_each_liabilities')?['vl_hasarrears@OData.Community.Display.V1.FormattedValue']}",
+                              "liabilityConsolidateDebt": "@{items('Apply_to_each_liabilities')?['vl_clearingfromthisloan@OData.Community.Display.V1.FormattedValue']}",
+                              "liabilityLoanTerm": "@{items('Apply_to_each_liabilities')?['vl_remainingtermmonths']}",
+                              "liabilityPaymentType": "@{items('Apply_to_each_liabilities')?['vl_paymenttype@OData.Community.Display.V1.FormattedValue']}",
+                              "liabilityRepayment": "@{items('Apply_to_each_liabilities')?['vl_monthlyrepayment']}",
+                              "liabilityFrequency": "@{items('Apply_to_each_liabilities')?['vl_repaymentfrequency@OData.Community.Display.V1.FormattedValue']}",
+                              "liabilitiesTotalOwnership": "@{items('Apply_to_each_liabilities')?['vl_totalownership']}",
+                              "liabilitiesApplicant1": "@{items('Apply_to_each_liabilities')?['vl_applicant1ownership']}",
+                              "liabilitiesApplicant2": "@{items('Apply_to_each_liabilities')?['vl_applicant2ownership']}"
+                            }
+                          }
+                        }
+                      }
+                    },
+                    "Case_loan_account": {
+                      "case": 127420001,
+                      "actions": {
+                        "Append_to_loan_account_array": {
+                          "runAfter": {},
+                          "metadata": {
+                            "operationMetadataId": "5e2ffeaf-7116-4638-8c70-5885090d05cb"
+                          },
+                          "type": "AppendToArrayVariable",
+                          "inputs": {
+                            "name": "Liabilities",
+                            "value": {
+                              "liabilityType": "@{items('Apply_to_each_liabilities')?['vl_liabilitytype@OData.Community.Display.V1.FormattedValue']}",
+                              "liabilityOutstandingBalance": "@{items('Apply_to_each_liabilities')?['vl_outstandingbalance']}",
+                              "liabilityDescription": "Loan Account: @{items('Apply_to_each_liabilities')?['vl_loanaccount@OData.Community.Display.V1.FormattedValue']}, Financial Institution:@{items('Apply_to_each_liabilities')?['vl_financialinstitution']} , Original amount: @{items('Apply_to_each_liabilities')?['vl_originalamount']}, Annual Interest Rate: @{items('Apply_to_each_liabilities')?['vl_annualinterestrate']}",
+                              "liabilitlyArrears": "@{items('Apply_to_each_liabilities')?['vl_hasarrears@OData.Community.Display.V1.FormattedValue']}",
+                              "liabilityConsolidateDebt": "@{items('Apply_to_each_liabilities')?['vl_clearingfromthisloan@OData.Community.Display.V1.FormattedValue']}",
+                              "liabilityLoanTerm": "@{items('Apply_to_each_liabilities')?['vl_remainingtermmonths']}",
+                              "liabilityPaymentType": "@{items('Apply_to_each_liabilities')?['vl_paymenttype@OData.Community.Display.V1.FormattedValue']}",
+                              "liabilityRepayment": "@{items('Apply_to_each_liabilities')?['vl_monthlyrepayment']}",
+                              "liabilityFrequency": "@{items('Apply_to_each_liabilities')?['vl_repaymentfrequency@OData.Community.Display.V1.FormattedValue']}",
+                              "liabilitiesTotalOwnership": "@{items('Apply_to_each_liabilities')?['vl_totalownership']}",
+                              "liabilitiesApplicant1": "@{items('Apply_to_each_liabilities')?['vl_applicant1ownership']}",
+                              "liabilitiesApplicant2": "@{items('Apply_to_each_liabilities')?['vl_applicant2ownership']}"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "default": {
+                    "actions": {
+                      "Append_to_array_variable_4": {
+                        "runAfter": {},
+                        "metadata": {
+                          "operationMetadataId": "36983004-ed4f-4261-ad8a-13924bf45bc5"
+                        },
+                        "type": "AppendToArrayVariable",
+                        "inputs": {
+                          "name": "Liabilities",
+                          "value": {
+                            "liabilityType": "@{items('Apply_to_each_liabilities')?['vl_liabilitytype@OData.Community.Display.V1.FormattedValue']}",
+                            "liabilityOutstandingBalance": "@{items('Apply_to_each_liabilities')?['vl_outstandingbalance']}",
+                            "liabilityDescription": "Non-Credit Liabilities: @{items('Apply_to_each_liabilities')?['vl_noncreditliabilities@OData.Community.Display.V1.FormattedValue']}, Original amount: @{items('Apply_to_each_liabilities')?['vl_originalamount']}",
+                            "liabilitlyArrears": "@{items('Apply_to_each_liabilities')?['vl_hasarrears@OData.Community.Display.V1.FormattedValue']}",
+                            "liabilityConsolidateDebt": "@{items('Apply_to_each_liabilities')?['vl_clearingfromthisloan@OData.Community.Display.V1.FormattedValue']}",
+                            "liabilityLoanTerm": "@{items('Apply_to_each_liabilities')?['vl_remainingtermmonths']}",
+                            "liabilityPaymentType": "@{items('Apply_to_each_liabilities')?['vl_paymenttype@OData.Community.Display.V1.FormattedValue']}",
+                            "liabilityRepayment": "@{items('Apply_to_each_liabilities')?['vl_monthlyrepayment']}",
+                            "liabilityFrequency": "@{items('Apply_to_each_liabilities')?['vl_repaymentfrequency@OData.Community.Display.V1.FormattedValue']}",
+                            "liabilitiesTotalOwnership": "@{items('Apply_to_each_liabilities')?['vl_totalownership']}",
+                            "liabilitiesApplicant1": "@{items('Apply_to_each_liabilities')?['vl_applicant1ownership']}",
+                            "liabilitiesApplicant2": "@{items('Apply_to_each_liabilities')?['vl_applicant2ownership']}"
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "expression": "@items('Apply_to_each_liabilities')?['vl_liabilitytype']",
+                  "metadata": {
+                    "operationMetadataId": "dbf8f56f-4283-4076-aff0-c211a2c48a5b"
+                  },
+                  "type": "Switch"
+                }
+              },
+              "runAfter": {
+                "List_other_incomes": [
+                  "Succeeded"
+                ]
+              },
+              "metadata": {
+                "operationMetadataId": "a4c93ad4-eedd-44bf-ae2d-3835aeddc1fb"
+              },
+              "type": "Foreach"
+            },
+            "Apply_to_each_accountants": {
+              "foreach": "@outputs('List_accountants')?['body/value']",
+              "actions": {
+                "Append_to_accountant_array": {
+                  "runAfter": {},
+                  "metadata": {
+                    "operationMetadataId": "a7fcd359-aff4-4329-a8a7-c7df2761bfea"
+                  },
+                  "type": "AppendToArrayVariable",
+                  "inputs": {
+                    "name": "Accountants",
+                    "value": {
+                      "accountantContactPerson": "@{items('Apply_to_each_accountants')?['vl_contact']}",
+                      "accountantFirm": "@{items('Apply_to_each_accountants')?['vl_businessname']}",
+                      "accountantPhoneNo": "@{items('Apply_to_each_accountants')?['vl_officephone']}",
+                      "accountantMobile": "@{items('Apply_to_each_accountants')?['vl_mobile']}",
+                      "accountantEmail": "@{items('Apply_to_each_accountants')?['vl_email']}"
+                    }
+                  }
+                }
+              },
+              "runAfter": {
+                "List_other_incomes": [
+                  "Succeeded"
+                ]
+              },
+              "metadata": {
+                "operationMetadataId": "d1e8aace-0f4d-4dcd-8a04-112f11b41384"
+              },
+              "type": "Foreach"
+            },
+            "Apply_to_each_income": {
+              "foreach": "@outputs('List_employments')?['body/value']",
+              "actions": {
+                "Condition_if_PAYG": {
+                  "actions": {
+                    "List_PAYG": {
+                      "runAfter": {},
+                      "metadata": {
+                        "operationMetadataId": "4d1e8f7c-2f7f-44ec-a4bd-4a46b6d553d0"
+                      },
+                      "type": "OpenApiConnection",
+                      "inputs": {
+                        "host": {
+                          "connectionName": "shared_commondataserviceforapps-1",
+                          "operationId": "ListRecords",
+                          "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                        },
+                        "parameters": {
+                          "entityName": "vl_paygemployments",
+                          "$filter": "_vl_employmentuserid_value eq '@{items('Apply_to_each_income')?['vl_employmentid']}'"
+                        },
+                        "authentication": "@parameters('$authentication')"
+                      }
+                    },
+                    "Apply_to_each_6": {
+                      "foreach": "@outputs('List_PAYG')?['body/value']",
+                      "actions": {
+                        "Append_to_salary_array": {
+                          "runAfter": {},
+                          "metadata": {
+                            "operationMetadataId": "adff0f84-a7c7-46fe-a48b-8b8e12b8582f"
+                          },
+                          "type": "AppendToArrayVariable",
+                          "inputs": {
+                            "name": "Salary Incomes",
+                            "value": {
+                              "incomeSalary": "@{items('Apply_to_each_6')?['vl_annualgrosssalary@OData.Community.Display.V1.FormattedValue']}",
+                              "incomeCasual": "",
+                              "incomeCategory": "@{items('Apply_to_each_income')?['vl_employmentcategory@OData.Community.Display.V1.FormattedValue']}",
+                              "incomeEmploymentType": "@{items('Apply_to_each_income')?['vl_incometype@OData.Community.Display.V1.FormattedValue']}",
+                              "incomeApplicant": "@{items('Apply_to_each_income')?['vl_applicantname']}",
+                              "incomeBonus": "@{items('Apply_to_each_6')?['vl_annualbonus@OData.Community.Display.V1.FormattedValue']}",
+                              "incomeOvertime": "@{items('Apply_to_each_6')?['vl_annualgrossovertimeamount@OData.Community.Display.V1.FormattedValue']}",
+                              "incomeCommissions": "@{items('Apply_to_each_6')?['vl_annualcommision@OData.Community.Display.V1.FormattedValue']}",
+                              "incomeCarAllowance": "@{items('Apply_to_each_6')?['vl_annualgrosscarallowance@OData.Community.Display.V1.FormattedValue']}",
+                              "incomeFamilyAllowance": " ",
+                              "incomeShiftAllownace": "@{items('Apply_to_each_6')?['vl_annualshiftotherallowance@OData.Community.Display.V1.FormattedValue']}",
+                              "incomeOtherDeductions": "@{items('Apply_to_each_6')?['vl_annualotherdeductions@OData.Community.Display.V1.FormattedValue']}",
+                              "incomeDeductions": "",
+                              "incomeSalarySacrifice": "@{items('Apply_to_each_6')?['vl_annualsalarysacrifice@OData.Community.Display.V1.FormattedValue']}",
+                              "incomeOtherSalarySacrifice": " ",
+                              "incomeInvestmentIncome": " ",
+                              "incomeForeignIncome": "",
+                              "incomeOther": "",
+                              "incomeTotal": "@{items('Apply_to_each_6')?['vl_grosstotalannualincome@OData.Community.Display.V1.FormattedValue']}",
+                              "incomeParentalLeave": "@{items('Apply_to_each_6')?['vl_annualparentalleave@OData.Community.Display.V1.FormattedValue']}",
+                              "incomeWorkersCompensation": "@{items('Apply_to_each_6')?['vl_annualworkerscompensation@OData.Community.Display.V1.FormattedValue']}",
+                              "incomeWorkAllowance": "@{items('Apply_to_each_6')?['vl_annualworkallowance@OData.Community.Display.V1.FormattedValue']}"
+                            }
+                          }
+                        }
+                      },
+                      "runAfter": {
+                        "List_PAYG": [
+                          "Succeeded"
+                        ]
+                      },
+                      "metadata": {
+                        "operationMetadataId": "357d0405-be42-425b-8dea-697bf0d69c51"
+                      },
+                      "type": "Foreach"
+                    }
+                  },
+                  "runAfter": {},
+                  "else": {
+                    "actions": {
+                      "Condition_2": {
+                        "actions": {
+                          "List_Self_income_": {
+                            "runAfter": {},
+                            "metadata": {
+                              "operationMetadataId": "8db228d2-7897-46d1-8032-046f2e357268"
+                            },
+                            "type": "OpenApiConnection",
+                            "inputs": {
+                              "host": {
+                                "connectionName": "shared_commondataserviceforapps-1",
+                                "operationId": "ListRecords",
+                                "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                              },
+                              "parameters": {
+                                "entityName": "vl_selfemployedemployments",
+                                "$filter": "_vl_employmentuserid_value eq '@{items('Apply_to_each_income')?['vl_employmentid']}'"
+                              },
+                              "authentication": "@parameters('$authentication')"
+                            }
+                          },
+                          "Apply_to_each_7": {
+                            "foreach": "@outputs('List_Self_income_')?['body/value']",
+                            "actions": {
+                              "Append_to_self-income_array": {
+                                "runAfter": {},
+                                "metadata": {
+                                  "operationMetadataId": "67fad7ed-dc68-4949-877f-4ab1987d7f89"
+                                },
+                                "type": "AppendToArrayVariable",
+                                "inputs": {
+                                  "name": "Self-Employed Incomes",
+                                  "value": {
+                                    "selfIncomeApplicanLastYear": "@{items('Apply_to_each_income')?['vl_applicantname']}",
+                                    "selfIncomeCategory": "@{items('Apply_to_each_income')?['vl_employmentcategory@OData.Community.Display.V1.FormattedValue']}",
+                                    "selfIncomeYear": "@{items('Apply_to_each_7')?['vl_currentfinancialyear@OData.Community.Display.V1.FormattedValue']}",
+                                    "selfIncomeBeforeTaxLastYear": "@{items('Apply_to_each_7')?['vl_currentprofitbeforetax@OData.Community.Display.V1.FormattedValue']}",
+                                    "selfIncomeNonRecurringExpenseLastYear": "@{items('Apply_to_each_7')?['vl_previousnonrecurringexpenses@OData.Community.Display.V1.FormattedValue']}",
+                                    "selfIncomeInterestLastYear": "@{items('Apply_to_each_7')?['vl_previousinterest@OData.Community.Display.V1.FormattedValue']}",
+                                    "selfIncomeDepreciationLastYear": "@{items('Apply_to_each_7')?['vl_previousdepreciation@OData.Community.Display.V1.FormattedValue']}",
+                                    "selfIncomeAmortisationLastYear": "@{items('Apply_to_each_7')?['vl_previousamortizationofgoodwill@OData.Community.Display.V1.FormattedValue']}",
+                                    "selfIncomeLeaseLastYear": "@{items('Apply_to_each_7')?['vl_previouslease@OData.Community.Display.V1.FormattedValue']}",
+                                    "selfIncomeExtraSuperLastYear": "",
+                                    "selfIncomeAddOtherLastYear": "",
+                                    "selfIncomeNonRecurringIncomeLastYear": "@{items('Apply_to_each_7')?['vl_previousnonrecurringexpenses@OData.Community.Display.V1.FormattedValue']}",
+                                    "selfIncomeSubtractOtherLastYear": "",
+                                    "selfIncomeAnnualTotalLastYear": "@{items('Apply_to_each_7')?['vl_currenttotalgrossannualincome@OData.Community.Display.V1.FormattedValue']}",
+                                    "selfIncomeAllowance": "@{items('Apply_to_each_7')?['vl_currentallowances@OData.Community.Display.V1.FormattedValue']}",
+                                    "selfIncomeCarryLoss": "@{items('Apply_to_each_7')?['vl_currentcarryforwardlosses@OData.Community.Display.V1.FormattedValue']}",
+                                    "selfIncomeSuperannuationEcess": "@{items('Apply_to_each_7')?['vl_currentsuperannuationexcess@OData.Community.Display.V1.FormattedValue']}",
+                                    "selfSalary": "@{items('Apply_to_each_7')?['vl_currentsalary@OData.Community.Display.V1.FormattedValue']}",
+                                    "selfBonus": "@{items('Apply_to_each_7')?['vl_currentbonus@OData.Community.Display.V1.FormattedValue']}",
+                                    "selfNonCash": "@{items('Apply_to_each_7')?['vl_currentnoncashbenefits@OData.Community.Display.V1.FormattedValue']}",
+                                    "selfSuperannuation": "@{items('Apply_to_each_7')?['vl_currentsuperannuation@OData.Community.Display.V1.FormattedValue']}",
+                                    "selfIncomeBeforeTaxPreviousYear": "@{items('Apply_to_each_7')?['vl_previousprofitbeforetax@OData.Community.Display.V1.FormattedValue']}",
+                                    "selfIncomePreviousYear": "@{items('Apply_to_each_7')?['vl_previousfinancialyear@OData.Community.Display.V1.FormattedValue']}",
+                                    "selfSalaryPreviousYear": "@{items('Apply_to_each_7')?['vl_previoussalary@OData.Community.Display.V1.FormattedValue']}",
+                                    "selfBonusPreviousYear": "@{items('Apply_to_each_7')?['vl_previousbonus@OData.Community.Display.V1.FormattedValue']}",
+                                    "selfNonCashPreviousYear": "@{items('Apply_to_each_7')?['vl_previousnoncashbenefits@OData.Community.Display.V1.FormattedValue']}",
+                                    "selfSuperannuationPreviousYear": "@{items('Apply_to_each_7')?['vl_previoussuperannuation@OData.Community.Display.V1.FormattedValue']}",
+                                    "selfIncomeNonRecurringExpensePreviousYear": "@{items('Apply_to_each_7')?['vl_previousnonrecurringexpenses@OData.Community.Display.V1.FormattedValue']}",
+                                    "selfIncomeInterestPreviousYear": "@{items('Apply_to_each_7')?['vl_previousinterest@OData.Community.Display.V1.FormattedValue']}",
+                                    "selfIncomeDepreciationPreviousYear": "@{items('Apply_to_each_7')?['vl_previousdepreciation@OData.Community.Display.V1.FormattedValue']}",
+                                    "selfIncomeAmortisationPreviousYear": "@{items('Apply_to_each_7')?['vl_previousamortizationofgoodwill@OData.Community.Display.V1.FormattedValue']}",
+                                    "selfIncomeLeasePreviousYear": "@{items('Apply_to_each_7')?['vl_previouslease@OData.Community.Display.V1.FormattedValue']}",
+                                    "selfIncomeExtraSuperPreviousYear": "",
+                                    "selfIncomeAddOtherPreviousYear": "",
+                                    "selfIncomeNonRecurringIncomePreviousYear": "@{items('Apply_to_each_7')?['vl_previousnonrecurringexpenses@OData.Community.Display.V1.FormattedValue']}",
+                                    "selfIncomeAllowancePreviousYear": "@{items('Apply_to_each_7')?['vl_previousallowances@OData.Community.Display.V1.FormattedValue']}",
+                                    "selfIncomeCarryLossPreviousYear": "@{items('Apply_to_each_7')?['vl_previouscarryforwardlosses@OData.Community.Display.V1.FormattedValue']}",
+                                    "selfIncomeSuperannuationEcessPreviousYear": "@{items('Apply_to_each_7')?['vl_previoussuperannuationexcess@OData.Community.Display.V1.FormattedValue']}",
+                                    "selfIncomeSubtractOtherPreviousYear": "",
+                                    "selfIncomeAnnualTotalPreviousYear": "@{items('Apply_to_each_7')?['vl_previoustotalgrossannualincome@OData.Community.Display.V1.FormattedValue']}",
+                                    "selfIncomeLoanRepayment": "@{items('Apply_to_each_7')?['vl_currentloanrepayment@OData.Community.Display.V1.FormattedValue']}",
+                                    "selfIncomeLoanRepaymentPreviousYear": "@{items('Apply_to_each_7')?['vl_previousloanrepayment@OData.Community.Display.V1.FormattedValue']}"
+                                  }
+                                }
+                              }
+                            },
+                            "runAfter": {
+                              "List_Self_income_": [
+                                "Succeeded"
+                              ]
+                            },
+                            "metadata": {
+                              "operationMetadataId": "7f94286a-1915-46af-a0e8-d2f65d31675f"
+                            },
+                            "type": "Foreach"
+                          }
+                        },
+                        "runAfter": {},
+                        "else": {
+                          "actions": {
+                            "List_Unemployment": {
+                              "runAfter": {},
+                              "metadata": {
+                                "operationMetadataId": "8bbe431d-550d-4789-80b9-ad72416b1380"
+                              },
+                              "type": "OpenApiConnection",
+                              "inputs": {
+                                "host": {
+                                  "connectionName": "shared_commondataserviceforapps-1",
+                                  "operationId": "ListRecords",
+                                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                                },
+                                "parameters": {
+                                  "entityName": "vl_unemployedemployments",
+                                  "$filter": "_vl_employmentuserid_value eq '@{items('Apply_to_each_income')?['vl_employmentid']}'"
+                                },
+                                "authentication": "@parameters('$authentication')"
+                              }
+                            },
+                            "Apply_to_each_8": {
+                              "foreach": "@outputs('List_Unemployment')?['body/value']",
+                              "actions": {
+                                "Append_to_unemployment": {
+                                  "runAfter": {},
+                                  "metadata": {
+                                    "operationMetadataId": "e008709b-d511-4303-b27a-e88486ff8330"
+                                  },
+                                  "type": "AppendToArrayVariable",
+                                  "inputs": {
+                                    "name": "Unemployment",
+                                    "value": {
+                                      "employmentApplicant": "@{items('Apply_to_each_income')?['vl_applicantname']}",
+                                      "unemploymentCategory": "@{items('Apply_to_each_income')?['vl_employmentcategory@OData.Community.Display.V1.FormattedValue']}",
+                                      "employmentType": "@{items('Apply_to_each_income')?['vl_employmenttype@OData.Community.Display.V1.FormattedValue']}",
+                                      "employmentIncomeType": "@{items('Apply_to_each_income')?['vl_incometype@OData.Community.Display.V1.FormattedValue']}",
+                                      "unemploymentPrivatePension": "@{items('Apply_to_each_8')?['vl_annualprivatepension@OData.Community.Display.V1.FormattedValue']}",
+                                      "unemploymentBenefits": "@{items('Apply_to_each_8')?['vl_annualunemployedbenefits@OData.Community.Display.V1.FormattedValue']}",
+                                      "unemploymentOtherIncome": "@{items('Apply_to_each_8')?['vl_annualotherincome@OData.Community.Display.V1.FormattedValue']}",
+                                      "employmentHomeDuties": "@{items('Apply_to_each_8')?['vl_homeduties@OData.Community.Display.V1.FormattedValue']}",
+                                      "employmentStudent": "@{items('Apply_to_each_8')?['vl_student@OData.Community.Display.V1.FormattedValue']}",
+                                      "employmentRetire": "@{items('Apply_to_each_8')?['vl_retired@OData.Community.Display.V1.FormattedValue']}",
+                                      "unemploymentAnnualTotal": "@{items('Apply_to_each_8')?['vl_totalgrossunemployedannualincome@OData.Community.Display.V1.FormattedValue']}"
+                                    }
+                                  }
+                                }
+                              },
+                              "runAfter": {
+                                "List_Unemployment": [
+                                  "Succeeded"
+                                ]
+                              },
+                              "metadata": {
+                                "operationMetadataId": "a1316bbe-c9b0-4fc2-b255-81d6c7244d28"
+                              },
+                              "type": "Foreach"
+                            }
+                          }
+                        },
+                        "expression": {
+                          "equals": [
+                            "@items('Apply_to_each_income')?['vl_incometype']",
+                            127420001
+                          ]
+                        },
+                        "metadata": {
+                          "operationMetadataId": "1a8458b2-bc86-4768-81c0-c846abb23b74"
+                        },
+                        "type": "If"
+                      }
+                    }
+                  },
+                  "expression": {
+                    "equals": [
+                      "@items('Apply_to_each_income')?['vl_incometype']",
+                      127420000
+                    ]
+                  },
+                  "metadata": {
+                    "operationMetadataId": "66022b24-2d75-4be4-af26-dbb3fec34f79"
+                  },
+                  "type": "If"
+                }
+              },
+              "runAfter": {
+                "List_other_incomes": [
+                  "Succeeded"
+                ]
+              },
+              "metadata": {
+                "operationMetadataId": "0d0b6ef6-8de1-4995-bc77-5080cf51fb87"
+              },
+              "type": "Foreach"
+            },
+            "Populate_a_In1bank_Microsoft_Word_template": {
+              "runAfter": {
+                "Apply_to_each_employment": [
+                  "Succeeded"
+                ],
+                "Apply_to_each_assets": [
+                  "Succeeded"
+                ],
+                "Apply_to_each_liabilities": [
+                  "Succeeded"
+                ],
+                "Apply_to_each_income": [
+                  "Succeeded"
+                ],
+                "Apply_to_each_contributions": [
+                  "Succeeded"
+                ],
+                "Apply_to_each_securities": [
+                  "Succeeded"
+                ],
+                "Apply_to_each_solicitors": [
+                  "Succeeded"
+                ]
+              },
+              "metadata": {
+                "01VX5ZIIXHDUS6URJD6JELSX7NLBHMDR64": "/Templates/in1bank_Homeloan_application_template_annual_income.docx",
+                "operationMetadataId": "d0874eef-0330-4a0b-a889-515e85249b50"
+              },
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_wordonlinebusiness",
+                  "operationId": "CreateFileItem",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_wordonlinebusiness"
+                },
+                "parameters": {
+                  "source": "@parameters('Envar_VantageLOS_SharepointSite (vl_Envar_VantageLOS_SharepointSite)')",
+                  "drive": "b!rBdSnPVInUyFMrUur-4RIu8CEElc0aZAsn4aL8VsmlHUUnUrZlFMQYuky6RfLQhm",
+                  "file": "01VX5ZIIXHDUS6URJD6JELSX7NLBHMDR64",
+                  "dynamicFileSchema/226503697": "@outputs('Get_a_row_by_ID')?['body/vl_reasonforotherfeature']",
+                  "dynamicFileSchema/265278783": "@outputs('Get_a_row_by_ID')?['body/vl_interesttypeobjectiveimportanceranking@OData.Community.Display.V1.FormattedValue']",
+                  "dynamicFileSchema/400032502": "@outputs('Get_a_row_by_ID')?['body/vl_stampduty@OData.Community.Display.V1.FormattedValue']",
+                  "dynamicFileSchema/440721729": "@variables('Assets')",
+                  "dynamicFileSchema/447442165": "@variables('Self-Employed Incomes')",
+                  "dynamicFileSchema/460845861": "@outputs('Get_a_row_by_ID')?['body/vl_applicationfees@OData.Community.Display.V1.FormattedValue']",
+                  "dynamicFileSchema/484445122": "@outputs('Get_a_row_by_ID')?['body/vl_loanterm@OData.Community.Display.V1.FormattedValue']",
+                  "dynamicFileSchema/669908702": "@variables('Solicitors')",
+                  "dynamicFileSchema/734818356": "@outputs('Get_a_row_by_ID')?['body/vl_legalproceedingreason']",
+                  "dynamicFileSchema/874810722": "@outputs('Get_a_row_by_ID')?['body/vl_otherloanpurposetype@OData.Community.Display.V1.FormattedValue']",
+                  "dynamicFileSchema/979346121": "@outputs('Get_a_row_by_ID')?['body/vl_repaymentfrequency@OData.Community.Display.V1.FormattedValue']",
+                  "dynamicFileSchema/1026839616": "@variables('Unemployment')",
+                  "dynamicFileSchema/1035863587": "@outputs('Get_a_row_by_ID')?['body/vl_offsetrequired@OData.Community.Display.V1.FormattedValue']",
+                  "dynamicFileSchema/1056204462": "@outputs('Get_a_row_by_ID')?['body/vl_reasonforselectedloantenure']",
+                  "dynamicFileSchema/1062755182": "@outputs('Get_a_row_by_ID')?['body/vl_equityrelease']",
+                  "dynamicFileSchema/1074854621": "@variables('Other Incomes')",
+                  "dynamicFileSchema/1129059501": "@outputs('Get_a_row_by_ID')?['body/vl_reasonforselectedinteresttype']",
+                  "dynamicFileSchema/1261489489": "@outputs('Get_a_row_by_ID')?['body/vl_isthereanyloanfeaturesrequired@OData.Community.Display.V1.FormattedValue']",
+                  "dynamicFileSchema/1362403200": "@outputs('Get_a_row_by_ID')?['body/vl_primaryloanpurpose@OData.Community.Display.V1.FormattedValue']",
+                  "dynamicFileSchema/1379120993": "@outputs('Get_a_row_by_ID')?['body/vl_totalcontributionfunds']",
+                  "dynamicFileSchema/1385674627": "@variables('Accountants')",
+                  "dynamicFileSchema/1519812268": "@variables('Living Expenses')",
+                  "dynamicFileSchema/1520128842": "@outputs('Get_a_row_by_ID')?['body/vl_areyouataxresidentinanyothercountry@OData.Community.Display.V1.FormattedValue']",
+                  "dynamicFileSchema/1617556318": "@variables('Employments')",
+                  "dynamicFileSchema/1641530284": "@outputs('Get_a_row_by_ID')?['body/vl_purchaseprice']",
+                  "dynamicFileSchema/1773439402": "@outputs('Get_a_row_by_ID')?['body/vl_reasonforinterestonly']",
+                  "dynamicFileSchema/1906256853": "@outputs('Get_a_row_by_ID')?['body/vl_continuetomeetyourfinancialobligation@OData.Community.Display.V1.FormattedValue']",
+                  "dynamicFileSchema/1912890794": "@outputs('Get_a_row_by_ID')?['body/vl_changesaffectingabilitytopay@OData.Community.Display.V1.FormattedValue']",
+                  "dynamicFileSchema/1977015609": "@outputs('Get_a_row_by_ID')?['body/vl_providetaxpayeridentificationnumbertin']",
+                  "dynamicFileSchema/2023274368": "@variables('Salary Incomes')",
+                  "dynamicFileSchema/2072080545": "@variables('Securities')",
+                  "dynamicFileSchema/2096512576": "@outputs('Get_a_row_by_ID')?['body/vl_meetfinancialobligationreason']",
+                  "dynamicFileSchema/2137754422": "@variables('Unemployment')",
+                  "dynamicFileSchema/-124938753": "@outputs('Get_a_row_by_ID')?['body/vl_occupancy@OData.Community.Display.V1.FormattedValue']",
+                  "dynamicFileSchema/-1186292218": "@outputs('Get_a_row_by_ID')?['body/vl_refinance@OData.Community.Display.V1.FormattedValue']",
+                  "dynamicFileSchema/-1743485551": "@outputs('Get_a_row_by_ID')?['body/vl_debtconsolidation@OData.Community.Display.V1.FormattedValue']",
+                  "dynamicFileSchema/-1313471936": "@outputs('Get_a_row_by_ID')?['body/vl_others@OData.Community.Display.V1.FormattedValue']",
+                  "dynamicFileSchema/-1284581662": "@outputs('Get_a_row_by_ID')?['body/vl_legal@OData.Community.Display.V1.FormattedValue']",
+                  "dynamicFileSchema/-546298381": "@outputs('Get_a_row_by_ID')?['body/vl_valuationfees@OData.Community.Display.V1.FormattedValue']",
+                  "dynamicFileSchema/-1242552679": "@outputs('Get_a_row_by_ID')?['body/vl_costofpurchase@OData.Community.Display.V1.FormattedValue']",
+                  "dynamicFileSchema/-540749254": "@variables('Source of Funds')",
+                  "dynamicFileSchema/-588007733": "@outputs('Get_a_row_by_ID')?['body/vl_surplusdeficitamount']",
+                  "dynamicFileSchema/-298838836": "@outputs('Get_a_row_by_ID')?['body/vl_costofpurchase@OData.Community.Display.V1.FormattedValue']",
+                  "dynamicFileSchema/-1302915224": "@outputs('Get_a_row_by_ID')?['body/vl_requiredloanamount@OData.Community.Display.V1.FormattedValue']",
+                  "dynamicFileSchema/-76903584": "@outputs('Get_a_row_by_ID')?['body/vl_repaymenttype@OData.Community.Display.V1.FormattedValue']",
+                  "dynamicFileSchema/-202330493": "@outputs('Get_a_row_by_ID')?['body/vl_loanterm@OData.Community.Display.V1.FormattedValue']",
+                  "dynamicFileSchema/-1394192154": "@outputs('Get_a_row_by_ID')?['body/vl_loantenureobjectiveimportanceranking@OData.Community.Display.V1.FormattedValue']",
+                  "dynamicFileSchema/-1573886219": "@outputs('Get_a_row_by_ID')?['body/vl_offsetrequired@OData.Community.Display.V1.FormattedValue']",
+                  "dynamicFileSchema/-1965571136": "@outputs('Get_a_row_by_ID')?['body/vl_offsetrequiredimportanceranking@OData.Community.Display.V1.FormattedValue']",
+                  "dynamicFileSchema/-1111583591": "@outputs('Get_a_row_by_ID')?['body/vl_reasonforoffset']",
+                  "dynamicFileSchema/-1848241269": "@outputs('Get_a_row_by_ID')?['body/vl_repaymenttype@OData.Community.Display.V1.FormattedValue']",
+                  "dynamicFileSchema/-454401639": "@outputs('Get_a_row_by_ID')?['body/vl_repaymentobjectiveimportanceranking@OData.Community.Display.V1.FormattedValue']",
+                  "dynamicFileSchema/-1360960929": "@outputs('Get_a_row_by_ID')?['body/vl_otherloanfeatureobjectiveimportanceranking@OData.Community.Display.V1.FormattedValue']",
+                  "dynamicFileSchema/-1920004335": "@outputs('Get_a_row_by_ID')?['body/vl_beendeclaredbankrupt@OData.Community.Display.V1.FormattedValue']",
+                  "dynamicFileSchema/-314184679": "@outputs('Get_a_row_by_ID')?['body/vl_difficultyinmakingloanrepayments@OData.Community.Display.V1.FormattedValue']",
+                  "dynamicFileSchema/-1607113130": "@outputs('Get_a_row_by_ID')?['body/vl_difficultyinmakingyourloanrepaymentsreason']",
+                  "dynamicFileSchema/-961111463": "@outputs('Get_a_row_by_ID')?['body/vl_changesaffectingobligationtopay@OData.Community.Display.V1.FormattedValue']",
+                  "dynamicFileSchema/-813945064": "@variables('Applicants')",
+                  "dynamicFileSchema/-2076661381": "@variables('Liabilities')"
+                },
+                "authentication": "@parameters('$authentication')"
+              }
+            },
+            "Create_file": {
+              "runAfter": {
+                "Populate_a_In1bank_Microsoft_Word_template": [
+                  "Succeeded"
+                ]
+              },
+              "metadata": {
+                "operationMetadataId": "531b6736-c5a9-41b7-8a57-7906a2a295e3"
+              },
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_sharepointonline_1",
+                  "operationId": "CreateFile",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline"
+                },
+                "parameters": {
+                  "dataset": "@parameters('Envar_VantageLOS_SharepointSite (vl_Envar_VantageLOS_SharepointSite)')",
+                  "folderPath": "/Shared Documents/Submitted Applications",
+                  "name": "Summary_@{outputs('Get_a_row_by_ID')?['body/vl_applicationid']}_@{utcNow()}.docx",
+                  "body": "@body('Populate_a_In1bank_Microsoft_Word_template')"
+                },
+                "authentication": "@parameters('$authentication')"
+              },
+              "runtimeConfiguration": {
+                "contentTransfer": {
+                  "transferMode": "Chunked"
+                }
+              }
+            },
+            "Convert_Word_Document_to_PDF": {
+              "runAfter": {
+                "Create_file": [
+                  "Succeeded"
+                ]
+              },
+              "metadata": {
+                "operationMetadataId": "c1c26524-f0f3-4580-8bde-2cc23e47bb2c"
+              },
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_wordonlinebusiness",
+                  "operationId": "GetFilePDF",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_wordonlinebusiness"
+                },
+                "parameters": {
+                  "source": "@parameters('Envar_VantageLOS_SharepointSite (vl_Envar_VantageLOS_SharepointSite)')",
+                  "drive": "@parameters('Envar_VantageLOS_SharepointDocumentLibrary (vl_Envar_VantageLOS_SharepointDocumentLibrary)')",
+                  "file": "/Submitted Applications/@{outputs('Create_file')?['body/Name']}"
+                },
+                "authentication": "@parameters('$authentication')"
+              }
+            },
+            "Create_In1bank_PDF_file": {
+              "runAfter": {
+                "Convert_Word_Document_to_PDF": [
+                  "Succeeded"
+                ]
+              },
+              "metadata": {
+                "operationMetadataId": "ef2dd62c-526a-486e-9137-0820ddf4a938"
+              },
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_sharepointonline_1",
+                  "operationId": "CreateFile",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline"
+                },
+                "parameters": {
+                  "dataset": "@parameters('Envar_VantageLOS_SharepointSite (vl_Envar_VantageLOS_SharepointSite)')",
+                  "folderPath": "/Shared Documents/Submitted Applications",
+                  "name": "Summary_@{outputs('Get_a_row_by_ID')?['body/vl_applicationid']}_@{utcNow()}.pdf",
+                  "body": "@body('Convert_Word_Document_to_PDF')"
+                },
+                "authentication": "@parameters('$authentication')"
+              },
+              "runtimeConfiguration": {
+                "contentTransfer": {
+                  "transferMode": "Chunked"
+                }
+              }
+            },
+            "Get_In1bank_file_content_using_path": {
+              "runAfter": {
+                "Create_In1bank_PDF_file": [
+                  "Succeeded"
+                ]
+              },
+              "metadata": {
+                "operationMetadataId": "d74b95fb-6f20-4e81-a316-02e5bbb6c10e"
+              },
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_sharepointonline_1",
+                  "operationId": "GetFileContentByPath",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline"
+                },
+                "parameters": {
+                  "dataset": "@parameters('Envar_VantageLOS_SharepointSite (vl_Envar_VantageLOS_SharepointSite)')",
+                  "path": "@outputs('Create_In1bank_PDF_file')?['body/Path']",
+                  "inferContentType": true
+                },
+                "authentication": "@parameters('$authentication')"
+              }
+            },
+            "Condition_In1bank": {
+              "actions": {
+                "Upload_a_file_or_an_image": {
+                  "runAfter": {},
+                  "metadata": {
+                    "operationMetadataId": "a60331ab-5d06-412e-8fec-eab06bf2ec90"
+                  },
+                  "type": "OpenApiConnection",
+                  "inputs": {
+                    "host": {
+                      "connectionName": "shared_commondataserviceforapps-1",
+                      "operationId": "UpdateEntityFileImageFieldContent",
+                      "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                    },
+                    "parameters": {
+                      "entityName": "vl_applicationses",
+                      "recordId": "@outputs('Get_a_row_by_ID')?['body/vl_applicationid']",
+                      "fileImageFieldName": "vl_applicationformsubmitted",
+                      "item": "@body('Get_In1bank_file_content_using_path')",
+                      "x-ms-file-name": "Untitled"
+                    },
+                    "authentication": "@parameters('$authentication')"
+                  }
+                },
+                "Compose_In1bank": {
+                  "runAfter": {
+                    "Upload_a_file_or_an_image": [
+                      "Succeeded",
+                      "Failed",
+                      "Skipped",
+                      "TimedOut"
+                    ]
+                  },
+                  "metadata": {
+                    "operationMetadataId": "423eacbf-8450-418b-8bb6-9197d162767a"
+                  },
+                  "type": "Compose",
+                  "inputs": "Jeralson.a@exp-loancentral.com"
+                },
+                "Apply_to_each_email_applicant": {
+                  "foreach": "@outputs('List_applicants')?['body/value']",
+                  "actions": {
+                    "Condition_3": {
+                      "actions": {
+                        "Get_In1bank_word_file_content_using_path": {
+                          "runAfter": {},
+                          "metadata": {
+                            "operationMetadataId": "9993800d-f587-4c9f-8e77-0408352c4494"
+                          },
+                          "type": "OpenApiConnection",
+                          "inputs": {
+                            "host": {
+                              "connectionName": "shared_sharepointonline_1",
+                              "operationId": "GetFileContentByPath",
+                              "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline"
+                            },
+                            "parameters": {
+                              "dataset": "@parameters('Envar_VantageLOS_SharepointSite (vl_Envar_VantageLOS_SharepointSite)')",
+                              "path": "@outputs('Create_file')?['body/Path']",
+                              "inferContentType": true
+                            },
+                            "authentication": "@parameters('$authentication')"
+                          }
+                        },
+                        "Set_variable": {
+                          "runAfter": {
+                            "Get_In1bank_word_file_content_using_path": [
+                              "Succeeded"
+                            ]
+                          },
+                          "metadata": {
+                            "operationMetadataId": "c9953f56-2ae3-4bca-bb0a-20340e1d489c"
+                          },
+                          "type": "SetVariable",
+                          "inputs": {
+                            "name": "varAppSummaryTemplate",
+                            "value": "<p>\nDear @{items('Apply_to_each_email_applicant')?['vl_fullname']},<br><br>\nYour application has been submitted successfully. We will get back to you shortly to confirm next steps and if any extra details are required.<br>\n<br>\nRegards,<br>\nin1bank Ltd home loan application team<br>\n<img src=\"data:image/png;base64,@{body('Get_Logo_Content')?['$content']}\" width=\"160\" height=\"50\"><br>\nIn1bank Ltd &nbsp;&nbsp;&nbsp;Level 3, 257 Clarence Street, Sydney NSW Australia<br>\nT +1300 461 226 | E applications@in1bank.com.au<br>\n</p>"
+                          }
+                        },
+                        "Apply_to_each_5": {
+                          "foreach": "@outputs('List_rows')?['body/value']",
+                          "actions": {
+                            "Send_Email_(V3)": {
+                              "runAfter": {},
+                              "metadata": {
+                                "operationMetadataId": "0425e813-a966-47cf-a377-021f3456ce9b"
+                              },
+                              "type": "OpenApiConnection",
+                              "inputs": {
+                                "host": {
+                                  "connectionName": "shared_smtp",
+                                  "operationId": "SendEmailV3",
+                                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_smtp"
+                                },
+                                "parameters": {
+                                  "emailMessage/From": "@parameters('Envar_VantageLOS_SMTPSendFrom (vl_Envar_VantageLOS_SMTPSendFrom)')",
+                                  "emailMessage/To": "@items('Apply_to_each_5')?['vl_supportemail']",
+                                  "emailMessage/Subject": "@{outputs('Get_a_row_by_ID')?['body/vl_applicationid']}: Application Summary",
+                                  "emailMessage/Body": "@variables('varAppSummaryTemplate')",
+                                  "emailMessage/Attachments": [
+                                    {
+                                      "ContentData": "@body('Get_In1bank_file_content_using_path')",
+                                      "ContentType": "@body('Get_In1bank_file_content_using_path')?['$content-type']",
+                                      "FileName": " @{outputs('Get_a_row_by_ID')?['body/vl_applicationid']} - Loan Application.pdf"
+                                    },
+                                    {
+                                      "ContentData": "@body('Get_In1bank_word_file_content_using_path')",
+                                      "ContentType": "@body('Get_In1bank_word_file_content_using_path')?['$content-type']",
+                                      "FileName": " @{outputs('Get_a_row_by_ID')?['body/vl_applicationid']} - Loan Application.docx"
+                                    }
+                                  ]
+                                },
+                                "authentication": "@parameters('$authentication')"
+                              }
+                            }
+                          },
+                          "runAfter": {
+                            "Set_variable": [
+                              "Succeeded"
+                            ]
+                          },
+                          "metadata": {
+                            "operationMetadataId": "6fdf58f1-1456-421f-bbc5-38f6f6e0ce0b"
+                          },
+                          "type": "Foreach"
+                        },
+                        "Condition_4": {
+                          "actions": {
+                            "Send_Email_(V3)_2": {
+                              "runAfter": {},
+                              "metadata": {
+                                "operationMetadataId": "5ddc1c32-bcd0-4a9e-b486-9192f8e7f672"
+                              },
+                              "type": "OpenApiConnection",
+                              "inputs": {
+                                "host": {
+                                  "connectionName": "shared_smtp",
+                                  "operationId": "SendEmailV3",
+                                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_smtp"
+                                },
+                                "parameters": {
+                                  "emailMessage/From": "@parameters('Envar_VantageLOS_SMTPSendFrom (vl_Envar_VantageLOS_SMTPSendFrom)')",
+                                  "emailMessage/To": "@items('Apply_to_each_email_applicant')?['vl_emailaddress']",
+                                  "emailMessage/Subject": "@{outputs('Get_a_row_by_ID')?['body/vl_applicationid']}: Application Summary",
+                                  "emailMessage/Body": "@variables('varAppSummaryTemplate')",
+                                  "emailMessage/Attachments": [
+                                    {
+                                      "ContentData": "@body('Get_In1bank_file_content_using_path')",
+                                      "ContentType": "@body('Get_In1bank_file_content_using_path')?['$content-type']",
+                                      "FileName": " @{outputs('Get_a_row_by_ID')?['body/vl_applicationid']} - Loan Application.pdf"
+                                    }
+                                  ]
+                                },
+                                "authentication": "@parameters('$authentication')"
+                              }
+                            }
+                          },
+                          "runAfter": {
+                            "Set_variable": [
+                              "Succeeded"
+                            ]
+                          },
+                          "expression": {
+                            "equals": [
+                              "@triggerBody()?['isUW']",
+                              "@false"
+                            ]
+                          },
+                          "metadata": {
+                            "operationMetadataId": "f2b9a430-6ba2-4b2e-9693-d7317fdbe348"
+                          },
+                          "type": "If"
+                        },
+                        "Get_word_file_properties_2": {
+                          "runAfter": {
+                            "Apply_to_each_5": [
+                              "Succeeded"
+                            ],
+                            "Condition_4": [
+                              "Succeeded"
+                            ]
+                          },
+                          "metadata": {
+                            "operationMetadataId": "31cc88ab-8b50-498d-aa42-faac00534c2e"
+                          },
+                          "type": "OpenApiConnection",
+                          "inputs": {
+                            "host": {
+                              "connectionName": "shared_sharepointonline_1",
+                              "operationId": "GetFileItem",
+                              "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline"
+                            },
+                            "parameters": {
+                              "dataset": "@parameters('Envar_VantageLOS_SharepointSite (vl_Envar_VantageLOS_SharepointSite)')",
+                              "table": "2b7552d4-5166-414c-8ba4-cba45f2d0866",
+                              "id": "@outputs('Create_file')?['body/ItemId']"
+                            },
+                            "authentication": "@parameters('$authentication')"
+                          }
+                        },
+                        "Get_pdf_file_properties": {
+                          "runAfter": {
+                            "Get_word_file_properties_2": [
+                              "Succeeded"
+                            ]
+                          },
+                          "metadata": {
+                            "operationMetadataId": "9c521590-1002-4661-96cb-56d594b9393d"
+                          },
+                          "type": "OpenApiConnection",
+                          "inputs": {
+                            "host": {
+                              "connectionName": "shared_sharepointonline_1",
+                              "operationId": "GetFileItem",
+                              "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline"
+                            },
+                            "parameters": {
+                              "dataset": "@parameters('Envar_VantageLOS_SharepointSite (vl_Envar_VantageLOS_SharepointSite)')",
+                              "table": "2b7552d4-5166-414c-8ba4-cba45f2d0866",
+                              "id": "@outputs('Create_In1bank_PDF_file')?['body/ItemId']"
+                            },
+                            "authentication": "@parameters('$authentication')"
+                          }
+                        },
+                        "Delete_file": {
+                          "runAfter": {
+                            "Get_pdf_file_properties": [
+                              "Succeeded"
+                            ]
+                          },
+                          "metadata": {
+                            "operationMetadataId": "04afaf8b-a4b4-4e4c-b92c-2c53204f1dbb"
+                          },
+                          "type": "OpenApiConnection",
+                          "inputs": {
+                            "host": {
+                              "connectionName": "shared_sharepointonline_1",
+                              "operationId": "DeleteFile",
+                              "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline"
+                            },
+                            "parameters": {
+                              "dataset": "@parameters('Envar_VantageLOS_SharepointSite (vl_Envar_VantageLOS_SharepointSite)')",
+                              "id": "@outputs('Get_word_file_properties_2')?['body/{Identifier}']"
+                            },
+                            "authentication": "@parameters('$authentication')"
+                          }
+                        },
+                        "Delete_pdf_file": {
+                          "runAfter": {
+                            "Delete_file": [
+                              "Succeeded"
+                            ]
+                          },
+                          "metadata": {
+                            "operationMetadataId": "f15b69c4-209f-409c-a78b-2b4787cd97f9"
+                          },
+                          "type": "OpenApiConnection",
+                          "inputs": {
+                            "host": {
+                              "connectionName": "shared_sharepointonline_1",
+                              "operationId": "DeleteFile",
+                              "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline"
+                            },
+                            "parameters": {
+                              "dataset": "@parameters('Envar_VantageLOS_SharepointSite (vl_Envar_VantageLOS_SharepointSite)')",
+                              "id": "@outputs('Get_pdf_file_properties')?['body/{Identifier}']"
+                            },
+                            "authentication": "@parameters('$authentication')"
+                          }
+                        }
+                      },
+                      "runAfter": {},
+                      "expression": {
+                        "not": {
+                          "equals": [
+                            "@items('Apply_to_each_email_applicant')?['vl_emailaddress']",
+                            ""
+                          ]
+                        }
+                      },
+                      "metadata": {
+                        "operationMetadataId": "76c79738-1624-4889-a1d1-60633b2a9973"
+                      },
+                      "type": "If"
+                    }
+                  },
+                  "runAfter": {
+                    "Compose_In1bank": [
+                      "Succeeded"
+                    ]
+                  },
+                  "metadata": {
+                    "operationMetadataId": "b349da2d-5542-4719-b0b0-e2d56c8a80e2"
+                  },
+                  "type": "Foreach"
+                }
+              },
+              "runAfter": {
+                "Get_Logo_Content": [
+                  "Succeeded"
+                ]
+              },
+              "else": {
+                "actions": {
+                  "Condition_5": {
+                    "actions": {
+                      "Get_In1bank_word_file_content_using_path__2": {
+                        "runAfter": {},
+                        "metadata": {
+                          "operationMetadataId": "8499f2a0-2088-4cd7-abb5-f40ba0706ec6"
+                        },
+                        "type": "OpenApiConnection",
+                        "inputs": {
+                          "host": {
+                            "connectionName": "shared_sharepointonline_1",
+                            "operationId": "GetFileContentByPath",
+                            "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline"
+                          },
+                          "parameters": {
+                            "dataset": "@parameters('Envar_VantageLOS_SharepointSite (vl_Envar_VantageLOS_SharepointSite)')",
+                            "path": "@outputs('Create_file')?['body/Path']",
+                            "inferContentType": true
+                          },
+                          "authentication": "@parameters('$authentication')"
+                        }
+                      },
+                      "Apply_to_each_9": {
+                        "foreach": "@outputs('List_applicants')?['body/value']",
+                        "actions": {
+                          "Set_variable_2": {
+                            "runAfter": {},
+                            "metadata": {
+                              "operationMetadataId": "33153a2c-902e-4747-9a2c-bd8d12f0a867"
+                            },
+                            "type": "SetVariable",
+                            "inputs": {
+                              "name": "varAppSummaryTemplate",
+                              "value": "<p>\nDear @{items('Apply_to_each_9')?['vl_fullname']},<br><br>\nYour application has been submitted successfully. We will get back to you shortly to confirm next steps and if any extra details are required.<br>\n<br>\nRegards,<br>\nin1bank Ltd home loan application team<br>\n<img src=\"data:image/png;base64,@{body('Get_Logo_Content')?['$content']}\" width=\"160\" height=\"50\"><br>\nIn1bank Ltd &nbsp;&nbsp;&nbsp;Level 3, 257 Clarence Street, Sydney NSW Australia<br>\nT +1300 461 226 | E applications@in1bank.com.au<br>\n</p>"
+                            }
+                          },
+                          "Apply_to_each_2": {
+                            "foreach": "@outputs('List_rows')?['body/value']",
+                            "actions": {
+                              "Send_Email_(V3)_3": {
+                                "runAfter": {},
+                                "metadata": {
+                                  "operationMetadataId": "f57c98ae-7684-4632-9bee-60f9310a4f38"
+                                },
+                                "type": "OpenApiConnection",
+                                "inputs": {
+                                  "host": {
+                                    "connectionName": "shared_smtp",
+                                    "operationId": "SendEmailV3",
+                                    "apiId": "/providers/Microsoft.PowerApps/apis/shared_smtp"
+                                  },
+                                  "parameters": {
+                                    "emailMessage/From": "@parameters('Envar_VantageLOS_SMTPSendFrom (vl_Envar_VantageLOS_SMTPSendFrom)')",
+                                    "emailMessage/To": "@items('Apply_to_each_2')?['vl_supportemail']",
+                                    "emailMessage/Subject": "@{outputs('Get_a_row_by_ID')?['body/vl_applicationid']}: Application Summary",
+                                    "emailMessage/Body": "@variables('varAppSummaryTemplate')",
+                                    "emailMessage/Attachments": [
+                                      {
+                                        "ContentData": "@body('Get_In1bank_file_content_using_path')",
+                                        "ContentType": "@body('Get_In1bank_file_content_using_path')?['$content-type']",
+                                        "FileName": " @{outputs('Get_a_row_by_ID')?['body/vl_applicationid']} - Loan Application.pdf"
+                                      },
+                                      {
+                                        "ContentData": "@body('Get_In1bank_word_file_content_using_path__2')",
+                                        "ContentType": "@body('Get_In1bank_word_file_content_using_path__2')?['$content-type']",
+                                        "FileName": " @{outputs('Get_a_row_by_ID')?['body/vl_applicationid']} - Loan Application.docx"
+                                      }
+                                    ]
+                                  },
+                                  "authentication": "@parameters('$authentication')"
+                                }
+                              }
+                            },
+                            "runAfter": {
+                              "Set_variable_2": [
+                                "Succeeded"
+                              ]
+                            },
+                            "metadata": {
+                              "operationMetadataId": "7698da0f-a7a1-4783-9213-47a3e2e4ac88"
+                            },
+                            "type": "Foreach"
+                          }
+                        },
+                        "runAfter": {
+                          "Get_In1bank_word_file_content_using_path__2": [
+                            "Succeeded"
+                          ]
+                        },
+                        "metadata": {
+                          "operationMetadataId": "6cbbcd0d-1a42-46d8-8963-849e1f014980"
+                        },
+                        "type": "Foreach"
+                      }
+                    },
+                    "runAfter": {},
+                    "expression": {
+                      "equals": [
+                        "@triggerBody()?['isUW']",
+                        "@true"
+                      ]
+                    },
+                    "metadata": {
+                      "operationMetadataId": "52bd9033-0ad7-4834-9817-ad9ec752eb13"
+                    },
+                    "type": "If"
+                  }
+                }
+              },
+              "expression": {
+                "equals": [
+                  "@triggerBody()?['isSubmit']",
+                  "@true"
+                ]
+              },
+              "metadata": {
+                "operationMetadataId": "b80e2989-45d9-4ccd-8c7a-95d73be63046"
+              },
+              "type": "If"
+            },
+            "Response_In1bank": {
+              "runAfter": {
+                "Condition_In1bank": [
+                  "Succeeded"
+                ]
+              },
+              "metadata": {
+                "operationMetadataId": "c4ba73ac-c069-4da2-ac00-23133adcecc2"
+              },
+              "type": "Response",
+              "kind": "Http",
+              "inputs": {
+                "statusCode": 200,
+                "headers": {
+                  "Content-Type": "application/pdf",
+                  "Content-Disposition": "@outputs('Create_In1bank_PDF_file')?['body/Name']"
+                },
+                "body": "@body('Get_In1bank_file_content_using_path')"
+              }
+            },
+            "Get_Logo_Content": {
+              "runAfter": {
+                "Get_In1bank_file_content_using_path": [
+                  "Succeeded"
+                ]
+              },
+              "metadata": {
+                "%252fShared%2bDocuments%252fTemplates%252fMail%252fin1bank%2blogo.png": "/Shared Documents/Templates/Mail/in1bank logo.png",
+                "operationMetadataId": "4f5186f3-7c33-4f7b-a24f-6311f9994044"
+              },
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_sharepointonline_1",
+                  "operationId": "GetFileContent",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline"
+                },
+                "parameters": {
+                  "dataset": "@parameters('Envar_VantageLOS_SharepointSite (vl_Envar_VantageLOS_SharepointSite)')",
+                  "id": "%252fShared%2bDocuments%252fTemplates%252fMail%252fin1bank%2blogo.png",
+                  "inferContentType": true
+                },
+                "authentication": "@parameters('$authentication')"
+              }
+            },
+            "Apply_to_each_securities": {
+              "foreach": "@outputs('List_assets')?['body/value']",
+              "actions": {
+                "Condition_6": {
+                  "actions": {
+                    "Append_to_array_variable_3": {
+                      "runAfter": {},
+                      "metadata": {
+                        "operationMetadataId": "c14536c8-6dc2-4850-a3a5-1279ebe959ed"
+                      },
+                      "type": "AppendToArrayVariable",
+                      "inputs": {
+                        "name": "Securities",
+                        "value": {
+                          "securityName": "@{items('Apply_to_each_securities')?['vl_assettype@OData.Community.Display.V1.FormattedValue']}",
+                          "securityDetails": "Property Title: @{items('Apply_to_each_securities')?['vl_propertytitle@OData.Community.Display.V1.FormattedValue']}, Property Type: @{items('Apply_to_each_securities')?['vl_propertytype@OData.Community.Display.V1.FormattedValue']}, Occupancy: @{items('Apply_to_each_securities')?['vl_occupancy@OData.Community.Display.V1.FormattedValue']}, Primary purpose: @{items('Apply_to_each_securities')?['vl_primarypurpose@OData.Community.Display.V1.FormattedValue']}, Address: @{items('Apply_to_each_securities')?['vl_propertyaddress']}",
+                          "securityValue": "@{items('Apply_to_each_securities')?['vl_estimatevalue@OData.Community.Display.V1.FormattedValue']}",
+                          "securityTotalOwnership": "@{items('Apply_to_each_securities')?['vl_totalownership']}",
+                          "securityApplicant1Perc": "@{items('Apply_to_each_securities')?['vl_applicant1ownership']}",
+                          "securityApplicant2Perc": "@{items('Apply_to_each_securities')?['vl_applicant2ownership']}"
+                        }
+                      }
+                    }
+                  },
+                  "runAfter": {},
+                  "expression": {
+                    "equals": [
+                      "@items('Apply_to_each_securities')?['vl_tobeusedassecurity']",
+                      "@true"
+                    ]
+                  },
+                  "metadata": {
+                    "operationMetadataId": "f40dc707-a075-4af2-bcd5-85f28756bfa8"
+                  },
+                  "type": "If"
+                }
+              },
+              "runAfter": {
+                "Apply_to_each_applicant": [
+                  "Succeeded"
+                ]
+              },
+              "metadata": {
+                "operationMetadataId": "d24c06d1-4074-4e53-bb14-dbaddb1b9115"
+              },
+              "type": "Foreach"
+            },
+            "List_Solicitors": {
+              "runAfter": {
+                "List_accountants": [
+                  "Succeeded"
+                ]
+              },
+              "metadata": {
+                "operationMetadataId": "6c0de6a5-03bf-49af-bf93-53fced684598"
+              },
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_commondataserviceforapps-1",
+                  "operationId": "ListRecords",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                },
+                "parameters": {
+                  "entityName": "vl_professionalcontactses",
+                  "$filter": "_vl_applicationid_value eq '@{outputs('Get_a_row_by_ID')?['body/vl_applicationsid']}' and vl_contacttype eq 127420001"
+                },
+                "authentication": "@parameters('$authentication')"
+              }
+            },
+            "Apply_to_each_solicitors": {
+              "foreach": "@outputs('List_Solicitors')?['body/value']",
+              "actions": {
+                "Append_to_array_variable_5": {
+                  "runAfter": {},
+                  "metadata": {
+                    "operationMetadataId": "70251c1b-9358-4482-87f4-a7d860986dae"
+                  },
+                  "type": "AppendToArrayVariable",
+                  "inputs": {
+                    "name": "Solicitors",
+                    "value": {
+                      "solicitorContactPerson": "@{items('Apply_to_each_solicitors')?['vl_contact']}",
+                      "solicitorFirmName": "@{items('Apply_to_each_solicitors')?['vl_companyname']}",
+                      "solicitorPhoneNo": "@{items('Apply_to_each_solicitors')?['vl_officephone']}",
+                      "solicitorMobile": "@{items('Apply_to_each_solicitors')?['vl_mobile']}",
+                      "solicitorEmail": "@{items('Apply_to_each_solicitors')?['vl_email']}"
+                    }
+                  }
+                }
+              },
+              "runAfter": {
+                "Apply_to_each_accountants": [
+                  "Succeeded"
+                ]
+              },
+              "metadata": {
+                "operationMetadataId": "ef015d7a-5ab5-47e7-bcf3-eb0254fec04c"
+              },
+              "type": "Foreach"
+            }
+          },
+          "runAfter": {
+            "Initialize_accountants": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "7d456874-6985-428d-8beb-2ef45b547237"
+          },
+          "type": "Scope"
+        },
+        "Initialize_source_of_funds": {
+          "runAfter": {
+            "Initialize_applicants": [
+              "Succeeded"
+            ],
+            "Initialize_assets": [
+              "Succeeded"
+            ],
+            "Initialize_employments": [
+              "Succeeded"
+            ],
+            "Initialize_liabilities": [
+              "Succeeded"
+            ],
+            "Initialize_living_expenses": [
+              "Succeeded"
+            ],
+            "Initialize_securities": [
+              "Succeeded"
+            ],
+            "Initialize_self-employed_incomes": [
+              "Succeeded"
+            ],
+            "Initialize_solicitors": [
+              "Succeeded"
+            ],
+            "Initialize_salary_incomes": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "381806cc-9554-41f6-8e8d-7c856a2c9da7"
+          },
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "Source of Funds",
+                "type": "array"
+              }
+            ]
+          }
+        },
+        "Initialize_unemployment": {
+          "runAfter": {
+            "Initialize_source_of_funds": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "9fe01b9c-ad01-4311-ac51-08090558e5fe"
+          },
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "Unemployment",
+                "type": "array"
+              }
+            ]
+          }
+        },
+        "Initialize_other_incomes": {
+          "runAfter": {
+            "Initialize_unemployment": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "3b501ee7-0b9b-455f-8f0c-a409d66c8cae"
+          },
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "Other Incomes",
+                "type": "array"
+              }
+            ]
+          }
+        },
+        "Initialize_accountants": {
+          "runAfter": {
+            "Initialize_other_incomes": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "9e58808e-5d2f-4327-b3f9-b98ae06a3825"
+          },
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "Accountants",
+                "type": "array"
+              }
+            ]
+          }
+        },
+        "On_Error": {
+          "actions": {
+            "Filter_Error_Details": {
+              "runAfter": {},
+              "metadata": {
+                "operationMetadataId": "2260325d-cdf6-4f5b-8078-798230fd9edc"
+              },
+              "type": "Query",
+              "inputs": {
+                "from": "@result('Main')",
+                "where": "@equals(item()?['status'], 'Failed')"
+              }
+            },
+            "Add_Error_Details": {
+              "runAfter": {
+                "Filter_Error_Details": [
+                  "Succeeded"
+                ]
+              },
+              "metadata": {
+                "operationMetadataId": "b2d0e596-dc1e-4827-bbc5-50e8fca6641b"
+              },
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_commondataserviceforapps-1",
+                  "operationId": "CreateRecord",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                },
+                "parameters": {
+                  "entityName": "vl_errorhandlings",
+                  "item/vl_component": "@first(body('Filter_Error_Details'))?['name']",
+                  "item/vl_errorcode": "@first(body('Filter_Error_Details'))?['error']?['code']",
+                  "item/vl_errormessage": "@first(body('Filter_Error_Details'))?['error']?['message']",
+                  "item/vl_errorsource": 127420001,
+                  "item/vl_sourcename": "@workflow().tags.flowDisplayName"
+                },
+                "authentication": "@parameters('$authentication')"
+              }
+            }
+          },
+          "runAfter": {
+            "Main": [
+              "Failed",
+              "Skipped",
+              "TimedOut"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "37dfc01b-a6b6-43d7-9411-297c84b20e71"
+          },
+          "type": "Scope"
+        }
+      },
+      "outputs": {}
+    },
+    "templateName": ""
+  },
+  "schemaVersion": "1.0.0.0"
+}

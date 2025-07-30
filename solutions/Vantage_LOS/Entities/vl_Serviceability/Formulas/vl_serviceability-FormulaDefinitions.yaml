@@ -1,0 +1,5 @@
+vl_applicableinterestrate: =vl_ApplicationID.vl_applicableinterestrate
+vl_interestrate: =vl_ApplicationID.vl_productinterestrate
+vl_interestratemargine: =vl_ApplicationID.vl_interestratemargin
+vl_netmonthlyincome: =Decimal(vl_netannualincome)/12
+vl_serviceabilityoutcome: =If(vl_debtservingratioresult=global_vl_outcomeresultchoice.'127420000' And vl_debttoincomeratioresult=global_vl_outcomeresultchoice.'127420000' And vl_loantoincomeratioresult=global_vl_outcomeresultchoice.'127420000' And vl_loantovalueratioresult=global_vl_outcomeresultchoice.'127420000' And vl_netmonthlysurplusresult=global_vl_outcomeresultchoice.'127420000',global_vl_outcomeresultchoice.'127420000',global_vl_outcomeresultchoice.'127420001')

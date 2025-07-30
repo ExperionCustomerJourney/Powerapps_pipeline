@@ -1,0 +1,307 @@
+{
+  "properties": {
+    "connectionReferences": {
+      "shared_sharepointonline": {
+        "runtimeSource": "invoker",
+        "connection": {
+          "connectionReferenceLogicalName": "vl_sharedsharepointonline_b9297"
+        },
+        "api": {
+          "name": "shared_sharepointonline"
+        }
+      },
+      "shared_commondataserviceforapps": {
+        "runtimeSource": "embedded",
+        "connection": {
+          "connectionReferenceLogicalName": "vl_sharedcommondataserviceforapps_04816"
+        },
+        "api": {
+          "name": "shared_commondataserviceforapps"
+        }
+      }
+    },
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "parameters": {
+        "$connections": {
+          "defaultValue": {},
+          "type": "Object"
+        },
+        "$authentication": {
+          "defaultValue": {},
+          "type": "SecureObject"
+        },
+        "Envar_VantageLOS_SharepointSite (vl_Envar_VantageLOS_SharepointSite)": {
+          "defaultValue": "https://experionloancentral.sharepoint.com/sites/Vantage_Dev",
+          "type": "String",
+          "metadata": {
+            "schemaName": "vl_Envar_VantageLOS_SharepointSite"
+          }
+        }
+      },
+      "triggers": {
+        "manual": {
+          "metadata": {
+            "operationMetadataId": "8b71cddb-3944-41db-a643-54b9c7e14496"
+          },
+          "type": "Request",
+          "kind": "PowerAppV2",
+          "inputs": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "file": {
+                  "title": "File Content",
+                  "type": "object",
+                  "x-ms-dynamically-added": true,
+                  "description": "Please select file or image",
+                  "x-ms-content-hint": "FILE",
+                  "properties": {
+                    "name": {
+                      "type": "string"
+                    },
+                    "contentBytes": {
+                      "type": "string",
+                      "format": "byte"
+                    }
+                  }
+                },
+                "email": {
+                  "title": "Email",
+                  "type": "string",
+                  "format": "email",
+                  "x-ms-dynamically-added": true,
+                  "description": "Please enter an e-mail address",
+                  "x-ms-content-hint": "EMAIL"
+                }
+              },
+              "required": [
+                "email"
+              ]
+            }
+          }
+        }
+      },
+      "actions": {
+        "Main": {
+          "actions": {
+            "Check_File_Extension": {
+              "actions": {
+                "Create_HEM_FIle": {
+                  "runAfter": {},
+                  "metadata": {
+                    "operationMetadataId": "32d27320-f961-4f7e-9a3d-af008b78b3b3"
+                  },
+                  "type": "OpenApiConnection",
+                  "inputs": {
+                    "host": {
+                      "connectionName": "shared_sharepointonline",
+                      "operationId": "CreateFile",
+                      "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline"
+                    },
+                    "parameters": {
+                      "dataset": "@parameters('Envar_VantageLOS_SharepointSite (vl_Envar_VantageLOS_SharepointSite)')",
+                      "folderPath": "/Shared Documents/HEM Import",
+                      "name": "Active_HEM_@{utcNow()}.xlsx",
+                      "body": "@triggerBody()['file']['contentBytes']"
+                    },
+                    "authentication": "@parameters('$authentication')"
+                  },
+                  "runtimeConfiguration": {
+                    "contentTransfer": {
+                      "transferMode": "Chunked"
+                    }
+                  }
+                },
+                "Insert_HEM_Import_Trigger": {
+                  "runAfter": {
+                    "Create_HEM_FIle": [
+                      "Succeeded"
+                    ]
+                  },
+                  "metadata": {
+                    "operationMetadataId": "86e24375-3273-4f48-8a30-f58d773c0db2"
+                  },
+                  "type": "OpenApiConnection",
+                  "inputs": {
+                    "host": {
+                      "connectionName": "shared_commondataserviceforapps",
+                      "operationId": "CreateRecord",
+                      "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                    },
+                    "parameters": {
+                      "entityName": "vl_workflowqueues",
+                      "item/vl_email": "@triggerBody()['email']",
+                      "item/vl_hemfileid": "@outputs('Create_HEM_FIle')?['body/Id']",
+                      "item/vl_processing": true,
+                      "item/vl_queuetype": 127420003
+                    },
+                    "authentication": "@parameters('$authentication')"
+                  }
+                },
+                "Respond_Success_Message": {
+                  "runAfter": {
+                    "Insert_HEM_Import_Trigger": [
+                      "Succeeded"
+                    ]
+                  },
+                  "metadata": {
+                    "operationMetadataId": "af85aa1e-6c2f-49e9-9c69-1df34ab5ad2d"
+                  },
+                  "type": "Response",
+                  "kind": "PowerApp",
+                  "inputs": {
+                    "statusCode": 200,
+                    "body": {
+                      "responsemessage": "HEM file upload initiated. You will recevice an email once HEM upload completed."
+                    },
+                    "schema": {
+                      "type": "object",
+                      "properties": {
+                        "responsemessage": {
+                          "title": "ResponseMessage",
+                          "x-ms-dynamically-added": true,
+                          "type": "string"
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "runAfter": {},
+              "else": {
+                "actions": {
+                  "Respond_Warning_Message": {
+                    "runAfter": {},
+                    "metadata": {
+                      "operationMetadataId": "767cdaaa-6210-407d-aaee-47220d656a30"
+                    },
+                    "type": "Response",
+                    "kind": "PowerApp",
+                    "inputs": {
+                      "statusCode": 200,
+                      "body": {
+                        "responsemessage": "Warning!!! Only xls or xlsx file accepting. Please try downloading the HEM template and upload."
+                      },
+                      "schema": {
+                        "type": "object",
+                        "properties": {
+                          "responsemessage": {
+                            "title": "ResponseMessage",
+                            "x-ms-dynamically-added": true,
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              },
+              "expression": {
+                "or": [
+                  {
+                    "equals": [
+                      "@variables('varFIleExtension')",
+                      "xls"
+                    ]
+                  },
+                  {
+                    "equals": [
+                      "@variables('varFIleExtension')",
+                      "xlsx"
+                    ]
+                  }
+                ]
+              },
+              "metadata": {
+                "operationMetadataId": "99eefe4a-bc5a-46b9-8c87-76b454e1e4f0"
+              },
+              "type": "If"
+            }
+          },
+          "runAfter": {
+            "Initialize_varFIleExtension": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "c6023109-7044-4a74-80c7-112aad98fbad"
+          },
+          "type": "Scope"
+        },
+        "Initialize_varFIleExtension": {
+          "runAfter": {},
+          "metadata": {
+            "operationMetadataId": "c696ec47-d068-43e4-9816-43c185ae11d0"
+          },
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "varFIleExtension",
+                "type": "string",
+                "value": "@{last(split(triggerBody()?['file']?['name'],'.'))}"
+              }
+            ]
+          }
+        },
+        "On_Error": {
+          "actions": {
+            "Filter_Error_Details": {
+              "runAfter": {},
+              "metadata": {
+                "operationMetadataId": "9866c38a-cf28-4771-9ff3-8cb55bdca4a4"
+              },
+              "type": "Query",
+              "inputs": {
+                "from": "@result('Main')",
+                "where": "@equals(item()?['status'], 'Failed')"
+              }
+            },
+            "Add_Error_Details": {
+              "runAfter": {
+                "Filter_Error_Details": [
+                  "Succeeded"
+                ]
+              },
+              "metadata": {
+                "operationMetadataId": "30a15ea6-e8f9-4911-8cbd-b49a1338ec05"
+              },
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_commondataserviceforapps",
+                  "operationId": "CreateRecord",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                },
+                "parameters": {
+                  "entityName": "vl_errorhandlings",
+                  "item/vl_component": "@first(body('Filter_Error_Details'))?['name']",
+                  "item/vl_errorcode": "@first(body('Filter_Error_Details'))?['error']?['code']",
+                  "item/vl_errormessage": "@first(body('Filter_Error_Details'))?['error']?['message']",
+                  "item/vl_errorsource": 127420001,
+                  "item/vl_sourcename": "@workflow().tags.flowDisplayName"
+                },
+                "authentication": "@parameters('$authentication')"
+              }
+            }
+          },
+          "runAfter": {
+            "Main": [
+              "Skipped",
+              "Failed",
+              "TimedOut"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "d440d654-9f57-450a-b0ac-5c286d1eac90"
+          },
+          "type": "Scope"
+        }
+      }
+    },
+    "templateName": ""
+  },
+  "schemaVersion": "1.0.0.0"
+}

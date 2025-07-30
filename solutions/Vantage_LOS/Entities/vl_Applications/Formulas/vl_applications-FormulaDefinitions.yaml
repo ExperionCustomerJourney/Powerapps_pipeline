@@ -1,0 +1,6 @@
+vl_applicableinterestrate: =vl_productinterestrate+vl_interestratemargin
+vl_costofpurchase: =Decimal(vl_purchaseprice)+Decimal(vl_refinance)+Decimal(vl_debtconsolidation)+Decimal(vl_equityrelease)+Decimal(vl_others)+Decimal(vl_legal)+Decimal(vl_stampduty)+Decimal(vl_applicationfees)+Decimal(vl_valuationfees)
+vl_oldestapplicantageatendofloanterm: =Round(DateDiff(vl_oldestapplicantdob,UTCToday())/365,0)+(Value(vl_loanterm)-127420000)+1
+vl_productinterestrate: =vl_Product.vl_interestrate
+vl_requiredloanamountserviceability: =Decimal(vl_requiredloanamount)
+vl_surplusdeficitamount: =Decimal(vl_totalcontributionfunds)-vl_costofpurchase

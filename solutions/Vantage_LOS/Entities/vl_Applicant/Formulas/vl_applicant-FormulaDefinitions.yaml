@@ -1,0 +1,2 @@
+vl_age: =Round(DateDiff(vl_dateofbirth,UTCToday())/365,0)
+vl_fullname: =Concatenate(vl_firstname," ", vl_lastname)

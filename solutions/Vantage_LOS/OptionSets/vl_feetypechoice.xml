@@ -1,0 +1,424 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<optionset Name="vl_feetypechoice" localizedName="Fee Type choice" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <OptionSetType>picklist</OptionSetType>
+  <IsGlobal>1</IsGlobal>
+  <IntroducedVersion>1.0.0.0</IntroducedVersion>
+  <IsCustomizable>1</IsCustomizable>
+  <ExternalTypeName></ExternalTypeName>
+  <displaynames>
+    <displayname description="Fee Type choice" languagecode="1033" />
+  </displaynames>
+  <Descriptions>
+    <Description description="" languagecode="1033" />
+  </Descriptions>
+  <options>
+    <option value="127420000" ExternalValue="" IsHidden="0">
+      <labels>
+        <label description="Acceptance Fee" languagecode="1033" />
+      </labels>
+      <Descriptions>
+        <Description description="" languagecode="1033" />
+      </Descriptions>
+    </option>
+    <option value="127420001" ExternalValue="" IsHidden="0">
+      <labels>
+        <label description="Additional Security Fee" languagecode="1033" />
+      </labels>
+      <Descriptions>
+        <Description description="" languagecode="1033" />
+      </Descriptions>
+    </option>
+    <option value="127420002" ExternalValue="" IsHidden="0">
+      <labels>
+        <label description="Administrative Fee" languagecode="1033" />
+      </labels>
+      <Descriptions>
+        <Description description="" languagecode="1033" />
+      </Descriptions>
+    </option>
+    <option value="127420003" ExternalValue="" IsHidden="0">
+      <labels>
+        <label description="Annual Fee" languagecode="1033" />
+      </labels>
+      <Descriptions>
+        <Description description="" languagecode="1033" />
+      </Descriptions>
+    </option>
+    <option value="127420004" ExternalValue="" IsHidden="0">
+      <labels>
+        <label description="Application Fee" languagecode="1033" />
+      </labels>
+      <Descriptions>
+        <Description description="" languagecode="1033" />
+      </Descriptions>
+    </option>
+    <option value="127420005" ExternalValue="" IsHidden="0">
+      <labels>
+        <label description="Brokerage Fee" languagecode="1033" />
+      </labels>
+      <Descriptions>
+        <Description description="" languagecode="1033" />
+      </Descriptions>
+    </option>
+    <option value="127420006" ExternalValue="" IsHidden="0">
+      <labels>
+        <label description="Cancelled Cheque Fee" languagecode="1033" />
+      </labels>
+      <Descriptions>
+        <Description description="" languagecode="1033" />
+      </Descriptions>
+    </option>
+    <option value="127420007" ExternalValue="" IsHidden="0">
+      <labels>
+        <label description="Cash Benefit Insurance" languagecode="1033" />
+      </labels>
+      <Descriptions>
+        <Description description="" languagecode="1033" />
+      </Descriptions>
+    </option>
+    <option value="127420008" ExternalValue="" IsHidden="0">
+      <labels>
+        <label description="Construction Progress Inspection Fee" languagecode="1033" />
+      </labels>
+      <Descriptions>
+        <Description description="" languagecode="1033" />
+      </Descriptions>
+    </option>
+    <option value="127420009" ExternalValue="" IsHidden="0">
+      <labels>
+        <label description="Consumer Credit Insurance" languagecode="1033" />
+      </labels>
+      <Descriptions>
+        <Description description="" languagecode="1033" />
+      </Descriptions>
+    </option>
+    <option value="127420010" ExternalValue="" IsHidden="0">
+      <labels>
+        <label description="Deferred Establishment Fee" languagecode="1033" />
+      </labels>
+      <Descriptions>
+        <Description description="" languagecode="1033" />
+      </Descriptions>
+    </option>
+    <option value="127420011" ExternalValue="" IsHidden="0">
+      <labels>
+        <label description="Documentation Fee" languagecode="1033" />
+      </labels>
+      <Descriptions>
+        <Description description="" languagecode="1033" />
+      </Descriptions>
+    </option>
+    <option value="127420012" ExternalValue="" IsHidden="0">
+      <labels>
+        <label description="Early Repayment Admin Fee" languagecode="1033" />
+      </labels>
+      <Descriptions>
+        <Description description="" languagecode="1033" />
+      </Descriptions>
+    </option>
+    <option value="127420013" ExternalValue="" IsHidden="0">
+      <labels>
+        <label description="Early Termination Adjustment Fee" languagecode="1033" />
+      </labels>
+      <Descriptions>
+        <Description description="" languagecode="1033" />
+      </Descriptions>
+    </option>
+    <option value="127420014" ExternalValue="" IsHidden="0">
+      <labels>
+        <label description="Establishment Fee" languagecode="1033" />
+      </labels>
+      <Descriptions>
+        <Description description="" languagecode="1033" />
+      </Descriptions>
+    </option>
+    <option value="127420015" ExternalValue="" IsHidden="0">
+      <labels>
+        <label description="Excess Cheque Fee" languagecode="1033" />
+      </labels>
+      <Descriptions>
+        <Description description="" languagecode="1033" />
+      </Descriptions>
+    </option>
+    <option value="127420016" ExternalValue="" IsHidden="0">
+      <labels>
+        <label description="Extended Warranty Insurance" languagecode="1033" />
+      </labels>
+      <Descriptions>
+        <Description description="" languagecode="1033" />
+      </Descriptions>
+    </option>
+    <option value="127420017" ExternalValue="" IsHidden="0">
+      <labels>
+        <label description="Guarantee Asset Protection Insurance" languagecode="1033" />
+      </labels>
+      <Descriptions>
+        <Description description="" languagecode="1033" />
+      </Descriptions>
+    </option>
+    <option value="127420018" ExternalValue="" IsHidden="0">
+      <labels>
+        <label description="Inspection Fee" languagecode="1033" />
+      </labels>
+      <Descriptions>
+        <Description description="" languagecode="1033" />
+      </Descriptions>
+    </option>
+    <option value="127420019" ExternalValue="" IsHidden="0">
+      <labels>
+        <label description="Land Titles Office Final Search Fee" languagecode="1033" />
+      </labels>
+      <Descriptions>
+        <Description description="" languagecode="1033" />
+      </Descriptions>
+    </option>
+    <option value="127420020" ExternalValue="" IsHidden="0">
+      <labels>
+        <label description="Land Titles Office Search Fee" languagecode="1033" />
+      </labels>
+      <Descriptions>
+        <Description description="" languagecode="1033" />
+      </Descriptions>
+    </option>
+    <option value="127420021" ExternalValue="" IsHidden="0">
+      <labels>
+        <label description="Legal Fee" languagecode="1033" />
+      </labels>
+      <Descriptions>
+        <Description description="" languagecode="1033" />
+      </Descriptions>
+    </option>
+    <option value="127420022" ExternalValue="" IsHidden="0">
+      <labels>
+        <label description="Line Fee" languagecode="1033" />
+      </labels>
+      <Descriptions>
+        <Description description="" languagecode="1033" />
+      </Descriptions>
+    </option>
+    <option value="127420023" ExternalValue="" IsHidden="0">
+      <labels>
+        <label description="LMI" languagecode="1033" />
+      </labels>
+      <Descriptions>
+        <Description description="" languagecode="1033" />
+      </Descriptions>
+    </option>
+    <option value="127420024" ExternalValue="" IsHidden="0">
+      <labels>
+        <label description="Loan Fee" languagecode="1033" />
+      </labels>
+      <Descriptions>
+        <Description description="" languagecode="1033" />
+      </Descriptions>
+    </option>
+    <option value="127420025" ExternalValue="" IsHidden="0">
+      <labels>
+        <label description="Mortgage Registration" languagecode="1033" />
+      </labels>
+      <Descriptions>
+        <Description description="" languagecode="1033" />
+      </Descriptions>
+    </option>
+    <option value="127420026" ExternalValue="" IsHidden="0">
+      <labels>
+        <label description="Motor Vehicle Insurance" languagecode="1033" />
+      </labels>
+      <Descriptions>
+        <Description description="" languagecode="1033" />
+      </Descriptions>
+    </option>
+    <option value="127420027" ExternalValue="" IsHidden="0">
+      <labels>
+        <label description="Package Fee" languagecode="1033" />
+      </labels>
+      <Descriptions>
+        <Description description="" languagecode="1033" />
+      </Descriptions>
+    </option>
+    <option value="127420028" ExternalValue="" IsHidden="0">
+      <labels>
+        <label description="PPSR Fee" languagecode="1033" />
+      </labels>
+      <Descriptions>
+        <Description description="" languagecode="1033" />
+      </Descriptions>
+    </option>
+    <option value="127420029" ExternalValue="" IsHidden="0">
+      <labels>
+        <label description="Rate Lock Fee" languagecode="1033" />
+      </labels>
+      <Descriptions>
+        <Description description="" languagecode="1033" />
+      </Descriptions>
+    </option>
+    <option value="127420030" ExternalValue="" IsHidden="0">
+      <labels>
+        <label description="Re-documentation Fee" languagecode="1033" />
+      </labels>
+      <Descriptions>
+        <Description description="" languagecode="1033" />
+      </Descriptions>
+    </option>
+    <option value="127420031" ExternalValue="" IsHidden="0">
+      <labels>
+        <label description="Reduced Equity Fee" languagecode="1033" />
+      </labels>
+      <Descriptions>
+        <Description description="" languagecode="1033" />
+      </Descriptions>
+    </option>
+    <option value="127420032" ExternalValue="" IsHidden="0">
+      <labels>
+        <label description="Risk Fee" languagecode="1033" />
+      </labels>
+      <Descriptions>
+        <Description description="" languagecode="1033" />
+      </Descriptions>
+    </option>
+    <option value="127420033" ExternalValue="" IsHidden="0">
+      <labels>
+        <label description="Rollover Fee" languagecode="1033" />
+      </labels>
+      <Descriptions>
+        <Description description="" languagecode="1033" />
+      </Descriptions>
+    </option>
+    <option value="127420034" ExternalValue="" IsHidden="0">
+      <labels>
+        <label description="Security Guarantee Fee" languagecode="1033" />
+      </labels>
+      <Descriptions>
+        <Description description="" languagecode="1033" />
+      </Descriptions>
+    </option>
+    <option value="127420035" ExternalValue="" IsHidden="0">
+      <labels>
+        <label description="Security Release Fee" languagecode="1033" />
+      </labels>
+      <Descriptions>
+        <Description description="" languagecode="1033" />
+      </Descriptions>
+    </option>
+    <option value="127420036" ExternalValue="" IsHidden="0">
+      <labels>
+        <label description="Service Plan" languagecode="1033" />
+      </labels>
+      <Descriptions>
+        <Description description="" languagecode="1033" />
+      </Descriptions>
+    </option>
+    <option value="127420037" ExternalValue="" IsHidden="0">
+      <labels>
+        <label description="Settlement Fee" languagecode="1033" />
+      </labels>
+      <Descriptions>
+        <Description description="" languagecode="1033" />
+      </Descriptions>
+    </option>
+    <option value="127420038" ExternalValue="" IsHidden="0">
+      <labels>
+        <label description="Stamp Duty on Mortgage" languagecode="1033" />
+      </labels>
+      <Descriptions>
+        <Description description="" languagecode="1033" />
+      </Descriptions>
+    </option>
+    <option value="127420039" ExternalValue="" IsHidden="0">
+      <labels>
+        <label description="Stamp Duty on Mortgage Discharge" languagecode="1033" />
+      </labels>
+      <Descriptions>
+        <Description description="" languagecode="1033" />
+      </Descriptions>
+    </option>
+    <option value="127420040" ExternalValue="" IsHidden="0">
+      <labels>
+        <label description="Stamp Duty on Transfer of Property" languagecode="1033" />
+      </labels>
+      <Descriptions>
+        <Description description="" languagecode="1033" />
+      </Descriptions>
+    </option>
+    <option value="127420041" ExternalValue="" IsHidden="0">
+      <labels>
+        <label description="Substitute Security Fee" languagecode="1033" />
+      </labels>
+      <Descriptions>
+        <Description description="" languagecode="1033" />
+      </Descriptions>
+    </option>
+    <option value="127420042" ExternalValue="" IsHidden="0">
+      <labels>
+        <label description="Switch Fee" languagecode="1033" />
+      </labels>
+      <Descriptions>
+        <Description description="" languagecode="1033" />
+      </Descriptions>
+    </option>
+    <option value="127420043" ExternalValue="" IsHidden="0">
+      <labels>
+        <label description="Third Party Document Production Fee" languagecode="1033" />
+      </labels>
+      <Descriptions>
+        <Description description="" languagecode="1033" />
+      </Descriptions>
+    </option>
+    <option value="127420044" ExternalValue="" IsHidden="0">
+      <labels>
+        <label description="Title Transfer Fee" languagecode="1033" />
+      </labels>
+      <Descriptions>
+        <Description description="" languagecode="1033" />
+      </Descriptions>
+    </option>
+    <option value="127420045" ExternalValue="" IsHidden="0">
+      <labels>
+        <label description="Top Up Establishment Fee" languagecode="1033" />
+      </labels>
+      <Descriptions>
+        <Description description="" languagecode="1033" />
+      </Descriptions>
+    </option>
+    <option value="127420046" ExternalValue="" IsHidden="0">
+      <labels>
+        <label description="Tyre and Rim Insurance" languagecode="1033" />
+      </labels>
+      <Descriptions>
+        <Description description="" languagecode="1033" />
+      </Descriptions>
+    </option>
+    <option value="127420047" ExternalValue="" IsHidden="0">
+      <labels>
+        <label description="Unused Facility Fee" languagecode="1033" />
+      </labels>
+      <Descriptions>
+        <Description description="" languagecode="1033" />
+      </Descriptions>
+    </option>
+    <option value="127420048" ExternalValue="" IsHidden="0">
+      <labels>
+        <label description="Valuation Fee" languagecode="1033" />
+      </labels>
+      <Descriptions>
+        <Description description="" languagecode="1033" />
+      </Descriptions>
+    </option>
+    <option value="127420049" ExternalValue="" IsHidden="0">
+      <labels>
+        <label description="Withdrawal of Caveat Fee" languagecode="1033" />
+      </labels>
+      <Descriptions>
+        <Description description="" languagecode="1033" />
+      </Descriptions>
+    </option>
+    <option value="127420050" ExternalValue="" IsHidden="0">
+      <labels>
+        <label description="Withdrawal of Writ Fee" languagecode="1033" />
+      </labels>
+      <Descriptions>
+        <Description description="" languagecode="1033" />
+      </Descriptions>
+    </option>
+  </options>
+</optionset>

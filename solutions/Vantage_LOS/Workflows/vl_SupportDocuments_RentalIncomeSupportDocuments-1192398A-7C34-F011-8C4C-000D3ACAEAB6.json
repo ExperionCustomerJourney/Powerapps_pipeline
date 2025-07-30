@@ -1,0 +1,282 @@
+{
+  "properties": {
+    "connectionReferences": {
+      "shared_commondataserviceforapps": {
+        "runtimeSource": "embedded",
+        "connection": {
+          "connectionReferenceLogicalName": "vl_sharedcommondataserviceforapps_04816"
+        },
+        "api": {
+          "name": "shared_commondataserviceforapps"
+        }
+      }
+    },
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "parameters": {
+        "$connections": {
+          "defaultValue": {},
+          "type": "Object"
+        },
+        "$authentication": {
+          "defaultValue": {},
+          "type": "SecureObject"
+        }
+      },
+      "triggers": {
+        "When_Rental_Income_Added_Or_Modified": {
+          "metadata": {
+            "operationMetadataId": "1a4eedc0-a2ca-4be4-bfe4-fb8d59b2f42b"
+          },
+          "type": "OpenApiConnectionWebhook",
+          "inputs": {
+            "host": {
+              "connectionName": "shared_commondataserviceforapps",
+              "operationId": "SubscribeWebhookTrigger",
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+            },
+            "parameters": {
+              "subscriptionRequest/message": 4,
+              "subscriptionRequest/entityname": "vl_income",
+              "subscriptionRequest/scope": 4,
+              "subscriptionRequest/filteringattributes": "vl_currentyearincome",
+              "subscriptionRequest/filterexpression": "vl_otherincometype eq 127420008"
+            },
+            "authentication": "@parameters('$authentication')"
+          }
+        }
+      },
+      "actions": {
+        "Main": {
+          "actions": {
+            "Get_Existing_Rental_Income_Support_Documents": {
+              "runAfter": {},
+              "metadata": {
+                "operationMetadataId": "eb48c330-0a6c-4f27-8a18-f91a7bcd41b0"
+              },
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_commondataserviceforapps",
+                  "operationId": "ListRecords",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                },
+                "parameters": {
+                  "entityName": "vl_supportingdocumentses",
+                  "$filter": "_vl_incomeid_value eq '@{triggerOutputs()?['body/vl_incomeid']}' and vl_documentsubcategory eq 127420002"
+                },
+                "authentication": "@parameters('$authentication')"
+              }
+            },
+            "Get_Rental_Income_Support_Documents": {
+              "runAfter": {
+                "Get_Existing_Rental_Income_Support_Documents": [
+                  "Succeeded"
+                ]
+              },
+              "metadata": {
+                "operationMetadataId": "68a8f56a-0b93-4379-b36e-0a9dbf4af16d"
+              },
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_commondataserviceforapps",
+                  "operationId": "ListRecords",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                },
+                "parameters": {
+                  "entityName": "vl_supportingdocumentsmatrixes",
+                  "$filter": "vl_documentsubcategory eq 127420002",
+                  "$orderby": "vl_supportingdocumentsmatrixprimaryid asc"
+                },
+                "authentication": "@parameters('$authentication')"
+              }
+            },
+            "Check_Rental_Income": {
+              "actions": {
+                "For_Each_Rental_Income_Documents": {
+                  "foreach": "@outputs('Get_Rental_Income_Support_Documents')?['body/value']",
+                  "actions": {
+                    "Add_Rental_Income_Support_Documents": {
+                      "runAfter": {},
+                      "metadata": {
+                        "operationMetadataId": "69f4c8ae-2c81-4df5-957e-8aae75a8130c"
+                      },
+                      "type": "OpenApiConnection",
+                      "inputs": {
+                        "host": {
+                          "connectionName": "shared_commondataserviceforapps",
+                          "operationId": "CreateRecord",
+                          "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                        },
+                        "parameters": {
+                          "entityName": "vl_supportingdocumentses",
+                          "item/vl_ApplicantID@odata.bind": "/vl_applicants(@{triggerOutputs()?['body/_vl_applicantid_value']})",
+                          "item/vl_ApplicationID@odata.bind": "/vl_applicationses(@{triggerOutputs()?['body/_vl_applicationid_value']})",
+                          "item/vl_documentname": "@items('For_Each_Rental_Income_Documents')?['vl_documentname']",
+                          "item/vl_documentside": 127420002,
+                          "item/vl_documentsubcategory": 127420002,
+                          "item/vl_documenttype": "@item()?['vl_documenttype']",
+                          "item/vl_IncomeID@odata.bind": "/vl_incomes(@{triggerOutputs()?['body/vl_incomeid']})",
+                          "item/vl_supportid": "@triggerOutputs()?['body/vl_incomeid']"
+                        },
+                        "authentication": "@parameters('$authentication')"
+                      }
+                    }
+                  },
+                  "runAfter": {},
+                  "metadata": {
+                    "operationMetadataId": "a38608ec-76e2-47f8-9822-39913a0a96d0"
+                  },
+                  "type": "Foreach"
+                },
+                "For_Each_Existing_Rental_Income_Documents_2": {
+                  "foreach": "@outputs('Get_Existing_Rental_Income_Support_Documents')?['body/value']",
+                  "actions": {
+                    "Delete_Existing_Rental_Income_Document_1": {
+                      "runAfter": {},
+                      "metadata": {
+                        "operationMetadataId": "a61f3843-a7c7-4c64-adc7-b91ce54b76f7"
+                      },
+                      "type": "OpenApiConnection",
+                      "inputs": {
+                        "host": {
+                          "connectionName": "shared_commondataserviceforapps",
+                          "operationId": "DeleteRecord",
+                          "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                        },
+                        "parameters": {
+                          "entityName": "vl_supportingdocumentses",
+                          "recordId": "@items('For_Each_Existing_Rental_Income_Documents_2')?['vl_supportingdocumentsid']"
+                        },
+                        "authentication": "@parameters('$authentication')"
+                      }
+                    }
+                  },
+                  "runAfter": {},
+                  "metadata": {
+                    "operationMetadataId": "aacbd6ef-ea87-4b45-b2d5-2b5d800d6204"
+                  },
+                  "type": "Foreach"
+                }
+              },
+              "runAfter": {
+                "Get_Rental_Income_Support_Documents": [
+                  "Succeeded"
+                ]
+              },
+              "else": {
+                "actions": {
+                  "For_Each_Existing_Rental_Income_Documents": {
+                    "foreach": "@outputs('Get_Existing_Rental_Income_Support_Documents')?['body/value']",
+                    "actions": {
+                      "Delete_Existing_Rental_Income_Document": {
+                        "runAfter": {},
+                        "metadata": {
+                          "operationMetadataId": "0519ba86-38bf-43b5-b428-8dc778b24b7d"
+                        },
+                        "type": "OpenApiConnection",
+                        "inputs": {
+                          "host": {
+                            "connectionName": "shared_commondataserviceforapps",
+                            "operationId": "DeleteRecord",
+                            "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                          },
+                          "parameters": {
+                            "entityName": "vl_supportingdocumentses",
+                            "recordId": "@items('For_Each_Existing_Rental_Income_Documents')?['vl_supportingdocumentsid']"
+                          },
+                          "authentication": "@parameters('$authentication')"
+                        }
+                      }
+                    },
+                    "runAfter": {},
+                    "metadata": {
+                      "operationMetadataId": "9d9b96f2-23cb-4cef-8994-0ccd82a78cca"
+                    },
+                    "type": "Foreach"
+                  }
+                }
+              },
+              "expression": {
+                "and": [
+                  {
+                    "greater": [
+                      "@triggerOutputs()?['body/vl_currentyearincome']",
+                      0
+                    ]
+                  }
+                ]
+              },
+              "metadata": {
+                "operationMetadataId": "0a8d972e-8c1a-47ed-be07-544df835d39c"
+              },
+              "type": "If"
+            }
+          },
+          "runAfter": {},
+          "metadata": {
+            "operationMetadataId": "bcda430f-1863-420c-bb36-034f9126d06e"
+          },
+          "type": "Scope"
+        },
+        "On_Error": {
+          "actions": {
+            "Filter_Error_Details": {
+              "runAfter": {},
+              "metadata": {
+                "operationMetadataId": "bc047e91-033a-4a43-a141-4b8dcf996880"
+              },
+              "type": "Query",
+              "inputs": {
+                "from": "@result('Main')",
+                "where": "@equals(item()?['status'], 'Failed')"
+              }
+            },
+            "Add_Error_Details": {
+              "runAfter": {
+                "Filter_Error_Details": [
+                  "Succeeded"
+                ]
+              },
+              "metadata": {
+                "operationMetadataId": "11ff4748-e13e-4408-ae70-c24c3922da6c"
+              },
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_commondataserviceforapps",
+                  "operationId": "CreateRecord",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                },
+                "parameters": {
+                  "entityName": "vl_errorhandlings",
+                  "item/vl_component": "@first(body('Filter_Error_Details'))?['name']",
+                  "item/vl_errorcode": "@first(body('Filter_Error_Details'))?['error']?['code']",
+                  "item/vl_errormessage": "@first(body('Filter_Error_Details'))?['error']?['message']",
+                  "item/vl_errorsource": 127420001,
+                  "item/vl_sourcename": "@workflow().tags.flowDisplayName"
+                },
+                "authentication": "@parameters('$authentication')"
+              }
+            }
+          },
+          "runAfter": {
+            "Main": [
+              "Skipped",
+              "Failed",
+              "TimedOut"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "a19b4c42-0243-46f0-847e-53f9fc258676"
+          },
+          "type": "Scope"
+        }
+      }
+    },
+    "templateName": ""
+  },
+  "schemaVersion": "1.0.0.0"
+}

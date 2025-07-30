@@ -1,0 +1,204 @@
+{
+  "properties": {
+    "connectionReferences": {
+      "shared_commondataserviceforapps": {
+        "runtimeSource": "embedded",
+        "connection": {
+          "connectionReferenceLogicalName": "vl_sharedcommondataserviceforapps_04816"
+        },
+        "api": {
+          "name": "shared_commondataserviceforapps"
+        }
+      }
+    },
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "parameters": {
+        "$connections": {
+          "defaultValue": {},
+          "type": "Object"
+        },
+        "$authentication": {
+          "defaultValue": {},
+          "type": "SecureObject"
+        }
+      },
+      "triggers": {
+        "When_Funds_Added_Or_Modified": {
+          "metadata": {
+            "operationMetadataId": "0641a10a-7718-4d07-b7f0-6ff2ae85ec72"
+          },
+          "type": "OpenApiConnectionWebhook",
+          "inputs": {
+            "host": {
+              "connectionName": "shared_commondataserviceforapps",
+              "operationId": "SubscribeWebhookTrigger",
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+            },
+            "parameters": {
+              "subscriptionRequest/message": 4,
+              "subscriptionRequest/entityname": "vl_contributionfunds",
+              "subscriptionRequest/scope": 4
+            },
+            "authentication": "@parameters('$authentication')"
+          }
+        }
+      },
+      "actions": {
+        "Initialize_varTotalFunds": {
+          "runAfter": {},
+          "metadata": {
+            "operationMetadataId": "917c8461-ef1f-4c2b-8580-1ad05e84232f"
+          },
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "varTotalFunds",
+                "type": "float",
+                "value": 0
+              }
+            ]
+          }
+        },
+        "Main": {
+          "actions": {
+            "Get_Contribution_Funds": {
+              "runAfter": {},
+              "metadata": {
+                "operationMetadataId": "24ff6e46-31d3-4109-a3a4-e55a168e0e06"
+              },
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_commondataserviceforapps",
+                  "operationId": "ListRecords",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                },
+                "parameters": {
+                  "entityName": "vl_contributionfundses",
+                  "$filter": "_vl_applicationid_value eq '@{triggerOutputs()?['body/_vl_applicationid_value']}'"
+                },
+                "authentication": "@parameters('$authentication')"
+              }
+            },
+            "For_Each_Funds": {
+              "foreach": "@outputs('Get_Contribution_Funds')?['body/value']",
+              "actions": {
+                "Increment_varTotalFunds": {
+                  "runAfter": {},
+                  "metadata": {
+                    "operationMetadataId": "76c2e124-9c4c-4d87-8c2f-53ea97917bb4"
+                  },
+                  "type": "IncrementVariable",
+                  "inputs": {
+                    "name": "varTotalFunds",
+                    "value": "@items('For_Each_Funds')?['vl_amount']"
+                  }
+                }
+              },
+              "runAfter": {
+                "Get_Contribution_Funds": [
+                  "Succeeded"
+                ]
+              },
+              "metadata": {
+                "operationMetadataId": "d156f481-6d7f-4b1c-83fc-e287ad0c874a"
+              },
+              "type": "Foreach"
+            },
+            "Update_Funds": {
+              "runAfter": {
+                "For_Each_Funds": [
+                  "Succeeded"
+                ]
+              },
+              "metadata": {
+                "operationMetadataId": "8bdbee13-b344-4595-9eae-c38e6a978c4a"
+              },
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_commondataserviceforapps",
+                  "operationId": "UpdateOnlyRecord",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                },
+                "parameters": {
+                  "entityName": "vl_applicationses",
+                  "recordId": "@triggerOutputs()?['body/_vl_applicationid_value']",
+                  "item/vl_totalcontributionfunds": "@variables('varTotalFunds')"
+                },
+                "authentication": "@parameters('$authentication')"
+              }
+            }
+          },
+          "runAfter": {
+            "Initialize_varTotalFunds": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "fbb83999-715a-4996-8f6a-0ed44107d771"
+          },
+          "type": "Scope"
+        },
+        "On_Error": {
+          "actions": {
+            "Filter_Error_Details": {
+              "runAfter": {},
+              "metadata": {
+                "operationMetadataId": "1149d078-7491-4576-afec-c5525434e2b7"
+              },
+              "type": "Query",
+              "inputs": {
+                "from": "@result('Main')",
+                "where": "@equals(item()?['status'], 'Failed')"
+              }
+            },
+            "Add_Error_Details": {
+              "runAfter": {
+                "Filter_Error_Details": [
+                  "Succeeded"
+                ]
+              },
+              "metadata": {
+                "operationMetadataId": "ae7a7db2-7ce2-4a85-94e6-f6392a71fb20"
+              },
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_commondataserviceforapps",
+                  "operationId": "CreateRecord",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                },
+                "parameters": {
+                  "entityName": "vl_errorhandlings",
+                  "item/vl_component": "@first(body('Filter_Error_Details'))?['name']",
+                  "item/vl_errorcode": "@first(body('Filter_Error_Details'))?['error']?['code']",
+                  "item/vl_errormessage": "@first(body('Filter_Error_Details'))?['error']?['message']",
+                  "item/vl_errorsource": 127420001,
+                  "item/vl_sourcename": "@workflow().tags.flowDisplayName"
+                },
+                "authentication": "@parameters('$authentication')"
+              }
+            }
+          },
+          "runAfter": {
+            "Main": [
+              "Failed",
+              "Skipped",
+              "TimedOut"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "acc8a9a0-2725-4ed2-9e9d-4c19ab7706d1"
+          },
+          "type": "Scope"
+        }
+      }
+    },
+    "templateName": ""
+  },
+  "schemaVersion": "1.0.0.0"
+}

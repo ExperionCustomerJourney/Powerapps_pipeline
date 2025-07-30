@@ -1,0 +1,145 @@
+vl_actualmonthlyloanrepayment: |-
+    =Switch(vl_liabilitytype,
+    global_vl_liabilitytypechoice.'127420003',
+    vl_mortgageactualmonthlyloanrepayment,
+    global_vl_liabilitytypechoice.'127420000',
+    vl_creditactualmonthlyloanrepayment,
+    global_vl_liabilitytypechoice.'127420001',
+    vl_loanaccountactualmonthlyloanrepayment)
+vl_applicant1negativegearing: |-
+    =If(vl_negativelygeared=true, 
+        (Decimal(vl_outstandingbalance) - Decimal(vl_refinanceamount) - Decimal(vl_refinancecost)) * vl_annualinterestrate / 100  *vl_applicant1ownership / 100 )
+vl_applicant2negativegearing: |-
+    =If(vl_negativelygeared=true, 
+        (Decimal(vl_outstandingbalance) - Decimal(vl_refinanceamount) - Decimal(vl_refinancecost)) * vl_annualinterestrate / 100  *vl_applicant2ownership / 100 )
+vl_assessmentdebtbalance: |-
+    =If(vl_liabilitytype=global_vl_liabilitytypechoice.'127420003',
+    ((Decimal(vl_outstandingbalance)-Decimal(vl_refinanceamount)-Decimal(vl_refinancecost))*vl_totalownership/100)+Decimal(vl_creditadjustmentfordebtbalance),
+    vl_liabilitytype=global_vl_liabilitytypechoice.'127420000',
+    ((Decimal(vl_creditlimit)-Decimal(vl_refinanceamount)-Decimal(vl_refinancecost)+Decimal(vl_creditadjustmentfordebtbalance))*vl_totalownership/100),
+    vl_liabilitytype=global_vl_liabilitytypechoice.'127420001',
+    ((Decimal(vl_outstandingbalance)-Decimal(vl_refinanceamount)-Decimal(vl_refinancecost)+Decimal(vl_creditadjustmentfordebtbalance))*vl_totalownership/100),
+    vl_liabilitytype=global_vl_liabilitytypechoice.'127420002',
+    ((Decimal(vl_outstandingbalance)-Decimal(vl_refinanceamount)-Decimal(vl_refinancecost)-Decimal(vl_creditadjustmentfordebtbalance))*vl_totalownership/100))
+vl_assessmentinterestrate: |-
+    =Switch(vl_liabilitytype,
+    global_vl_liabilitytypechoice.'127420003',
+    If(vl_buffertype=global_vl_buffertypechoice.'127420000',(vl_annualinterestrate+vl_assessmentratebuffer),vl_annualinterestrate),
+    global_vl_liabilitytypechoice.'127420000',
+    If(vl_buffertype=global_vl_buffertypechoice.'127420000',
+    (vl_monthlyinterestrate+vl_assessmentratebuffer),
+    vl_buffertype=global_vl_buffertypechoice.'127420002',
+    vl_assessmentfixedrate,
+    vl_monthlyinterestrate),
+    global_vl_liabilitytypechoice.'127420001',
+    If(vl_buffertype=global_vl_buffertypechoice.'127420000',
+    (vl_annualinterestrate+vl_assessmentratebuffer),
+    vl_buffertype=global_vl_buffertypechoice.'127420002',
+    (vl_assessmentfixedrate),
+    vl_annualinterestrate)
+    )
+vl_assessmentmonthlyrepayment: |-
+    =Switch(vl_liabilitytype,
+    global_vl_liabilitytypechoice.'127420003',
+    vl_mortgageassessmentmonthlyrepayment,
+    global_vl_liabilitytypechoice.'127420000',
+    vl_creditassessmentmonthlyrepayment,
+    global_vl_liabilitytypechoice.'127420001',
+    vl_loanaccountassessmentmonthlyrepayment,
+    global_vl_liabilitytypechoice.'127420002',
+    vl_noncreditassessmentmonthlyrepayment)
+vl_assettype: =vl_AssetID.vl_assettype
+vl_creditactualmonthlyloanrepayment: |-
+    =If(vl_clearingfromthisloan<>global_vl_clearingfromthisloanchoice.'127420000',
+    If(vl_paymenttype=global_vl_creditcardpaymenttypechoice.'127420000',
+    (Decimal(vl_creditlimit)*vl_monthlyinterestrate/100)*vl_totalownership/100,
+    (Decimal(vl_creditlimit)*vl_monthlyinterestrate/100)/(1-Power((1+vl_monthlyinterestrate/100),-vl_remainingtermmonths))*vl_totalownership/100),0)
+vl_creditassessmentmonthlyrepayment: |-
+    =If(vl_liabilitytype=global_vl_liabilitytypechoice.'127420000',
+    If(vl_paymenttype=global_vl_creditcardpaymenttypechoice.'127420000',
+    (Decimal(vl_assessmentdebtbalance) * vl_assessmentinterestrate / 100 * (1 + vl_assessmentrepaymentbuffer / 100)) + Decimal(vl_creditadjustmentforrepayment),
+    (Decimal(vl_assessmentdebtbalance) * vl_assessmentinterestrate / 100 * (1 + vl_assessmentrepaymentbuffer / 100))  / (1 - Power(
+    	                    (1 + vl_assessmentinterestrate/ 100),
+    	                    -vl_remainingtermmonths
+                    )) + Decimal(vl_creditadjustmentforrepayment)),
+    0)
+vl_loanaccountactualmonthlyloanrepayment: |-
+    =If(Decimal(vl_outstandingbalance)>0,
+    If(vl_paymenttype=global_vl_creditcardpaymenttypechoice.'127420000',
+    Decimal(vl_outstandingbalance)*vl_assessmentinterestrate/100/12,
+    (Decimal(vl_outstandingbalance)*vl_assessmentinterestrate/100/12)/(1-Power((1+vl_assessmentinterestrate/100/12),-(vl_remainingtermmonths-vl_interestonlyperiodmonths)))),0)
+vl_loanaccountassessmentmonthlyrepayment: |-
+    =If(vl_liabilitytype=global_vl_liabilitytypechoice.'127420001',
+    If(vl_paymenttype=global_vl_creditcardpaymenttypechoice.'127420000',
+    (1+vl_assessmentrepaymentbuffer/100)*(Decimal(vl_assessmentdebtbalance)*vl_assessmentinterestrate/100/12)+Decimal(vl_creditadjustmentforrepayment),
+    (1+vl_assessmentrepaymentbuffer/100)*(Decimal(vl_assessmentdebtbalance)*vl_assessmentinterestrate/100/12)/(1-Power((1+vl_assessmentinterestrate/100/12),-(vl_remainingtermmonths-vl_interestonlyperiodmonths)))+Decimal(vl_creditadjustmentforrepayment)),
+    0)
+vl_loanterm: |-
+    =Switch(vl_ApplicationID.vl_loanterm,
+    global_vl_loantermchoice.'127420000',1,
+    global_vl_loantermchoice.'127420001',2,
+    global_vl_loantermchoice.'127420002',3,
+    global_vl_loantermchoice.'127420003',4,
+    global_vl_loantermchoice.'127420004',5,
+    global_vl_loantermchoice.'127420005',6,
+    global_vl_loantermchoice.'127420006',7,
+    global_vl_loantermchoice.'127420007',8,
+    global_vl_loantermchoice.'127420008',9,
+    global_vl_loantermchoice.'127420009',10,
+    global_vl_loantermchoice.'127420010',11,
+    global_vl_loantermchoice.'127420011',12,
+    global_vl_loantermchoice.'127420012',13,
+    global_vl_loantermchoice.'127420013',14,
+    global_vl_loantermchoice.'127420014',15,
+    global_vl_loantermchoice.'127420015',16,
+    global_vl_loantermchoice.'127420016',17,
+    global_vl_loantermchoice.'127420017',18,
+    global_vl_loantermchoice.'127420018',19,
+    global_vl_loantermchoice.'127420019',20,
+    global_vl_loantermchoice.'127420020',21,
+    global_vl_loantermchoice.'127420021',22,
+    global_vl_loantermchoice.'127420022',23,
+    global_vl_loantermchoice.'127420023',24,
+    global_vl_loantermchoice.'127420024',25,
+    global_vl_loantermchoice.'127420025',26,
+    global_vl_loantermchoice.'127420026',27,
+    global_vl_loantermchoice.'127420027',28,
+    global_vl_loantermchoice.'127420028',29,
+    global_vl_loantermchoice.'127420029',30)
+vl_monthlyrepayment: |-
+    =If(Decimal(vl_declaredrepaymentamount)>0,
+    If(vl_repaymentfrequency=global_vl_repaymentfrequencychoice.'127420000',
+    Decimal(vl_declaredrepaymentamount)*52/12,
+    vl_repaymentfrequency=global_vl_repaymentfrequencychoice.'127420001',
+    Decimal(vl_declaredrepaymentamount)*26/12,
+    Decimal(vl_declaredrepaymentamount)),0)
+vl_mortgageactualmonthlyloanrepayment: |-
+    =If(Decimal(vl_monthlyrepayment)>0,
+    vl_totalownership/100 * (((Decimal(vl_outstandingbalance)*vl_annualinterestrate)/12)/100)/(1-Power((1+vl_annualinterestrate/12/100),-(vl_remainingtermmonths-vl_interestonlyperiodmonths))),0)
+vl_mortgageassessmentmonthlyrepayment: |-
+    =If(vl_assessmentdebtbalance>0,
+    (1 + vl_assessmentrepaymentbuffer / 100) * (vl_assessmentdebtbalance * vl_assessmentinterestrate / 12 / 100) / (1 - Power(
+                    (1 + vl_assessmentinterestrate / 12 / 100),
+                    -(vl_remainingtermmonths -vl_interestonlyperiodmonths)
+                ))+Decimal(vl_creditadjustmentforrepayment),0)
+vl_newloanamountassessmentmonthlyrepayment: |-
+    =If(vl_tobeusedassecurity=true,
+     (1 + vl_assessmentrepaymentbuffer / 100) * ((Decimal(vl_ApplicationID.vl_requiredloanamountserviceability) - Decimal(vl_refinancecost) * vl_totalownership / 100) + Decimal(vl_creditadjustmentfordebtbalance)) * ((vl_ApplicationID.vl_productinterestrate+vl_ApplicationID.vl_interestratemargin+vl_assessmentratebuffer) / 12) / 100 / (1 - Power(
+                    (1 + ((vl_ApplicationID.vl_productinterestrate+vl_ApplicationID.vl_interestratemargin+vl_assessmentratebuffer) / 12) / 100),
+                    -((vl_loanterm*12) - vl_interestonlyperiodmonths)
+                )) + Decimal(vl_creditadjustmentforrepayment)
+    ,0)
+vl_noncreditassessmentmonthlyrepayment: |-
+    =If(vl_liabilitytype=global_vl_liabilitytypechoice.'127420002',
+        If(vl_clearingfromthisloan<>global_vl_clearingfromthisloanchoice.'127420000',
+       (Decimal(vl_declaredrepaymentamount)*vl_totalownership/100*(Decimal(vl_outstandingbalance)-Decimal(vl_refinanceamount)-Decimal(vl_refinancecost))/Decimal(vl_outstandingbalance))-Decimal(vl_creditadjustmentforrepayment),0),0)
+vl_primarysecurity: =vl_AssetID.vl_primarysecurity
+vl_taxdeduction: |-
+    =If(vl_liabilitytype=global_vl_liabilitytypechoice.'127420001' && vl_taxdeductible=true,
+    ((Decimal(vl_outstandingbalance)-Decimal(vl_refinanceamount)-Decimal(vl_refinancecost))*vl_annualinterestrate/100)*vl_totalownership/100
+    ,0)
+vl_tobeusedassecurity: =vl_AssetID.vl_tobeusedassecurity
+vl_totalnegativegearing: |-
+    =If(vl_negativelygeared=true,
+    (Decimal(vl_outstandingbalance) - Decimal(vl_refinanceamount) - Decimal(vl_refinancecost)) * vl_annualinterestrate / 100  * vl_totalownership / 100
+    )

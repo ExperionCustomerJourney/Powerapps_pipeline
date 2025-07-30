@@ -1,0 +1,36 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<savedqueries xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <savedquery>
+    <IsCustomizable>1</IsCustomizable>
+    <CanBeDeleted>0</CanBeDeleted>
+    <isquickfindquery>0</isquickfindquery>
+    <isprivate>0</isprivate>
+    <isdefault>1</isdefault>
+    <savedqueryid>{15f0f074-88c2-49f7-a34e-7c2ee1d3edf5}</savedqueryid>
+    <layoutxml>
+      <grid name="vl_applicationaddresses" jump="vl_addressid" select="1" icon="1" preview="0">
+        <row name="vl_applicationaddress" id="vl_applicationaddressid">
+          <cell name="vl_addressid" width="300" />
+          <cell name="createdon" width="125" />
+        </row>
+      </grid>
+    </layoutxml>
+    <querytype>64</querytype>
+    <fetchxml>
+      <fetch version="1.0" mapping="logical">
+        <entity name="vl_applicationaddress">
+          <attribute name="vl_applicationaddressid" />
+          <attribute name="vl_addressid" />
+          <attribute name="createdon" />
+          <filter type="and">
+            <condition attribute="statecode" operator="eq" value="0" />
+          </filter>
+        </entity>
+      </fetch>
+    </fetchxml>
+    <IntroducedVersion>1.0</IntroducedVersion>
+    <LocalizedNames>
+      <LocalizedName description="Application Address Lookup View" languagecode="1033" />
+    </LocalizedNames>
+  </savedquery>
+</savedqueries>

@@ -1,0 +1,104 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<optionset Name="vl_financialassettypechoice" localizedName="Financial Asset Type choice" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <OptionSetType>picklist</OptionSetType>
+  <IsGlobal>1</IsGlobal>
+  <IntroducedVersion>1.0.0.0</IntroducedVersion>
+  <IsCustomizable>1</IsCustomizable>
+  <ExternalTypeName></ExternalTypeName>
+  <displaynames>
+    <displayname description="Financial Asset Type choice" languagecode="1033" />
+  </displaynames>
+  <Descriptions>
+    <Description description="" languagecode="1033" />
+  </Descriptions>
+  <options>
+    <option value="127420000" ExternalValue="" IsHidden="0">
+      <labels>
+        <label description="Cash" languagecode="1033" />
+      </labels>
+      <Descriptions>
+        <Description description="" languagecode="1033" />
+      </Descriptions>
+    </option>
+    <option value="127420001" ExternalValue="" IsHidden="0">
+      <labels>
+        <label description="Investment" languagecode="1033" />
+      </labels>
+      <Descriptions>
+        <Description description="" languagecode="1033" />
+      </Descriptions>
+    </option>
+    <option value="127420002" ExternalValue="" IsHidden="0">
+      <labels>
+        <label description="Managed Funds" languagecode="1033" />
+      </labels>
+      <Descriptions>
+        <Description description="" languagecode="1033" />
+      </Descriptions>
+    </option>
+    <option value="127420003" ExternalValue="" IsHidden="0">
+      <labels>
+        <label description="Pension Accounts" languagecode="1033" />
+      </labels>
+      <Descriptions>
+        <Description description="" languagecode="1033" />
+      </Descriptions>
+    </option>
+    <option value="127420004" ExternalValue="" IsHidden="0">
+      <labels>
+        <label description="Receivables" languagecode="1033" />
+      </labels>
+      <Descriptions>
+        <Description description="" languagecode="1033" />
+      </Descriptions>
+    </option>
+    <option value="127420005" ExternalValue="" IsHidden="0">
+      <labels>
+        <label description="Savings Account" languagecode="1033" />
+      </labels>
+      <Descriptions>
+        <Description description="" languagecode="1033" />
+      </Descriptions>
+    </option>
+    <option value="127420006" ExternalValue="" IsHidden="0">
+      <labels>
+        <label description="Shares and Debentures" languagecode="1033" />
+      </labels>
+      <Descriptions>
+        <Description description="" languagecode="1033" />
+      </Descriptions>
+    </option>
+    <option value="127420007" ExternalValue="" IsHidden="0">
+      <labels>
+        <label description="Superannuation" languagecode="1033" />
+      </labels>
+      <Descriptions>
+        <Description description="" languagecode="1033" />
+      </Descriptions>
+    </option>
+    <option value="127420008" ExternalValue="" IsHidden="0">
+      <labels>
+        <label description="Term Deposit" languagecode="1033" />
+      </labels>
+      <Descriptions>
+        <Description description="" languagecode="1033" />
+      </Descriptions>
+    </option>
+    <option value="127420009" ExternalValue="" IsHidden="0">
+      <labels>
+        <label description="Transaction Account" languagecode="1033" />
+      </labels>
+      <Descriptions>
+        <Description description="" languagecode="1033" />
+      </Descriptions>
+    </option>
+    <option value="127420010" ExternalValue="" IsHidden="0">
+      <labels>
+        <label description="Others" languagecode="1033" />
+      </labels>
+      <Descriptions>
+        <Description description="" languagecode="1033" />
+      </Descriptions>
+    </option>
+  </options>
+</optionset>

@@ -1,0 +1,205 @@
+vl_annualbonus: |-
+    =If(vl_bonusfrequency=global_vl_frequencychoice.'127420000',
+    (Decimal(vl_bonus)* 52) / 12,
+    vl_bonusfrequency=global_vl_frequencychoice.'127420001',
+    (Decimal(vl_bonus)* 26) / 12,
+    vl_bonusfrequency=global_vl_frequencychoice.'127420003',
+    Decimal(vl_bonus) / 12,
+    vl_bonusfrequency=global_vl_frequencychoice.'127420002',
+    Decimal(vl_bonus))*12
+vl_annualcommision: |-
+    =If(vl_commissionfrequency=global_vl_frequencychoice.'127420000',
+    (Decimal(vl_commission)* 52) / 12,
+    vl_commissionfrequency=global_vl_frequencychoice.'127420001',
+    (Decimal(vl_commission)* 26) / 12,
+    vl_commissionfrequency=global_vl_frequencychoice.'127420003',
+    Decimal(vl_commission) / 12,
+    vl_commissionfrequency=global_vl_frequencychoice.'127420002',
+    Decimal(vl_commission))*12
+vl_annualgrosscarallowance: |-
+    =If(vl_grosscarallowancefrequency=global_vl_frequencychoice.'127420000',
+    (Decimal(vl_grosscarallowance)* 52) / 12,
+    vl_grosscarallowancefrequency=global_vl_frequencychoice.'127420001',
+    (Decimal(vl_grosscarallowance)* 26) / 12,
+    vl_grosscarallowancefrequency=global_vl_frequencychoice.'127420003',
+    Decimal(vl_grosscarallowance) / 12,
+    vl_grosscarallowancefrequency=global_vl_frequencychoice.'127420002',
+    Decimal(vl_grosscarallowance))*12
+vl_annualgrossovertimeamount: |-
+    =If(vl_grossregularovertimefrequency=global_vl_frequencychoice.'127420000',
+    (Decimal(vl_grossregularovertimeamount)* 52) / 12,
+    vl_grossregularovertimefrequency=global_vl_frequencychoice.'127420001',
+    (Decimal(vl_grossregularovertimeamount)* 26) / 12,
+    vl_grossregularovertimefrequency=global_vl_frequencychoice.'127420003',
+    Decimal(vl_grossregularovertimeamount) / 12,
+    vl_grossregularovertimefrequency=global_vl_frequencychoice.'127420002',
+    Decimal(vl_grossregularovertimeamount))*12
+vl_annualgrosssalary: =vl_monthlygrosssalary*12
+vl_annualotherdeductions: |-
+    =If(vl_otherdeductionsfrequency=global_vl_frequencychoice.'127420000',
+    (Decimal(vl_otherdeductions)* 52) / 12,
+    vl_otherdeductionsfrequency=global_vl_frequencychoice.'127420001',
+    (Decimal(vl_otherdeductions)* 26) / 12,
+    vl_otherdeductionsfrequency=global_vl_frequencychoice.'127420003',
+    Decimal(vl_otherdeductions) / 12,
+    vl_otherdeductionsfrequency=global_vl_frequencychoice.'127420002',
+    Decimal(vl_otherdeductions))*12
+vl_annualparentalleave: |-
+    =If(vl_parentalleavefrequency=global_vl_frequencychoice.'127420000',
+    (Decimal(vl_parentalleave)* 52) / 12,
+    vl_parentalleavefrequency=global_vl_frequencychoice.'127420001',
+    (Decimal(vl_parentalleave)* 26) / 12,
+    vl_parentalleavefrequency=global_vl_frequencychoice.'127420003',
+    Decimal(vl_parentalleave) / 12,
+    vl_parentalleavefrequency=global_vl_frequencychoice.'127420002',
+    Decimal(vl_parentalleave))*12
+vl_annualsalarysacrifice: |-
+    =If(vl_salarysacrificefrequency=global_vl_frequencychoice.'127420000',
+    (Decimal(vl_salarysacrifice)* 52) / 12,
+    vl_salarysacrificefrequency=global_vl_frequencychoice.'127420001',
+    (Decimal(vl_salarysacrifice)* 26) / 12,
+    vl_salarysacrificefrequency=global_vl_frequencychoice.'127420003',
+    Decimal(vl_salarysacrifice) / 12,
+    vl_salarysacrificefrequency=global_vl_frequencychoice.'127420002',
+    Decimal(vl_salarysacrifice))*12
+vl_annualshiftotherallowance: |-
+    =If(vl_shiftotherallowancefrequency=global_vl_frequencychoice.'127420000',
+    (Decimal(vl_shiftotherallowance)* 52) / 12,
+    vl_shiftotherallowancefrequency=global_vl_frequencychoice.'127420001',
+    (Decimal(vl_shiftotherallowance)* 26) / 12,
+    vl_shiftotherallowancefrequency=global_vl_frequencychoice.'127420003',
+    Decimal(vl_shiftotherallowance) / 12,
+    vl_shiftotherallowancefrequency=global_vl_frequencychoice.'127420002',
+    Decimal(vl_shiftotherallowance))*12
+vl_annualworkallowance: |-
+    =If(vl_workallowancefrequency=global_vl_frequencychoice.'127420000',
+    (Decimal(vl_workallowance)* 52) / 12,
+    vl_workallowancefrequency=global_vl_frequencychoice.'127420001',
+    (Decimal(vl_workallowance)* 26) / 12,
+    vl_workallowancefrequency=global_vl_frequencychoice.'127420003',
+    Decimal(vl_workallowance) / 12,
+    vl_workallowancefrequency=global_vl_frequencychoice.'127420002',
+    Decimal(vl_workallowance))*12
+vl_annualworkerscompensation: |-
+    =If(vl_workerscompensationfrequency=global_vl_frequencychoice.'127420000',
+    (Decimal(vl_workerscompensation)* 52) / 12,
+    vl_workerscompensationfrequency=global_vl_frequencychoice.'127420001',
+    (Decimal(vl_workerscompensation)* 26) / 12,
+    vl_workerscompensationfrequency=global_vl_frequencychoice.'127420003',
+    Decimal(vl_workerscompensation) / 12,
+    vl_workerscompensationfrequency=global_vl_frequencychoice.'127420002',
+    Decimal(vl_workerscompensation))*12
+vl_grosseligibletotalannualincome: =((vl_neteligiblegrosssalary+vl_neteligiblebonus+vl_neteligiblecommission+vl_neteligibleovertimeamount+vl_neteligiblegrosscarallowance+vl_neteligibleparentalleave+vl_neteligibleshiftotherallowance+vl_neteligibleworkerscompensation+vl_neteligibleworkallowance) - (vl_neteligiblesalarysacrifice+vl_neteligibleotherdeductions)) + Decimal(vl_creditadjustment)
+vl_grosseligibletotalmonthlyincome: =vl_grosseligibletotalannualincome/12
+vl_grosstotalannualincome: =((vl_monthlygrosssalary+vl_monthlybonus+vl_monthlycommission+vl_monthlyregularovertimeamount+vl_monthlygrosscarallowance+vl_monthlyparentalleave+vl_monthlyshiftotherallowance+vl_monthlyworkerscompensation+vl_monthlyworkallowance) - (vl_monthlysalarysacrifice+vl_monthlyotherdeductions)) * 12
+vl_grosstotalmonthlyincome: =(vl_monthlygrosssalary+vl_monthlybonus+vl_monthlycommission+vl_monthlyregularovertimeamount+vl_monthlygrosscarallowance+vl_monthlyparentalleave+vl_monthlyshiftotherallowance+vl_monthlyworkerscompensation+vl_monthlyworkallowance) - (vl_monthlysalarysacrifice+vl_monthlyotherdeductions)
+vl_monthlybonus: |-
+    =If(vl_bonusfrequency=global_vl_frequencychoice.'127420000',
+    (Decimal(vl_bonus)* 52) / 12,
+    vl_bonusfrequency=global_vl_frequencychoice.'127420001',
+    (Decimal(vl_bonus)* 26) / 12,
+    vl_bonusfrequency=global_vl_frequencychoice.'127420003',
+    Decimal(vl_bonus) / 12,
+    vl_bonusfrequency=global_vl_frequencychoice.'127420002',
+    Decimal(vl_bonus))
+vl_monthlycommission: |-
+    =If(vl_commissionfrequency=global_vl_frequencychoice.'127420000',
+    (Decimal(vl_commission)* 52) / 12,
+    vl_commissionfrequency=global_vl_frequencychoice.'127420001',
+    (Decimal(vl_commission)* 26) / 12,
+    vl_commissionfrequency=global_vl_frequencychoice.'127420003',
+    Decimal(vl_commission) / 12,
+    vl_commissionfrequency=global_vl_frequencychoice.'127420002',
+    Decimal(vl_commission))
+vl_monthlygrosscarallowance: |-
+    =If(vl_grosscarallowancefrequency=global_vl_frequencychoice.'127420000',
+    (Decimal(vl_grosscarallowance)* 52) / 12,
+    vl_grosscarallowancefrequency=global_vl_frequencychoice.'127420001',
+    (Decimal(vl_grosscarallowance)* 26) / 12,
+    vl_grosscarallowancefrequency=global_vl_frequencychoice.'127420003',
+    Decimal(vl_grosscarallowance) / 12,
+    vl_grosscarallowancefrequency=global_vl_frequencychoice.'127420002',
+    Decimal(vl_grosscarallowance))
+vl_monthlygrosssalary: |-
+    =If(vl_grosssalaryfrequency=global_vl_frequencychoice.'127420000',
+    (Decimal(vl_grosssalary)* 52) / 12,
+    vl_grosssalaryfrequency=global_vl_frequencychoice.'127420001',
+    (Decimal(vl_grosssalary)* 26) / 12,
+    vl_grosssalaryfrequency=global_vl_frequencychoice.'127420003',
+    Decimal(vl_grosssalary) / 12,
+    vl_grosssalaryfrequency=global_vl_frequencychoice.'127420002',
+    Decimal(vl_grosssalary))
+vl_monthlyotherdeductions: |-
+    =If(vl_otherdeductionsfrequency=global_vl_frequencychoice.'127420000',
+    (Decimal(vl_otherdeductions)* 52) / 12,
+    vl_otherdeductionsfrequency=global_vl_frequencychoice.'127420001',
+    (Decimal(vl_otherdeductions)* 26) / 12,
+    vl_otherdeductionsfrequency=global_vl_frequencychoice.'127420003',
+    Decimal(vl_otherdeductions) / 12,
+    vl_otherdeductionsfrequency=global_vl_frequencychoice.'127420002',
+    Decimal(vl_otherdeductions))
+vl_monthlyparentalleave: |-
+    =If(vl_parentalleavefrequency=global_vl_frequencychoice.'127420000',
+    (Decimal(vl_parentalleave)* 52) / 12,
+    vl_parentalleavefrequency=global_vl_frequencychoice.'127420001',
+    (Decimal(vl_parentalleave)* 26) / 12,
+    vl_parentalleavefrequency=global_vl_frequencychoice.'127420003',
+    Decimal(vl_parentalleave) / 12,
+    vl_parentalleavefrequency=global_vl_frequencychoice.'127420002',
+    Decimal(vl_parentalleave))
+vl_monthlyregularovertimeamount: |-
+    =If(vl_grossregularovertimefrequency=global_vl_frequencychoice.'127420000',
+    (Decimal(vl_grossregularovertimeamount)* 52) / 12,
+    vl_grossregularovertimefrequency=global_vl_frequencychoice.'127420001',
+    (Decimal(vl_grossregularovertimeamount)* 26) / 12,
+    vl_grossregularovertimefrequency=global_vl_frequencychoice.'127420003',
+    Decimal(vl_grossregularovertimeamount) / 12,
+    vl_grossregularovertimefrequency=global_vl_frequencychoice.'127420002',
+    Decimal(vl_grossregularovertimeamount))
+vl_monthlysalarysacrifice: |-
+    =If(vl_salarysacrificefrequency=global_vl_frequencychoice.'127420000',
+    (Decimal(vl_salarysacrifice)* 52) / 12,
+    vl_salarysacrificefrequency=global_vl_frequencychoice.'127420001',
+    (Decimal(vl_salarysacrifice)* 26) / 12,
+    vl_salarysacrificefrequency=global_vl_frequencychoice.'127420003',
+    Decimal(vl_salarysacrifice) / 12,
+    vl_salarysacrificefrequency=global_vl_frequencychoice.'127420002',
+    Decimal(vl_salarysacrifice))
+vl_monthlyshiftotherallowance: |-
+    =If(vl_shiftotherallowancefrequency=global_vl_frequencychoice.'127420000',
+    (Decimal(vl_shiftotherallowance)* 52) / 12,
+    vl_shiftotherallowancefrequency=global_vl_frequencychoice.'127420001',
+    (Decimal(vl_shiftotherallowance)* 26) / 12,
+    vl_shiftotherallowancefrequency=global_vl_frequencychoice.'127420003',
+    Decimal(vl_shiftotherallowance) / 12,
+    vl_shiftotherallowancefrequency=global_vl_frequencychoice.'127420002',
+    Decimal(vl_shiftotherallowance))
+vl_monthlyworkallowance: |-
+    =If(vl_workallowancefrequency=global_vl_frequencychoice.'127420000',
+    (Decimal(vl_workallowance)* 52) / 12,
+    vl_workallowancefrequency=global_vl_frequencychoice.'127420001',
+    (Decimal(vl_workallowance)* 26) / 12,
+    vl_workallowancefrequency=global_vl_frequencychoice.'127420003',
+    Decimal(vl_workallowance) / 12,
+    vl_workallowancefrequency=global_vl_frequencychoice.'127420002',
+    Decimal(vl_workallowance))
+vl_monthlyworkerscompensation: |-
+    =If(vl_workerscompensationfrequency=global_vl_frequencychoice.'127420000',
+    (Decimal(vl_workerscompensation)* 52) / 12,
+    vl_workerscompensationfrequency=global_vl_frequencychoice.'127420001',
+    (Decimal(vl_workerscompensation)* 26) / 12,
+    vl_workerscompensationfrequency=global_vl_frequencychoice.'127420003',
+    Decimal(vl_workerscompensation) / 12,
+    vl_workerscompensationfrequency=global_vl_frequencychoice.'127420002',
+    Decimal(vl_workerscompensation))
+vl_neteligiblebonus: =(vl_annualbonus*vl_eligiblebonusshading)/100
+vl_neteligiblecommission: =(vl_annualcommision*vl_eligiblecommissionshading)/100
+vl_neteligiblegrosscarallowance: =(vl_annualgrosscarallowance*vl_eligiblegrosscarallowanceshading)/100
+vl_neteligiblegrosssalary: =(vl_annualgrosssalary*vl_paygeligiblegrosssalaryshading)/100
+vl_neteligibleotherdeductions: =(vl_annualotherdeductions*vl_eligibleotherdeductionsshading)/100
+vl_neteligibleovertimeamount: =(vl_annualgrossovertimeamount * vl_eligiblegrossovertimeshading)/100
+vl_neteligibleparentalleave: =(vl_annualparentalleave*vl_eligibleparentalleaveshading)/100
+vl_neteligiblesalarysacrifice: =(vl_annualsalarysacrifice*vl_eligiblesalarysacrificeshading)/100
+vl_neteligibleshiftotherallowance: =(vl_annualshiftotherallowance*vl_eligibleshiftotherallowanceshading)/100
+vl_neteligibleworkallowance: =(vl_annualworkallowance*vl_eligibleworkallowanceshading)/100
+vl_neteligibleworkerscompensation: =(vl_annualworkerscompensation*vl_eligibleworkerscompensationshading)/100
