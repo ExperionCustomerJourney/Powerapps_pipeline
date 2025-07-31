@@ -1,0 +1,314 @@
+{
+  "properties": {
+    "connectionReferences": {
+      "shared_sharepointonline": {
+        "runtimeSource": "invoker",
+        "connection": {
+          "connectionReferenceLogicalName": "vl_sharedsharepointonline_b9297"
+        },
+        "api": {
+          "name": "shared_sharepointonline"
+        }
+      },
+      "shared_commondataserviceforapps": {
+        "runtimeSource": "embedded",
+        "connection": {
+          "connectionReferenceLogicalName": "vl_sharedcommondataserviceforapps_04816"
+        },
+        "api": {
+          "name": "shared_commondataserviceforapps"
+        }
+      }
+    },
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "parameters": {
+        "$connections": {
+          "defaultValue": {},
+          "type": "Object"
+        },
+        "$authentication": {
+          "defaultValue": {},
+          "type": "SecureObject"
+        },
+        "Envar_VantageLOS_SharepointSite (vl_Envar_VantageLOS_SharepointSite)": {
+          "defaultValue": "https://experionloancentral.sharepoint.com/sites/Vantage_Dev",
+          "type": "String",
+          "metadata": {
+            "schemaName": "vl_Envar_VantageLOS_SharepointSite"
+          }
+        },
+        "Envar_VantageLOS_SharepointSupportingDocumentsList (vl_Envar_VantageLOS_SupportingDocumentsList)": {
+          "defaultValue": "fac2cbae-cc5e-4f44-a570-dea5d150fb5b",
+          "type": "String",
+          "metadata": {
+            "schemaName": "vl_Envar_VantageLOS_SupportingDocumentsList"
+          }
+        }
+      },
+      "triggers": {
+        "manual": {
+          "metadata": {
+            "operationMetadataId": "fe54d954-5e19-4b5a-9ecc-4b0f6a953266"
+          },
+          "type": "Request",
+          "kind": "PowerAppV2",
+          "inputs": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "file": {
+                  "title": "Document",
+                  "type": "object",
+                  "x-ms-dynamically-added": true,
+                  "description": "Please select file or image",
+                  "x-ms-content-hint": "FILE",
+                  "properties": {
+                    "name": {
+                      "type": "string"
+                    },
+                    "contentBytes": {
+                      "type": "string",
+                      "format": "byte"
+                    }
+                  }
+                },
+                "text_4": {
+                  "title": "ApplicationID",
+                  "type": "string",
+                  "x-ms-dynamically-added": true,
+                  "description": "Please enter your input",
+                  "x-ms-content-hint": "TEXT"
+                },
+                "text": {
+                  "title": "DocumentID",
+                  "type": "string",
+                  "x-ms-dynamically-added": true,
+                  "description": "Please enter your input",
+                  "x-ms-content-hint": "TEXT"
+                },
+                "text_1": {
+                  "title": "FileID",
+                  "type": "string",
+                  "x-ms-dynamically-added": true,
+                  "description": "Please enter your input",
+                  "x-ms-content-hint": "TEXT"
+                }
+              },
+              "required": [
+                "text_4",
+                "text",
+                "text_1"
+              ]
+            }
+          }
+        }
+      },
+      "actions": {
+        "Main": {
+          "actions": {
+            "Check_File_Exist": {
+              "actions": {
+                "Delete_file": {
+                  "runAfter": {},
+                  "metadata": {
+                    "%252fSupport%2bDocuments%252fevidance.PNG": "/Support Documents/evidance.PNG",
+                    "operationMetadataId": "b91b0556-d2e5-44c6-9449-6ee3af34e9a2"
+                  },
+                  "type": "OpenApiConnection",
+                  "inputs": {
+                    "host": {
+                      "connectionName": "shared_sharepointonline",
+                      "operationId": "DeleteFile",
+                      "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline"
+                    },
+                    "parameters": {
+                      "dataset": "@parameters('Envar_VantageLOS_SharepointSite (vl_Envar_VantageLOS_SharepointSite)')",
+                      "id": "@replace(replace(triggerBody()['text_1'],' ','%2b'),'/','%252f')"
+                    },
+                    "authentication": "@parameters('$authentication')"
+                  }
+                }
+              },
+              "runAfter": {},
+              "expression": {
+                "not": {
+                  "equals": [
+                    "@triggerBody()['text_1']",
+                    "NULL"
+                  ]
+                }
+              },
+              "metadata": {
+                "operationMetadataId": "2698a416-1bed-4918-95e7-f26144bbfbba"
+              },
+              "type": "If"
+            },
+            "Respond_to_a_Power_App_or_flow": {
+              "runAfter": {
+                "Check_Document_ID": [
+                  "Succeeded"
+                ]
+              },
+              "metadata": {
+                "operationMetadataId": "8f3b5cc0-b02c-4c96-9413-d5d86a9688bf"
+              },
+              "type": "Response",
+              "kind": "PowerApp",
+              "inputs": {
+                "statusCode": 200,
+                "body": {
+                  "status": "Success"
+                },
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "title": "Status",
+                      "x-ms-dynamically-added": true,
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
+            "Check_Document_ID": {
+              "actions": {
+                "Create_file": {
+                  "runAfter": {},
+                  "metadata": {
+                    "operationMetadataId": "0763c70b-ac9f-418a-8364-941b8d4b959f"
+                  },
+                  "type": "OpenApiConnection",
+                  "inputs": {
+                    "host": {
+                      "connectionName": "shared_sharepointonline",
+                      "operationId": "CreateFile",
+                      "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline"
+                    },
+                    "parameters": {
+                      "dataset": "@parameters('Envar_VantageLOS_SharepointSite (vl_Envar_VantageLOS_SharepointSite)')",
+                      "folderPath": "/Support Documents",
+                      "name": "@{triggerBody()?['text']}_@{triggerBody()['file']['name']}",
+                      "body": "@triggerBody()?['file']?['contentBytes']"
+                    },
+                    "authentication": "@parameters('$authentication')"
+                  },
+                  "runtimeConfiguration": {
+                    "contentTransfer": {
+                      "transferMode": "Chunked"
+                    }
+                  }
+                },
+                "Update_file_properties": {
+                  "runAfter": {
+                    "Create_file": [
+                      "Succeeded"
+                    ]
+                  },
+                  "metadata": {
+                    "operationMetadataId": "0b0972c4-40bb-4770-9b61-f5306687633f"
+                  },
+                  "type": "OpenApiConnection",
+                  "inputs": {
+                    "host": {
+                      "connectionName": "shared_sharepointonline",
+                      "operationId": "PatchFileItem",
+                      "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline"
+                    },
+                    "parameters": {
+                      "dataset": "@parameters('Envar_VantageLOS_SharepointSite (vl_Envar_VantageLOS_SharepointSite)')",
+                      "table": "@parameters('Envar_VantageLOS_SharepointSupportingDocumentsList (vl_Envar_VantageLOS_SupportingDocumentsList)')",
+                      "id": "@outputs('Create_file')?['body/ItemId']",
+                      "item/ApplicationID": "@triggerBody()['text_4']",
+                      "item/SupportingDocumentID": "@triggerBody()['text']"
+                    },
+                    "authentication": "@parameters('$authentication')"
+                  }
+                }
+              },
+              "runAfter": {
+                "Check_File_Exist": [
+                  "Succeeded"
+                ]
+              },
+              "expression": {
+                "not": {
+                  "equals": [
+                    "@triggerBody()['text']",
+                    "NULL"
+                  ]
+                }
+              },
+              "metadata": {
+                "operationMetadataId": "a0072784-c1d5-4fbb-84d6-f1374ab4b810"
+              },
+              "type": "If"
+            }
+          },
+          "runAfter": {},
+          "metadata": {
+            "operationMetadataId": "bd0331a9-244c-467a-ae33-5fa02cb5561a"
+          },
+          "type": "Scope"
+        },
+        "On_Error": {
+          "actions": {
+            "Filter_Error_Details": {
+              "runAfter": {},
+              "metadata": {
+                "operationMetadataId": "0fe5b81b-3aa2-4e6f-a549-00be696e8512"
+              },
+              "type": "Query",
+              "inputs": {
+                "from": "@result('Main')",
+                "where": "@equals(item()?['status'], 'Failed')"
+              }
+            },
+            "Add_Error_Details": {
+              "runAfter": {
+                "Filter_Error_Details": [
+                  "Succeeded"
+                ]
+              },
+              "metadata": {
+                "operationMetadataId": "34cf1c91-b973-464b-a413-e0bff5b603d6"
+              },
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_commondataserviceforapps",
+                  "operationId": "CreateRecord",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                },
+                "parameters": {
+                  "entityName": "vl_errorhandlings",
+                  "item/vl_component": "@first(body('Filter_Error_Details'))?['name']",
+                  "item/vl_errorcode": "@first(body('Filter_Error_Details'))?['error']?['code']",
+                  "item/vl_errormessage": "@first(body('Filter_Error_Details'))?['error']?['message']",
+                  "item/vl_errorsource": 127420001,
+                  "item/vl_sourcename": "@workflow().tags.flowDisplayName"
+                },
+                "authentication": "@parameters('$authentication')"
+              }
+            }
+          },
+          "runAfter": {
+            "Main": [
+              "Skipped",
+              "Failed",
+              "TimedOut"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "0d4b1819-7119-4224-9fc4-9383e3e26255"
+          },
+          "type": "Scope"
+        }
+      }
+    },
+    "templateName": ""
+  },
+  "schemaVersion": "1.0.0.0"
+}

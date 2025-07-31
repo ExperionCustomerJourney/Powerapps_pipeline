@@ -1,0 +1,15 @@
+<environmentvariabledefinition schemaname="vl_Envar_VantageLOS_SharepointDocumentList">
+  <apiid>/providers/microsoft.powerapps/apis/shared_sharepointonline</apiid>
+  <displayname default="Envar_VantageLOS_SharepointDocumentList">
+    <label description="Envar_VantageLOS_SharepointDocumentList" languagecode="1033" />
+  </displayname>
+  <introducedversion>1.0.0.14</introducedversion>
+  <iscustomizable>1</iscustomizable>
+  <isrequired>0</isrequired>
+  <parameterkey>table</parameterkey>
+  <parentdefinitionid>
+    <schemaname>vl_Envar_VantageLOS_SharepointSite</schemaname>
+  </parentdefinitionid>
+  <secretstore>0</secretstore>
+  <type>100000004</type>
+</environmentvariabledefinition>

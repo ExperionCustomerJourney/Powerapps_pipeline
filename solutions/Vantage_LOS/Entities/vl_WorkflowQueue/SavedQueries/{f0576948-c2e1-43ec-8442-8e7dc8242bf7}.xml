@@ -1,0 +1,37 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<savedqueries xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <savedquery>
+    <IsCustomizable>1</IsCustomizable>
+    <CanBeDeleted>0</CanBeDeleted>
+    <isquickfindquery>0</isquickfindquery>
+    <isprivate>0</isprivate>
+    <isdefault>0</isdefault>
+    <savedqueryid>{f0576948-c2e1-43ec-8442-8e7dc8242bf7}</savedqueryid>
+    <layoutxml>
+      <grid name="resultset" jump="vl_queueid" select="1" icon="1" preview="1">
+        <row name="result" id="vl_workflowqueueid">
+          <cell name="vl_queueid" width="300" />
+          <cell name="createdon" width="125" />
+        </row>
+      </grid>
+    </layoutxml>
+    <querytype>0</querytype>
+    <fetchxml>
+      <fetch version="1.0" mapping="logical">
+        <entity name="vl_workflowqueue">
+          <attribute name="vl_workflowqueueid" />
+          <attribute name="vl_queueid" />
+          <attribute name="createdon" />
+          <order attribute="vl_queueid" descending="false" />
+          <filter type="and">
+            <condition attribute="statecode" operator="eq" value="1" />
+          </filter>
+        </entity>
+      </fetch>
+    </fetchxml>
+    <IntroducedVersion>1.0</IntroducedVersion>
+    <LocalizedNames>
+      <LocalizedName description="Inactive Workflow Queues" languagecode="1033" />
+    </LocalizedNames>
+  </savedquery>
+</savedqueries>

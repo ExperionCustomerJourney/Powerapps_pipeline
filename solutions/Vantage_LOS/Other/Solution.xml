@@ -1,0 +1,252 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ImportExportXml version="9.2.25071.172" SolutionPackageVersion="9.2" languagecode="1033" generatedBy="CrmLive" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" OrganizationVersion="9.2.25071.172" OrganizationSchemaType="Full" CRMServerServiceabilityVersion="9.2.25071.00172">
+  <SolutionManifest>
+    <UniqueName>Vantage_LOS</UniqueName>
+    <LocalizedNames>
+      <LocalizedName description="Vantage_LOS" languagecode="1033" />
+    </LocalizedNames>
+    <Descriptions />
+    <Version>1.0.0.35</Version>
+    <Managed>0</Managed>
+    <Publisher>
+      <UniqueName>Vantage</UniqueName>
+      <LocalizedNames>
+        <LocalizedName description="Vantage" languagecode="1033" />
+      </LocalizedNames>
+      <Descriptions />
+      <EMailAddress xsi:nil="true"></EMailAddress>
+      <SupportingWebsiteUrl xsi:nil="true"></SupportingWebsiteUrl>
+      <CustomizationPrefix>vl</CustomizationPrefix>
+      <CustomizationOptionValuePrefix>12742</CustomizationOptionValuePrefix>
+      <Addresses>
+        <Address>
+          <AddressNumber>1</AddressNumber>
+          <AddressTypeCode>1</AddressTypeCode>
+          <City xsi:nil="true"></City>
+          <County xsi:nil="true"></County>
+          <Country xsi:nil="true"></Country>
+          <Fax xsi:nil="true"></Fax>
+          <FreightTermsCode xsi:nil="true"></FreightTermsCode>
+          <ImportSequenceNumber xsi:nil="true"></ImportSequenceNumber>
+          <Latitude xsi:nil="true"></Latitude>
+          <Line1 xsi:nil="true"></Line1>
+          <Line2 xsi:nil="true"></Line2>
+          <Line3 xsi:nil="true"></Line3>
+          <Longitude xsi:nil="true"></Longitude>
+          <Name xsi:nil="true"></Name>
+          <PostalCode xsi:nil="true"></PostalCode>
+          <PostOfficeBox xsi:nil="true"></PostOfficeBox>
+          <PrimaryContactName xsi:nil="true"></PrimaryContactName>
+          <ShippingMethodCode>1</ShippingMethodCode>
+          <StateOrProvince xsi:nil="true"></StateOrProvince>
+          <Telephone1 xsi:nil="true"></Telephone1>
+          <Telephone2 xsi:nil="true"></Telephone2>
+          <Telephone3 xsi:nil="true"></Telephone3>
+          <TimeZoneRuleVersionNumber xsi:nil="true"></TimeZoneRuleVersionNumber>
+          <UPSZone xsi:nil="true"></UPSZone>
+          <UTCOffset xsi:nil="true"></UTCOffset>
+          <UTCConversionTimeZoneCode xsi:nil="true"></UTCConversionTimeZoneCode>
+        </Address>
+        <Address>
+          <AddressNumber>2</AddressNumber>
+          <AddressTypeCode>1</AddressTypeCode>
+          <City xsi:nil="true"></City>
+          <County xsi:nil="true"></County>
+          <Country xsi:nil="true"></Country>
+          <Fax xsi:nil="true"></Fax>
+          <FreightTermsCode xsi:nil="true"></FreightTermsCode>
+          <ImportSequenceNumber xsi:nil="true"></ImportSequenceNumber>
+          <Latitude xsi:nil="true"></Latitude>
+          <Line1 xsi:nil="true"></Line1>
+          <Line2 xsi:nil="true"></Line2>
+          <Line3 xsi:nil="true"></Line3>
+          <Longitude xsi:nil="true"></Longitude>
+          <Name xsi:nil="true"></Name>
+          <PostalCode xsi:nil="true"></PostalCode>
+          <PostOfficeBox xsi:nil="true"></PostOfficeBox>
+          <PrimaryContactName xsi:nil="true"></PrimaryContactName>
+          <ShippingMethodCode>1</ShippingMethodCode>
+          <StateOrProvince xsi:nil="true"></StateOrProvince>
+          <Telephone1 xsi:nil="true"></Telephone1>
+          <Telephone2 xsi:nil="true"></Telephone2>
+          <Telephone3 xsi:nil="true"></Telephone3>
+          <TimeZoneRuleVersionNumber xsi:nil="true"></TimeZoneRuleVersionNumber>
+          <UPSZone xsi:nil="true"></UPSZone>
+          <UTCOffset xsi:nil="true"></UTCOffset>
+          <UTCConversionTimeZoneCode xsi:nil="true"></UTCConversionTimeZoneCode>
+        </Address>
+      </Addresses>
+    </Publisher>
+    <RootComponents>
+      <RootComponent type="1" schemaName="systemuser" behavior="1" />
+      <RootComponent type="1" schemaName="team" behavior="1" />
+      <RootComponent type="1" schemaName="vl_applicant" behavior="0" />
+      <RootComponent type="1" schemaName="vl_applicationaddress" behavior="0" />
+      <RootComponent type="1" schemaName="vl_applicationnotes" behavior="0" />
+      <RootComponent type="1" schemaName="vl_applications" behavior="0" />
+      <RootComponent type="1" schemaName="vl_assets" behavior="0" />
+      <RootComponent type="1" schemaName="vl_configurationsettings" behavior="0" />
+      <RootComponent type="1" schemaName="vl_contributionfunds" behavior="0" />
+      <RootComponent type="1" schemaName="vl_employment" behavior="0" />
+      <RootComponent type="1" schemaName="vl_errorhandling" behavior="0" />
+      <RootComponent type="1" schemaName="vl_exceptions" behavior="0" />
+      <RootComponent type="1" schemaName="vl_expense" behavior="0" />
+      <RootComponent type="1" schemaName="vl_expenseresults" behavior="0" />
+      <RootComponent type="1" schemaName="vl_hem" behavior="0" />
+      <RootComponent type="1" schemaName="vl_income" behavior="0" />
+      <RootComponent type="1" schemaName="vl_liabilities" behavior="0" />
+      <RootComponent type="1" schemaName="vl_license" behavior="0" />
+      <RootComponent type="1" schemaName="vl_paygemployment" behavior="0" />
+      <RootComponent type="1" schemaName="vl_productvariants" behavior="0" />
+      <RootComponent type="1" schemaName="vl_professionalcontacts" behavior="0" />
+      <RootComponent type="1" schemaName="vl_selfemployedemployment" behavior="0" />
+      <RootComponent type="1" schemaName="vl_serviceability" behavior="0" />
+      <RootComponent type="1" schemaName="vl_settlementfees" behavior="0" />
+      <RootComponent type="1" schemaName="vl_settlementinformation" behavior="0" />
+      <RootComponent type="1" schemaName="vl_supportingdocuments" behavior="0" />
+      <RootComponent type="1" schemaName="vl_supportingdocumentsmatrix" behavior="0" />
+      <RootComponent type="1" schemaName="vl_tax" behavior="0" />
+      <RootComponent type="1" schemaName="vl_unemployedemployment" behavior="0" />
+      <RootComponent type="1" schemaName="vl_workflowqueue" behavior="0" />
+      <RootComponent type="1" schemaName="vl_worklogs" behavior="0" />
+      <RootComponent type="20" id="{5f38cf11-6a29-f011-8c4d-000d3acaeab6}" behavior="0" />
+      <RootComponent type="29" id="{0641a532-a442-f011-877a-0022481138eb}" behavior="0" />
+      <RootComponent type="29" id="{0d3419ab-7834-f011-8c4c-000d3acaeab6}" behavior="0" />
+      <RootComponent type="29" id="{1159a763-5a14-f011-9989-000d3acaeab6}" behavior="0" />
+      <RootComponent type="29" id="{1192398a-7c34-f011-8c4c-000d3acaeab6}" behavior="0" />
+      <RootComponent type="29" id="{2b014e2e-1e3a-f011-b4cb-000d3acb2859}" behavior="0" />
+      <RootComponent type="29" id="{30646adf-0b62-f011-bec2-0022481138eb}" behavior="0" />
+      <RootComponent type="29" id="{399dd961-641f-f011-998a-0022481138eb}" behavior="0" />
+      <RootComponent type="29" id="{454b7e90-8e2c-f011-8c4d-000d3acaeab6}" behavior="0" />
+      <RootComponent type="29" id="{480a3b01-5509-f011-bae3-0022481138eb}" behavior="0" />
+      <RootComponent type="29" id="{4d235cf5-4032-f011-8c4e-0022481138eb}" behavior="0" />
+      <RootComponent type="29" id="{7042ef44-4d2a-f011-8c4e-0022481138eb}" behavior="0" />
+      <RootComponent type="29" id="{7bd55386-1732-f011-8c4e-0022481138eb}" behavior="0" />
+      <RootComponent type="29" id="{a28b583c-f82b-f011-8c4d-000d3acb2859}" behavior="0" />
+      <RootComponent type="29" id="{b2e3626c-7110-f011-998a-0022481138eb}" behavior="0" />
+      <RootComponent type="29" id="{bb98acd1-8229-f011-8c4d-000d3acaeab6}" behavior="0" />
+      <RootComponent type="29" id="{bdafb075-8129-f011-8c4d-000d3acaeab6}" behavior="0" />
+      <RootComponent type="29" id="{bf30e55d-3727-f011-8c4e-0022481138eb}" behavior="0" />
+      <RootComponent type="29" id="{c8119a0a-b12c-f011-8c4d-000d3acb2859}" behavior="0" />
+      <RootComponent type="29" id="{dfd769b2-8d3b-f011-b4cb-000d3acb2859}" behavior="0" />
+      <RootComponent type="29" id="{e508c9d9-9329-f011-8c4d-000d3acaeab6}" behavior="0" />
+      <RootComponent type="29" id="{e5999579-a230-f011-8c4d-000d3acaeab6}" behavior="0" />
+      <RootComponent type="29" id="{e5f6f51a-4f27-f011-8c4d-000d3acaeab6}" behavior="0" />
+      <RootComponent type="29" id="{f3a46465-3832-f011-8c4e-0022481138eb}" behavior="0" />
+      <RootComponent type="300" schemaName="vl_lbrvantagelosmainmenu_5b83f" behavior="0" />
+      <RootComponent type="300" schemaName="vl_mainmanu_42c4d" behavior="0" />
+      <RootComponent type="300" schemaName="vl_vantagedocumentviewer_be177" behavior="0" />
+      <RootComponent type="300" schemaName="vl_vantageeditsubmenu_b9ded" behavior="0" />
+      <RootComponent type="300" schemaName="vl_vantagesubmenu_27dbc" behavior="0" />
+      <RootComponent type="300" schemaName="vl_vantagev1_2a4ef" behavior="0" />
+      <RootComponent type="372" id="{d2a635a5-4886-4efd-b634-7bd0b670e5bb}" schemaName="vl_5Fvantage-5Flixi-5Fconnector" behavior="0" />
+      <RootComponent type="62" schemaName="vl_VantageAuditTrail" behavior="0" />
+      <RootComponent type="80" schemaName="vl_VantageAuditTrail" behavior="0" />
+      <RootComponent type="9" schemaName="vl_actionchoice" behavior="0" />
+      <RootComponent type="9" schemaName="vl_addresscategorychoice" behavior="0" />
+      <RootComponent type="9" schemaName="vl_addressdurationchoice" behavior="0" />
+      <RootComponent type="9" schemaName="vl_applicanttypechoice" behavior="0" />
+      <RootComponent type="9" schemaName="vl_applicationstatuschoice" behavior="0" />
+      <RootComponent type="9" schemaName="vl_assettypechoice" behavior="0" />
+      <RootComponent type="9" schemaName="vl_buffertypechoice" behavior="0" />
+      <RootComponent type="9" schemaName="vl_changesaffectingabilitytopaychoice" behavior="0" />
+      <RootComponent type="9" schemaName="vl_channelchoice" behavior="0" />
+      <RootComponent type="9" schemaName="vl_citizenshipchoice" behavior="0" />
+      <RootComponent type="9" schemaName="vl_clearingfromthisloanchoice" behavior="0" />
+      <RootComponent type="9" schemaName="vl_creditaccountchoice" behavior="0" />
+      <RootComponent type="9" schemaName="vl_creditcardpaymenttypechoice" behavior="0" />
+      <RootComponent type="9" schemaName="vl_creditcardtypechoice" behavior="0" />
+      <RootComponent type="9" schemaName="vl_creditstatuschoice" behavior="0" />
+      <RootComponent type="9" schemaName="vl_currentlivingarrangementschoice" behavior="0" />
+      <RootComponent type="9" schemaName="vl_documentsidechoice" behavior="0" />
+      <RootComponent type="9" schemaName="vl_documentsubcategorychoice" behavior="0" />
+      <RootComponent type="9" schemaName="vl_documenttypechoice" behavior="0" />
+      <RootComponent type="9" schemaName="vl_documentuploadstatuschoice" behavior="0" />
+      <RootComponent type="9" schemaName="vl_employertypechoice" behavior="0" />
+      <RootComponent type="9" schemaName="vl_employmentbasischoice" behavior="0" />
+      <RootComponent type="9" schemaName="vl_employmentcategorychoice" behavior="0" />
+      <RootComponent type="9" schemaName="vl_employmenttypechoice" behavior="0" />
+      <RootComponent type="9" schemaName="vl_errorsourcechoice" behavior="0" />
+      <RootComponent type="9" schemaName="vl_estimatebasischoice" behavior="0" />
+      <RootComponent type="9" schemaName="vl_exceptionstatuschoice" behavior="0" />
+      <RootComponent type="9" schemaName="vl_feefrequencychoice" behavior="0" />
+      <RootComponent type="9" schemaName="vl_feetypechoice" behavior="0" />
+      <RootComponent type="9" schemaName="vl_financialassettypechoice" behavior="0" />
+      <RootComponent type="9" schemaName="vl_financialyearchoice" behavior="0" />
+      <RootComponent type="9" schemaName="vl_frequencychoice" behavior="0" />
+      <RootComponent type="9" schemaName="vl_genderchoice" behavior="0" />
+      <RootComponent type="9" schemaName="vl_governmentbenefitchoice" behavior="0" />
+      <RootComponent type="9" schemaName="vl_hemhouseholdchoice" behavior="0" />
+      <RootComponent type="9" schemaName="vl_hemlocationchoice" behavior="0" />
+      <RootComponent type="9" schemaName="vl_incomestatuschoice" behavior="0" />
+      <RootComponent type="9" schemaName="vl_incometypechoice" behavior="0" />
+      <RootComponent type="9" schemaName="vl_insurancetypechoice" behavior="0" />
+      <RootComponent type="9" schemaName="vl_insurerchoice" behavior="0" />
+      <RootComponent type="9" schemaName="vl_interesttypechoice" behavior="0" />
+      <RootComponent type="9" schemaName="vl_kinrelationshipchoice" behavior="0" />
+      <RootComponent type="9" schemaName="vl_liabilitytypechoice" behavior="0" />
+      <RootComponent type="9" schemaName="vl_licenseprocessvariantchoice" behavior="0" />
+      <RootComponent type="9" schemaName="vl_loanaccountchoice" behavior="0" />
+      <RootComponent type="9" schemaName="vl_loanpropertytypechoice" behavior="0" />
+      <RootComponent type="9" schemaName="vl_loantermchoice" behavior="0" />
+      <RootComponent type="9" schemaName="vl_loantypechoice" behavior="0" />
+      <RootComponent type="9" schemaName="vl_maritalstatuschoice" behavior="0" />
+      <RootComponent type="9" schemaName="vl_motorassettypechoice" behavior="0" />
+      <RootComponent type="9" schemaName="vl_nametitlechoice" behavior="0" />
+      <RootComponent type="9" schemaName="vl_noncreditliabilitieschoice" behavior="0" />
+      <RootComponent type="9" schemaName="vl_objectiveranking" behavior="0" />
+      <RootComponent type="9" schemaName="vl_occupancychoice" behavior="0" />
+      <RootComponent type="9" schemaName="vl_originalloanpurposechoice" behavior="0" />
+      <RootComponent type="9" schemaName="vl_otherassettypechoice" behavior="0" />
+      <RootComponent type="9" schemaName="vl_otherincometypechoice" behavior="0" />
+      <RootComponent type="9" schemaName="vl_otherloanpurposetypechoice" behavior="0" />
+      <RootComponent type="9" schemaName="vl_outcomeresultchoice" behavior="0" />
+      <RootComponent type="9" schemaName="vl_ownershipproportionschoice" behavior="0" />
+      <RootComponent type="9" schemaName="vl_payfeesfromchoice" behavior="0" />
+      <RootComponent type="9" schemaName="vl_paymenttypechoice" behavior="0" />
+      <RootComponent type="9" schemaName="vl_preferredcontactchoice" behavior="0" />
+      <RootComponent type="9" schemaName="vl_primaryloanpurposechoice" behavior="0" />
+      <RootComponent type="9" schemaName="vl_primarypurposechoice" behavior="0" />
+      <RootComponent type="9" schemaName="vl_primaryusagechoice" behavior="0" />
+      <RootComponent type="9" schemaName="vl_propertystatuschoice" behavior="0" />
+      <RootComponent type="9" schemaName="vl_propertytitlechoice" behavior="0" />
+      <RootComponent type="9" schemaName="vl_propertytypechoice" behavior="0" />
+      <RootComponent type="9" schemaName="vl_rentaltypechoice" behavior="0" />
+      <RootComponent type="9" schemaName="vl_repaymentfrequencychoice" behavior="0" />
+      <RootComponent type="9" schemaName="vl_repaymenttypechoice" behavior="0" />
+      <RootComponent type="9" schemaName="vl_residencystatuschoice" behavior="0" />
+      <RootComponent type="9" schemaName="vl_settlementfrequencychoice" behavior="0" />
+      <RootComponent type="9" schemaName="vl_taxtypechoice" behavior="0" />
+      <RootComponent type="9" schemaName="vl_tomeetyourfinancialobligationchoice" behavior="0" />
+      <RootComponent type="9" schemaName="vl_totaltermtypechoice" behavior="0" />
+      <RootComponent type="9" schemaName="vl_transactionchoice" behavior="0" />
+      <RootComponent type="9" schemaName="vl_typeofcontributionfundchoice" behavior="0" />
+    </RootComponents>
+    <MissingDependencies>
+      <MissingDependency>
+        <Required type="1" schemaName="environmentvariabledefinition" displayName="Environment Variable Definition" solution="EnvironmentVariables (1.0.2406.4)">
+          <package appName="EnvironmentVariables" version="1.0.2406.4">EnvironmentVariablesSolutionAnchor (1.0.2406.4)</package>
+        </Required>
+        <Dependent type="300" schemaName="vl_vantagev1_2a4ef" displayName="Vantage_v1" />
+      </MissingDependency>
+      <MissingDependency>
+        <Required type="1" schemaName="environmentvariablevalue" displayName="Environment Variable Value" solution="EnvironmentVariables (1.0.2406.4)">
+          <package appName="EnvironmentVariables" version="1.0.2406.4">EnvironmentVariablesSolutionAnchor (1.0.2406.4)</package>
+        </Required>
+        <Dependent type="300" schemaName="vl_vantagev1_2a4ef" displayName="Vantage_v1" />
+      </MissingDependency>
+      <MissingDependency>
+        <Required type="61" schemaName="msdyn_/Images/AppModule_Default_Icon.png" displayName="msdyn_/Images/AppModule_Default_Icon.png" solution="AppModuleWebResources (2.5)">
+          <package appName="AppModule Web Resources Package" version="2.5">AppModuleWebResources (2.5)</package>
+        </Required>
+        <Dependent type="80" schemaName="vl_VantageAuditTrail" displayName="Vantage Audit Trail" />
+      </MissingDependency>
+      <MissingDependency>
+        <Required type="SettingDefinition" displayName="AppChannel" solution="msdyn_AppFrameworkInfraExtensions (1.0.0.15)" id.uniquename="AppChannel">
+          <package appName="PowerAppsAppFramework Package" version="1.0.0.21">PowerAppsAppFramework_Anchor (1.0.0.21)</package>
+        </Required>
+        <Dependent type="AppSetting" displayName="parentappmoduleid.uniquename=vl_VantageAuditTrail,settingdefinitionid.uniquename=AppChannel" id.parentappmoduleid.uniquename="vl_VantageAuditTrail" id.settingdefinitionid.uniquename="AppChannel" />
+      </MissingDependency>
+    </MissingDependencies>
+  </SolutionManifest>
+</ImportExportXml>

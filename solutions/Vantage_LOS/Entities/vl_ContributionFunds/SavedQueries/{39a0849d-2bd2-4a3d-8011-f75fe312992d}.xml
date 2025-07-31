@@ -1,0 +1,37 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<savedqueries xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <savedquery>
+    <IsCustomizable>1</IsCustomizable>
+    <CanBeDeleted>0</CanBeDeleted>
+    <isquickfindquery>0</isquickfindquery>
+    <isprivate>0</isprivate>
+    <isdefault>1</isdefault>
+    <savedqueryid>{39a0849d-2bd2-4a3d-8011-f75fe312992d}</savedqueryid>
+    <layoutxml>
+      <grid name="vl_contributionfundses" jump="vl_contributionid" select="1" icon="1" preview="1">
+        <row name="vl_contributionfunds" id="vl_contributionfundsid">
+          <cell name="vl_contributionid" width="300" />
+          <cell name="createdon" width="125" />
+        </row>
+      </grid>
+    </layoutxml>
+    <querytype>2</querytype>
+    <fetchxml>
+      <fetch version="1.0" mapping="logical">
+        <entity name="vl_contributionfunds">
+          <attribute name="vl_contributionfundsid" />
+          <attribute name="vl_contributionid" />
+          <attribute name="createdon" />
+          <order attribute="vl_contributionid" descending="false" />
+          <filter type="and">
+            <condition attribute="statecode" operator="eq" value="0" />
+          </filter>
+        </entity>
+      </fetch>
+    </fetchxml>
+    <IntroducedVersion>1.0</IntroducedVersion>
+    <LocalizedNames>
+      <LocalizedName description="Contribution Funds Associated View" languagecode="1033" />
+    </LocalizedNames>
+  </savedquery>
+</savedqueries>

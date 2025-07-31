@@ -1,0 +1,3 @@
+vl_minimumtaxpayable: |-
+    =If(Value(vl_taxbracketmaximum)=Blank() Or Value(vl_taxbracketmaximum)=0, 0,
+    ((Value(vl_taxbracketmaximum)-Value(vl_taxbracketminimum)-1) * vl_taxrate/100)>0,((Value(vl_taxbracketmaximum)-Value(vl_taxbracketminimum)-1) * vl_taxrate/100),0)

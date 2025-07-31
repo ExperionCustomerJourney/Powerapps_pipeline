@@ -1,0 +1,1271 @@
+{
+  "properties": {
+    "connectionReferences": {
+      "shared_commondataserviceforapps": {
+        "runtimeSource": "embedded",
+        "connection": {
+          "connectionReferenceLogicalName": "vl_sharedcommondataserviceforapps_04816"
+        },
+        "api": {
+          "name": "shared_commondataserviceforapps"
+        }
+      }
+    },
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "parameters": {
+        "$connections": {
+          "defaultValue": {},
+          "type": "Object"
+        },
+        "$authentication": {
+          "defaultValue": {},
+          "type": "SecureObject"
+        }
+      },
+      "triggers": {
+        "manual": {
+          "metadata": {
+            "operationMetadataId": "44c8c263-9c16-4b68-a205-6fc66a1bf5d5"
+          },
+          "type": "Request",
+          "kind": "PowerAppV2",
+          "inputs": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "text": {
+                  "title": "ApplicationUniqueID",
+                  "type": "string",
+                  "x-ms-dynamically-added": true,
+                  "description": "Please enter your input",
+                  "x-ms-content-hint": "TEXT"
+                }
+              },
+              "required": [
+                "text"
+              ]
+            }
+          }
+        }
+      },
+      "actions": {
+        "Main": {
+          "actions": {
+            "Get_Application_Details": {
+              "runAfter": {},
+              "metadata": {
+                "operationMetadataId": "7f4f4d89-ea84-41b5-820a-2799db6b9237"
+              },
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_commondataserviceforapps",
+                  "operationId": "GetItem",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                },
+                "parameters": {
+                  "entityName": "vl_applicationses",
+                  "recordId": "@triggerBody()['text']"
+                },
+                "authentication": "@parameters('$authentication')"
+              }
+            },
+            "Get_Applicant_Details": {
+              "runAfter": {
+                "Get_Application_Details": [
+                  "Succeeded"
+                ]
+              },
+              "metadata": {
+                "operationMetadataId": "eb451c7b-7d28-48b3-8a61-46e78403d0b6"
+              },
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_commondataserviceforapps",
+                  "operationId": "ListRecords",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                },
+                "parameters": {
+                  "entityName": "vl_applicants",
+                  "$filter": "_vl_applicationid_value eq '@{triggerBody()['text']}'"
+                },
+                "authentication": "@parameters('$authentication')"
+              }
+            },
+            "For_All_Applicants": {
+              "foreach": "@outputs('Get_Applicant_Details')?['body/value']",
+              "actions": {
+                "Exit_Strategy": {
+                  "runAfter": {},
+                  "metadata": {
+                    "operationMetadataId": "4c559a49-d51c-44b2-b787-b615a0b2c756"
+                  },
+                  "type": "Compose",
+                  "inputs": "@add(items('For_All_Applicants')?['vl_age'],int(outputs('Get_Application_Details')?['body/vl_loanterm@OData.Community.Display.V1.FormattedValue']))"
+                },
+                "Check_Age": {
+                  "actions": {
+                    "Age_Exception": {
+                      "runAfter": {},
+                      "metadata": {
+                        "operationMetadataId": "d95042fd-d35a-4f7f-a541-8e94fc4c9eaa"
+                      },
+                      "type": "AppendToArrayVariable",
+                      "inputs": {
+                        "name": "varExceptions",
+                        "value": {
+                          "ExceptionTitle": "Exit Strategy",
+                          "ExceptionMessgae": "For applicant @{items('For_All_Applicants')?['vl_fullname']}, Age + Loan term is greater than 75"
+                        }
+                      }
+                    }
+                  },
+                  "runAfter": {
+                    "Exit_Strategy": [
+                      "Succeeded"
+                    ]
+                  },
+                  "expression": {
+                    "greater": [
+                      "@outputs('Exit_Strategy')",
+                      75
+                    ]
+                  },
+                  "metadata": {
+                    "operationMetadataId": "522f0140-9e98-4a3a-bf1c-d309c47218e1"
+                  },
+                  "type": "If"
+                },
+                "Check_Credit_Score": {
+                  "actions": {
+                    "Condition": {
+                      "actions": {
+                        "Append_to_array_variable_2": {
+                          "runAfter": {},
+                          "metadata": {
+                            "operationMetadataId": "985f7352-fb57-4979-985d-e6ceffbeea43"
+                          },
+                          "type": "AppendToArrayVariable",
+                          "inputs": {
+                            "name": "varExceptions",
+                            "value": {
+                              "ExceptionTitle": "Credit Score",
+                              "ExceptionMessgae": "Applicant @{items('For_All_Applicants')?['vl_fullname']}, credit score value is less than 600"
+                            }
+                          }
+                        }
+                      },
+                      "runAfter": {},
+                      "expression": {
+                        "less": [
+                          "@items('For_All_Applicants')?['vl_creditscore']",
+                          600
+                        ]
+                      },
+                      "metadata": {
+                        "operationMetadataId": "1a10cefc-fd5f-4ded-a7cb-3052cb26f93b"
+                      },
+                      "type": "If"
+                    }
+                  },
+                  "runAfter": {
+                    "Check_Age": [
+                      "Succeeded"
+                    ]
+                  },
+                  "else": {
+                    "actions": {
+                      "Append_to_array_variable": {
+                        "runAfter": {},
+                        "metadata": {
+                          "operationMetadataId": "3c05f567-8c4f-4b2c-90d1-e88d6bef5f1a"
+                        },
+                        "type": "AppendToArrayVariable",
+                        "inputs": {
+                          "name": "varExceptions",
+                          "value": {
+                            "ExceptionTitle": "Credit Score",
+                            "ExceptionMessgae": "Applicant @{items('For_All_Applicants')?['vl_fullname']}, credit score value is empty."
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "expression": {
+                    "not": {
+                      "equals": [
+                        "@items('For_All_Applicants')?['vl_creditscore']",
+                        "@null"
+                      ]
+                    }
+                  },
+                  "metadata": {
+                    "operationMetadataId": "b73a8702-574c-42f1-8eb4-b53c28dbde60"
+                  },
+                  "type": "If"
+                },
+                "Get_Employments": {
+                  "runAfter": {
+                    "Check_Credit_Score": [
+                      "Succeeded"
+                    ]
+                  },
+                  "metadata": {
+                    "operationMetadataId": "ac1c9f44-9ce5-4a4c-b8e4-5e372dd7fbeb"
+                  },
+                  "type": "OpenApiConnection",
+                  "inputs": {
+                    "host": {
+                      "connectionName": "shared_commondataserviceforapps",
+                      "operationId": "ListRecords",
+                      "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                    },
+                    "parameters": {
+                      "entityName": "vl_employments",
+                      "$filter": "_vl_applicationid_value eq '@{triggerBody()['text']}' and _vl_applicantid_value eq '@{items('For_All_Applicants')?['vl_applicantid']}' and vl_incometype eq 127420001"
+                    },
+                    "authentication": "@parameters('$authentication')"
+                  }
+                },
+                "For_Each_self_Employment": {
+                  "foreach": "@outputs('Get_Employments')?['body/value']",
+                  "actions": {
+                    "Get_Self_Employment": {
+                      "runAfter": {},
+                      "metadata": {
+                        "operationMetadataId": "299a93e5-3cc1-4847-bb17-cf6f234fd0d1"
+                      },
+                      "type": "OpenApiConnection",
+                      "inputs": {
+                        "host": {
+                          "connectionName": "shared_commondataserviceforapps",
+                          "operationId": "ListRecords",
+                          "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                        },
+                        "parameters": {
+                          "entityName": "vl_selfemployedemployments",
+                          "$filter": "_vl_employmentuserid_value eq '@{items('For_Each_self_Employment')?['vl_employmentid']}'"
+                        },
+                        "authentication": "@parameters('$authentication')"
+                      }
+                    },
+                    "Check_Current_Income": {
+                      "actions": {
+                        "Append_to_array_variable_3": {
+                          "runAfter": {},
+                          "metadata": {
+                            "operationMetadataId": "ca4b0e76-d259-481f-9940-5770b594997b"
+                          },
+                          "type": "AppendToArrayVariable",
+                          "inputs": {
+                            "name": "varExceptions",
+                            "value": {
+                              "ExceptionTitle": "Self-employed income",
+                              "ExceptionMessgae": "Applicant @{items('For_All_Applicants')?['vl_fullname']}, Self-employed Current year income not provided."
+                            }
+                          }
+                        }
+                      },
+                      "runAfter": {
+                        "Get_Self_Employment": [
+                          "Succeeded"
+                        ]
+                      },
+                      "expression": {
+                        "or": [
+                          {
+                            "equals": [
+                              "@first(body('Get_Self_Employment')?['value'])?['vl_currenttotalgrossannualincome']",
+                              ""
+                            ]
+                          },
+                          {
+                            "equals": [
+                              "@first(body('Get_Self_Employment')?['value'])?['vl_currenttotalgrossannualincome']",
+                              0
+                            ]
+                          }
+                        ]
+                      },
+                      "metadata": {
+                        "operationMetadataId": "a208fd09-0437-4603-aa03-5f7d21a9b33e"
+                      },
+                      "type": "If"
+                    },
+                    "Check_Previous_Income": {
+                      "actions": {
+                        "Append_to_array_variable_4": {
+                          "runAfter": {},
+                          "metadata": {
+                            "operationMetadataId": "a569a5c0-cc29-4c50-9d47-bffee023ca71"
+                          },
+                          "type": "AppendToArrayVariable",
+                          "inputs": {
+                            "name": "varExceptions",
+                            "value": {
+                              "ExceptionTitle": "Self-employed income",
+                              "ExceptionMessgae": "Applicant @{items('For_All_Applicants')?['vl_fullname']}, Self-employed Previous year income not provided."
+                            }
+                          }
+                        }
+                      },
+                      "runAfter": {
+                        "Get_Self_Employment": [
+                          "Succeeded"
+                        ]
+                      },
+                      "expression": {
+                        "or": [
+                          {
+                            "equals": [
+                              "@first(body('Get_Self_Employment')?['value'])?['vl_previoustotalgrossannualincome']",
+                              ""
+                            ]
+                          },
+                          {
+                            "equals": [
+                              "@first(body('Get_Self_Employment')?['value'])?['vl_previoustotalgrossannualincome']",
+                              0
+                            ]
+                          }
+                        ]
+                      },
+                      "metadata": {
+                        "operationMetadataId": "d9aced5f-714b-43c2-af2a-42f8f2954d5d"
+                      },
+                      "type": "If"
+                    }
+                  },
+                  "runAfter": {
+                    "Get_Employments": [
+                      "Succeeded"
+                    ]
+                  },
+                  "metadata": {
+                    "operationMetadataId": "efc8ba9c-6fd9-4b6e-9df2-858ae7edddf2"
+                  },
+                  "type": "Foreach"
+                },
+                "Get_SelfEmployment": {
+                  "runAfter": {
+                    "For_Each_self_Employment": [
+                      "Succeeded"
+                    ]
+                  },
+                  "metadata": {
+                    "operationMetadataId": "e1a57423-6538-4ece-923e-c99f45312c72"
+                  },
+                  "type": "OpenApiConnection",
+                  "inputs": {
+                    "host": {
+                      "connectionName": "shared_commondataserviceforapps",
+                      "operationId": "ListRecords",
+                      "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                    },
+                    "parameters": {
+                      "entityName": "vl_selfemployedemployments",
+                      "$filter": "_vl_applicantid_value eq '@{items('For_All_Applicants')?['vl_applicantid']}'  and vl_creditadjustment ne 0"
+                    },
+                    "authentication": "@parameters('$authentication')"
+                  }
+                },
+                "Get_PAYG_Employment": {
+                  "runAfter": {
+                    "Get_SelfEmployment": [
+                      "Succeeded"
+                    ]
+                  },
+                  "metadata": {
+                    "operationMetadataId": "ffc8ce45-f85e-4672-b58f-284b9670d251"
+                  },
+                  "type": "OpenApiConnection",
+                  "inputs": {
+                    "host": {
+                      "connectionName": "shared_commondataserviceforapps",
+                      "operationId": "ListRecords",
+                      "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                    },
+                    "parameters": {
+                      "entityName": "vl_paygemployments",
+                      "$filter": "_vl_applicantid_value eq '@{items('For_All_Applicants')?['vl_applicantid']}'  and vl_creditadjustment ne 0"
+                    },
+                    "authentication": "@parameters('$authentication')"
+                  }
+                },
+                "Check_Employment_Credit_Adjustment": {
+                  "actions": {
+                    "Append_to_array_variable_12": {
+                      "runAfter": {},
+                      "metadata": {
+                        "operationMetadataId": "817595a6-fb2c-4560-a351-d57483acf758"
+                      },
+                      "type": "AppendToArrayVariable",
+                      "inputs": {
+                        "name": "varExceptions",
+                        "value": {
+                          "ExceptionTitle": "Credit Adjustment",
+                          "ExceptionMessgae": "Credit adjustment in Employment is not equal to zero"
+                        }
+                      }
+                    }
+                  },
+                  "runAfter": {
+                    "Filter_PAYG_Credit_Adjustment": [
+                      "Succeeded"
+                    ]
+                  },
+                  "expression": {
+                    "or": [
+                      {
+                        "not": {
+                          "equals": [
+                            "@length(body('Filter_SE_Credit_Adjustment'))",
+                            0
+                          ]
+                        }
+                      },
+                      {
+                        "not": {
+                          "equals": [
+                            "@length(body('Filter_PAYG_Credit_Adjustment'))",
+                            0
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "metadata": {
+                    "operationMetadataId": "a4836413-3898-4898-b933-dbb3e3a449b4"
+                  },
+                  "type": "If"
+                },
+                "Filter_SE_Credit_Adjustment": {
+                  "runAfter": {
+                    "Get_PAYG_Employment": [
+                      "Succeeded"
+                    ]
+                  },
+                  "metadata": {
+                    "operationMetadataId": "828f072e-b8a6-4949-9077-5d18367ca0af"
+                  },
+                  "type": "Query",
+                  "inputs": {
+                    "from": "@outputs('Get_SelfEmployment')?['body/value']",
+                    "where": "@not(equals(item()?['vl_creditadjustment'], null))"
+                  }
+                },
+                "Filter_PAYG_Credit_Adjustment": {
+                  "runAfter": {
+                    "Filter_SE_Credit_Adjustment": [
+                      "Succeeded"
+                    ]
+                  },
+                  "metadata": {
+                    "operationMetadataId": "7aa88019-94d8-40ea-bf88-50c5d1e6f876"
+                  },
+                  "type": "Query",
+                  "inputs": {
+                    "from": "@outputs('Get_PAYG_Employment')?['body/value']",
+                    "where": "@not(equals(item()?['vl_creditadjustment'], null))"
+                  }
+                },
+                "PAYG_Support_Documents": {
+                  "runAfter": {
+                    "Check_Employment_Credit_Adjustment": [
+                      "Succeeded"
+                    ]
+                  },
+                  "metadata": {
+                    "operationMetadataId": "11ca0242-dc1d-4f2f-b792-4c79edd435d7"
+                  },
+                  "type": "OpenApiConnection",
+                  "inputs": {
+                    "host": {
+                      "connectionName": "shared_commondataserviceforapps",
+                      "operationId": "ListRecords",
+                      "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                    },
+                    "parameters": {
+                      "entityName": "vl_supportingdocumentses",
+                      "$filter": "_vl_applicationid_value eq '@{triggerBody()['text']}' and _vl_applicantid_value eq '@{items('For_All_Applicants')?['vl_applicantid']}' and vl_documentsubcategory eq 127420000 and vl_documenttype eq 127420023 and vl_documentuploadstatus ne 127420000"
+                    },
+                    "authentication": "@parameters('$authentication')"
+                  }
+                },
+                "Check_PAYG_Payslip": {
+                  "actions": {
+                    "Append_to_array_variable_16": {
+                      "runAfter": {},
+                      "metadata": {
+                        "operationMetadataId": "29ce141d-41d7-4000-a14c-9ca68b0d6b1c"
+                      },
+                      "type": "AppendToArrayVariable",
+                      "inputs": {
+                        "name": "varExceptions",
+                        "value": {
+                          "ExceptionTitle": "PAYG Payslip",
+                          "ExceptionMessgae": "Payslip for PayG employment is missing."
+                        }
+                      }
+                    }
+                  },
+                  "runAfter": {
+                    "PAYG_Support_Documents": [
+                      "Succeeded"
+                    ]
+                  },
+                  "expression": {
+                    "less": [
+                      "@length(body('PAYG_Support_Documents')?['value'])",
+                      2
+                    ]
+                  },
+                  "metadata": {
+                    "operationMetadataId": "b8235e77-a557-42e7-8ccc-8fdda5da738a"
+                  },
+                  "type": "If"
+                }
+              },
+              "runAfter": {
+                "Objectives_Check": [
+                  "Succeeded"
+                ]
+              },
+              "metadata": {
+                "operationMetadataId": "2aeb21e7-59e6-4ff5-8da5-156df17e5a63"
+              },
+              "type": "Foreach"
+            },
+            "Respond_to_a_Power_App_or_flow": {
+              "runAfter": {
+                "Collect_Exceptions": [
+                  "Succeeded"
+                ]
+              },
+              "metadata": {
+                "operationMetadataId": "70d447a5-57f9-4740-aae3-053a7ab0451e"
+              },
+              "type": "Response",
+              "kind": "PowerApp",
+              "inputs": {
+                "statusCode": 200,
+                "body": {
+                  "exceptions": "@{body('Collect_Exceptions')}"
+                },
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "exceptions": {
+                      "title": "Exceptions",
+                      "x-ms-dynamically-added": true,
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
+            "Collect_Exceptions": {
+              "runAfter": {
+                "Check_Expense_Credit_Adjustment": [
+                  "Succeeded"
+                ]
+              },
+              "metadata": {
+                "operationMetadataId": "a584692d-8389-4e82-a1f5-9f2e9ac18769"
+              },
+              "type": "Select",
+              "inputs": {
+                "from": "@variables('varExceptions')",
+                "select": {
+                  "Title": "@item()?['ExceptionTitle']",
+                  "Message": "@item()?['ExceptionMessgae']"
+                }
+              }
+            },
+            "Check_Loan_Amount": {
+              "actions": {
+                "Append_Loan_Amount_Exception": {
+                  "runAfter": {},
+                  "metadata": {
+                    "operationMetadataId": "2cecc0ff-a273-49fd-afb1-984ac173e376"
+                  },
+                  "type": "AppendToArrayVariable",
+                  "inputs": {
+                    "name": "varExceptions",
+                    "value": {
+                      "ExceptionTitle": "Loan Amount",
+                      "ExceptionMessgae": "Loan Amount exceeds $1M"
+                    }
+                  }
+                }
+              },
+              "runAfter": {
+                "Get_Applicant_Details": [
+                  "Succeeded"
+                ]
+              },
+              "expression": {
+                "greater": [
+                  "@outputs('Get_Application_Details')?['body/vl_requiredloanamount']",
+                  1000000
+                ]
+              },
+              "metadata": {
+                "operationMetadataId": "5b9191fc-5dd4-4be4-864f-13f5bf8aa4b3"
+              },
+              "type": "If"
+            },
+            "Get_Liabilities": {
+              "runAfter": {
+                "For_All_Applicants": [
+                  "Succeeded"
+                ]
+              },
+              "metadata": {
+                "operationMetadataId": "20cbbdbb-792b-40b9-9f9e-95d3a5880eec"
+              },
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_commondataserviceforapps",
+                  "operationId": "ListRecords",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                },
+                "parameters": {
+                  "entityName": "vl_liabilitieses",
+                  "$filter": "_vl_applicationid_value eq '@{triggerBody()['text']}'"
+                },
+                "authentication": "@parameters('$authentication')"
+              }
+            },
+            "Check_Liability_With_Arrears": {
+              "actions": {
+                "For_Each_Liability_With_Arrear": {
+                  "foreach": "@body('Filter_Liability_Arrears')",
+                  "actions": {
+                    "Append_varException_With_Arrear": {
+                      "runAfter": {},
+                      "metadata": {
+                        "operationMetadataId": "ea311851-9743-445c-834c-625253108d3e"
+                      },
+                      "type": "AppendToArrayVariable",
+                      "inputs": {
+                        "name": "varExceptions",
+                        "value": {
+                          "ExceptionTitle": "Arrears",
+                          "ExceptionMessgae": "There is an arrears on @{items('For_Each_Liability_With_Arrear')?['vl_liabilitytype@OData.Community.Display.V1.FormattedValue']} liability"
+                        }
+                      }
+                    }
+                  },
+                  "runAfter": {},
+                  "metadata": {
+                    "operationMetadataId": "2ae6e89d-7ae5-4de4-827a-8e3adbf34a15"
+                  },
+                  "type": "Foreach"
+                }
+              },
+              "runAfter": {
+                "Filter_Liability_Arrears": [
+                  "Succeeded"
+                ]
+              },
+              "expression": {
+                "not": {
+                  "equals": [
+                    "@length(body('Filter_Liability_Arrears'))",
+                    0
+                  ]
+                }
+              },
+              "metadata": {
+                "operationMetadataId": "ff163cb5-0f8a-4c7e-bd31-029b7ff01812"
+              },
+              "type": "If"
+            },
+            "Objectives_Check": {
+              "actions": {
+                "Check_Bankrupt": {
+                  "actions": {
+                    "Append_to_array_variable_5": {
+                      "runAfter": {},
+                      "metadata": {
+                        "operationMetadataId": "92942cf9-8f64-42e5-a872-5365b66000c7"
+                      },
+                      "type": "AppendToArrayVariable",
+                      "inputs": {
+                        "name": "varExceptions",
+                        "value": {
+                          "ExceptionTitle": "Declarations",
+                          "ExceptionMessgae": "Response to the been declared bankrupt declarations is YES"
+                        }
+                      }
+                    }
+                  },
+                  "runAfter": {},
+                  "expression": {
+                    "equals": [
+                      "@outputs('Get_Application_Details')?['body/vl_beendeclaredbankrupt']",
+                      "@true"
+                    ]
+                  },
+                  "metadata": {
+                    "operationMetadataId": "934984ed-b02f-4636-b545-4479750e2806"
+                  },
+                  "type": "If"
+                },
+                "Check_Non_Payment_Debt": {
+                  "actions": {
+                    "Append_to_array_variable_6": {
+                      "runAfter": {},
+                      "metadata": {
+                        "operationMetadataId": "263a1c1b-4cdd-476f-b5bc-f755a0125b3d"
+                      },
+                      "type": "AppendToArrayVariable",
+                      "inputs": {
+                        "name": "varExceptions",
+                        "value": {
+                          "ExceptionTitle": "Declarations",
+                          "ExceptionMessgae": "Response to the Non payment of debt declarations is YES"
+                        }
+                      }
+                    }
+                  },
+                  "runAfter": {
+                    "Check_Bankrupt": [
+                      "Succeeded"
+                    ]
+                  },
+                  "expression": {
+                    "equals": [
+                      "@outputs('Get_Application_Details')?['body/vl_nonpaymentofdebt']",
+                      "@true"
+                    ]
+                  },
+                  "metadata": {
+                    "operationMetadataId": "639cd37e-41f5-4b55-9b3f-54b6d1c7c2a3"
+                  },
+                  "type": "If"
+                },
+                "Check_Legal_Proceedings": {
+                  "actions": {
+                    "Append_to_array_variable_7": {
+                      "runAfter": {},
+                      "metadata": {
+                        "operationMetadataId": "5c5ddcc4-8222-4894-829c-0fbf67d6e09c"
+                      },
+                      "type": "AppendToArrayVariable",
+                      "inputs": {
+                        "name": "varExceptions",
+                        "value": {
+                          "ExceptionTitle": "Declarations",
+                          "ExceptionMessgae": "Response to the Legal proceedings declarations is YES"
+                        }
+                      }
+                    }
+                  },
+                  "runAfter": {
+                    "Check_Bankrupt": [
+                      "Succeeded"
+                    ]
+                  },
+                  "expression": {
+                    "equals": [
+                      "@outputs('Get_Application_Details')?['body/vl_reliefunderbankruptcyact']",
+                      "@true"
+                    ]
+                  },
+                  "metadata": {
+                    "operationMetadataId": "f4b938f5-3344-4455-a749-032c622551c1"
+                  },
+                  "type": "If"
+                },
+                "Check_Difficulty_Loan_Repayment": {
+                  "actions": {
+                    "Append_to_array_variable_8": {
+                      "runAfter": {},
+                      "metadata": {
+                        "operationMetadataId": "f1d4a713-4e60-4c90-8808-0eeabb4d9936"
+                      },
+                      "type": "AppendToArrayVariable",
+                      "inputs": {
+                        "name": "varExceptions",
+                        "value": {
+                          "ExceptionTitle": "Declarations",
+                          "ExceptionMessgae": "Response to the Difficulty making loan repayments declarations is YES"
+                        }
+                      }
+                    }
+                  },
+                  "runAfter": {
+                    "Check_Bankrupt": [
+                      "Succeeded"
+                    ]
+                  },
+                  "expression": {
+                    "equals": [
+                      "@outputs('Get_Application_Details')?['body/vl_difficultyinmakingloanrepayments']",
+                      "@true"
+                    ]
+                  },
+                  "metadata": {
+                    "operationMetadataId": "83486c01-2f31-4863-9411-d8582ccff40b"
+                  },
+                  "type": "If"
+                },
+                "Check_Other_Country_Resident": {
+                  "actions": {
+                    "Append_to_array_variable_9": {
+                      "runAfter": {},
+                      "metadata": {
+                        "operationMetadataId": "e2862bd6-2dd6-4b2a-83de-7f2403103af2"
+                      },
+                      "type": "AppendToArrayVariable",
+                      "inputs": {
+                        "name": "varExceptions",
+                        "value": {
+                          "ExceptionTitle": "Declarations",
+                          "ExceptionMessgae": "Response to the Tax resident in other country declarations is YES"
+                        }
+                      }
+                    }
+                  },
+                  "runAfter": {
+                    "Check_Bankrupt": [
+                      "Succeeded"
+                    ]
+                  },
+                  "expression": {
+                    "equals": [
+                      "@outputs('Get_Application_Details')?['body/vl_areyouataxresidentinanyothercountry']",
+                      "@true"
+                    ]
+                  },
+                  "metadata": {
+                    "operationMetadataId": "f8a2b38d-5f5b-4d49-bc21-7ef77f9fb414"
+                  },
+                  "type": "If"
+                },
+                "Check_Any_other_Loan_Feature_Required": {
+                  "actions": {
+                    "Append_to_array_variable_10": {
+                      "runAfter": {},
+                      "metadata": {
+                        "operationMetadataId": "d05fc402-71e5-44cb-8a4e-e326bb93f960"
+                      },
+                      "type": "AppendToArrayVariable",
+                      "inputs": {
+                        "name": "varExceptions",
+                        "value": {
+                          "ExceptionTitle": "Other objectives",
+                          "ExceptionMessgae": "Response to the Any other loan features required Other Objectives is YES"
+                        }
+                      }
+                    }
+                  },
+                  "runAfter": {
+                    "Check_Change_Obligation_in_Pay": [
+                      "Succeeded"
+                    ]
+                  },
+                  "expression": {
+                    "equals": [
+                      "@outputs('Get_Application_Details')?['body/vl_isthereanyloanfeaturesrequired']",
+                      "@true"
+                    ]
+                  },
+                  "metadata": {
+                    "operationMetadataId": "af0e50ea-3633-4145-9a1d-ee4661bca27b"
+                  },
+                  "type": "If"
+                },
+                "Check_Change_Obligation_in_Pay": {
+                  "actions": {
+                    "Append_to_array_variable_11": {
+                      "runAfter": {},
+                      "metadata": {
+                        "operationMetadataId": "72e8c78d-f4cd-4bce-89f5-163586e24ef3"
+                      },
+                      "type": "AppendToArrayVariable",
+                      "inputs": {
+                        "name": "varExceptions",
+                        "value": {
+                          "ExceptionTitle": "Other objectives",
+                          "ExceptionMessgae": "Response to the Changes affecting obligation to pay Other Objectives is YES"
+                        }
+                      }
+                    }
+                  },
+                  "runAfter": {
+                    "Check_Difficulty_Loan_Repayment": [
+                      "Succeeded"
+                    ],
+                    "Check_Legal_Proceedings": [
+                      "Succeeded"
+                    ],
+                    "Check_Non_Payment_Debt": [
+                      "Succeeded"
+                    ],
+                    "Check_Other_Country_Resident": [
+                      "Succeeded"
+                    ]
+                  },
+                  "expression": {
+                    "equals": [
+                      "@outputs('Get_Application_Details')?['body/vl_changesaffectingobligationtopay']",
+                      "@true"
+                    ]
+                  },
+                  "metadata": {
+                    "operationMetadataId": "c5bf6d05-b393-4494-97fb-5caeea692983"
+                  },
+                  "type": "If"
+                }
+              },
+              "runAfter": {
+                "Check_Loan_Amount": [
+                  "Succeeded"
+                ]
+              },
+              "metadata": {
+                "operationMetadataId": "96e19d59-6328-4240-8536-c15df19100b0"
+              },
+              "type": "Scope"
+            },
+            "Filter_Liability_Arrears": {
+              "runAfter": {
+                "Get_Liabilities": [
+                  "Succeeded"
+                ]
+              },
+              "metadata": {
+                "operationMetadataId": "ddb8e1e8-046f-452e-bd05-e3ee8e465f77"
+              },
+              "type": "Query",
+              "inputs": {
+                "from": "@outputs('Get_Liabilities')?['body/value']",
+                "where": "@equals(item()?['vl_hasarrears'], true)"
+              }
+            },
+            "Filter_Liability_Credit_Adjustment": {
+              "runAfter": {
+                "Check_Liability_With_Arrears": [
+                  "Succeeded"
+                ]
+              },
+              "metadata": {
+                "operationMetadataId": "9301183b-cb59-454e-bee0-a4b2c04681b9"
+              },
+              "type": "Query",
+              "inputs": {
+                "from": "@outputs('Get_Liabilities')?['body/value']",
+                "where": "@or(and(not(equals(item()?['vl_creditadjustmentfordebtbalance'], 0)),not(equals(item()?['vl_creditadjustmentfordebtbalance'], null))), and(not(equals(item()?['vl_creditadjustmentforrepayment'], 0)),not(equals(item()?['vl_creditadjustmentforrepayment'], null))))\n"
+              }
+            },
+            "Check_Liability_Credit_Adjustment": {
+              "actions": {
+                "Append_to_array_variable_13": {
+                  "runAfter": {},
+                  "metadata": {
+                    "operationMetadataId": "ecd7a583-46e1-4ac9-9963-cf7c4d272b61"
+                  },
+                  "type": "AppendToArrayVariable",
+                  "inputs": {
+                    "name": "varExceptions",
+                    "value": {
+                      "ExceptionTitle": "Credit Adjustment",
+                      "ExceptionMessgae": "Credit adjustment in Liability/Mortgage is not equal to zero"
+                    }
+                  }
+                }
+              },
+              "runAfter": {
+                "Filter_Liability_Credit_Adjustment": [
+                  "Succeeded"
+                ]
+              },
+              "expression": {
+                "not": {
+                  "equals": [
+                    "@length(body('Filter_Liability_credit_Adjustment'))",
+                    0
+                  ]
+                }
+              },
+              "metadata": {
+                "operationMetadataId": "74910147-6381-46e1-9b81-d2558c284224"
+              },
+              "type": "If"
+            },
+            "Get_Income": {
+              "runAfter": {
+                "Check_Liability_Credit_Adjustment": [
+                  "Succeeded"
+                ]
+              },
+              "metadata": {
+                "operationMetadataId": "f9950c37-bec5-4aa8-8d47-8820892085cc"
+              },
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_commondataserviceforapps",
+                  "operationId": "ListRecords",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                },
+                "parameters": {
+                  "entityName": "vl_incomes",
+                  "$filter": "_vl_applicationid_value eq '@{triggerBody()['text']}' and vl_creditadjustment ne 0"
+                },
+                "authentication": "@parameters('$authentication')"
+              }
+            },
+            "Check_Income_Credit_Adjustment": {
+              "actions": {
+                "Append_to_array_variable_14": {
+                  "runAfter": {},
+                  "metadata": {
+                    "operationMetadataId": "cfe93301-e7ba-4f27-bd20-4495c4e626df"
+                  },
+                  "type": "AppendToArrayVariable",
+                  "inputs": {
+                    "name": "varExceptions",
+                    "value": {
+                      "ExceptionTitle": "Credit Adjustment",
+                      "ExceptionMessgae": "Credit adjustment in Other income is not equal to zero"
+                    }
+                  }
+                }
+              },
+              "runAfter": {
+                "Filter_Income_Credit_Adjustment": [
+                  "Succeeded"
+                ]
+              },
+              "expression": {
+                "not": {
+                  "equals": [
+                    "@length(body('Filter_Income_Credit_Adjustment'))",
+                    0
+                  ]
+                }
+              },
+              "metadata": {
+                "operationMetadataId": "4dd468d6-9171-4c63-9631-7f39d8e8e648"
+              },
+              "type": "If"
+            },
+            "Get_Expense": {
+              "runAfter": {
+                "Check_Income_Credit_Adjustment": [
+                  "Succeeded"
+                ]
+              },
+              "metadata": {
+                "operationMetadataId": "d2bc00af-5952-40e1-8298-9e16f90dbeed"
+              },
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_commondataserviceforapps",
+                  "operationId": "ListRecords",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                },
+                "parameters": {
+                  "entityName": "vl_expenses",
+                  "$filter": "_vl_applicationid_value eq '@{triggerBody()['text']}' and vl_creditadjustment ne 0"
+                },
+                "authentication": "@parameters('$authentication')"
+              }
+            },
+            "Check_Expense_Credit_Adjustment": {
+              "actions": {
+                "Append_to_array_variable_15": {
+                  "runAfter": {},
+                  "metadata": {
+                    "operationMetadataId": "b0648c13-5132-4791-b7d3-d1abe4cd11e5"
+                  },
+                  "type": "AppendToArrayVariable",
+                  "inputs": {
+                    "name": "varExceptions",
+                    "value": {
+                      "ExceptionTitle": "Credit Adjustment",
+                      "ExceptionMessgae": "Credit adjustment in Expense is not equal to zero"
+                    }
+                  }
+                }
+              },
+              "runAfter": {
+                "Filter_Expense_credit_Adjustment": [
+                  "Succeeded"
+                ]
+              },
+              "expression": {
+                "not": {
+                  "equals": [
+                    "@length(body('Filter_Expense_credit_Adjustment'))",
+                    0
+                  ]
+                }
+              },
+              "metadata": {
+                "operationMetadataId": "85ac73ba-ffbb-4c88-969d-5babe1072dd8"
+              },
+              "type": "If"
+            },
+            "Filter_Expense_credit_Adjustment": {
+              "runAfter": {
+                "Get_Expense": [
+                  "Succeeded"
+                ]
+              },
+              "metadata": {
+                "operationMetadataId": "95e37d93-ed0f-4cd1-bdb8-ca1da2f625a3"
+              },
+              "type": "Query",
+              "inputs": {
+                "from": "@outputs('Get_Expense')?['body/value']",
+                "where": "@not(equals(item()?['vl_creditadjustment'], null))"
+              }
+            },
+            "Filter_Income_Credit_Adjustment": {
+              "runAfter": {
+                "Get_Income": [
+                  "Succeeded"
+                ]
+              },
+              "metadata": {
+                "operationMetadataId": "5460a1f4-bffe-4704-b520-82b8962697e3"
+              },
+              "type": "Query",
+              "inputs": {
+                "from": "@outputs('Get_Income')?['body/value']",
+                "where": "@not(equals(item()?['vl_creditadjustment_base'], null))"
+              }
+            }
+          },
+          "runAfter": {
+            "Initialize_varExceptions": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "51d7ae85-8889-458b-80a4-45e92cb7a905"
+          },
+          "type": "Scope"
+        },
+        "Initialize_varExceptions": {
+          "runAfter": {
+            "Initialize_varErrorMessage": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "79507110-04e7-444c-a6dc-76c8e65cd537"
+          },
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "varExceptions",
+                "type": "array"
+              }
+            ]
+          }
+        },
+        "On_Error": {
+          "actions": {
+            "Filter_Error_Details": {
+              "runAfter": {},
+              "metadata": {
+                "operationMetadataId": "0fe5b81b-3aa2-4e6f-a549-00be696e8512"
+              },
+              "type": "Query",
+              "inputs": {
+                "from": "@result('Main')",
+                "where": "@equals(item()?['status'], 'Failed')"
+              }
+            },
+            "Add_Error_Details": {
+              "runAfter": {
+                "Filter_Error_Details": [
+                  "Succeeded"
+                ]
+              },
+              "metadata": {
+                "operationMetadataId": "34cf1c91-b973-464b-a413-e0bff5b603d6"
+              },
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_commondataserviceforapps",
+                  "operationId": "CreateRecord",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                },
+                "parameters": {
+                  "entityName": "vl_errorhandlings",
+                  "item/vl_component": "@first(body('Filter_Error_Details'))?['name']",
+                  "item/vl_errorcode": "@first(body('Filter_Error_Details'))?['error']?['code']",
+                  "item/vl_errormessage": "@first(body('Filter_Error_Details'))?['error']?['message']",
+                  "item/vl_errorsource": 127420001,
+                  "item/vl_sourcename": "@workflow().tags.flowDisplayName"
+                },
+                "authentication": "@parameters('$authentication')"
+              }
+            }
+          },
+          "runAfter": {
+            "Main": [
+              "Failed",
+              "TimedOut",
+              "Skipped"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "0d4b1819-7119-4224-9fc4-9383e3e26255"
+          },
+          "type": "Scope"
+        },
+        "Initialize_varErrorCode": {
+          "runAfter": {},
+          "metadata": {
+            "operationMetadataId": "c0fdcf75-583e-4afe-b550-57db1429d11a"
+          },
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "varErrorCode",
+                "type": "string"
+              }
+            ]
+          }
+        },
+        "Initialize_varErrorMessage": {
+          "runAfter": {
+            "Initialize_varErrorCode": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "f25f5dae-470b-400a-8bf7-06883826769a"
+          },
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "varErrorMessage",
+                "type": "string"
+              }
+            ]
+          }
+        }
+      }
+    },
+    "templateName": ""
+  },
+  "schemaVersion": "1.0.0.0"
+}

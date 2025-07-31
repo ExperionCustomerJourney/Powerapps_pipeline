@@ -1,0 +1,37 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<savedqueries xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <savedquery>
+    <IsCustomizable>1</IsCustomizable>
+    <CanBeDeleted>0</CanBeDeleted>
+    <isquickfindquery>0</isquickfindquery>
+    <isprivate>0</isprivate>
+    <isdefault>1</isdefault>
+    <savedqueryid>{a38f19af-0080-45c2-8f2c-469c2e59992e}</savedqueryid>
+    <layoutxml>
+      <grid name="vl_expenses" jump="vl_expenseprimaryid" select="1" icon="1" preview="1">
+        <row name="vl_expense" id="vl_expenseid">
+          <cell name="vl_expenseprimaryid" width="300" />
+          <cell name="createdon" width="125" />
+        </row>
+      </grid>
+    </layoutxml>
+    <querytype>2</querytype>
+    <fetchxml>
+      <fetch version="1.0" mapping="logical">
+        <entity name="vl_expense">
+          <attribute name="vl_expenseid" />
+          <attribute name="vl_expenseprimaryid" />
+          <attribute name="createdon" />
+          <order attribute="vl_expenseprimaryid" descending="false" />
+          <filter type="and">
+            <condition attribute="statecode" operator="eq" value="0" />
+          </filter>
+        </entity>
+      </fetch>
+    </fetchxml>
+    <IntroducedVersion>1.0</IntroducedVersion>
+    <LocalizedNames>
+      <LocalizedName description="Expense Associated View" languagecode="1033" />
+    </LocalizedNames>
+  </savedquery>
+</savedqueries>

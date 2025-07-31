@@ -1,0 +1,686 @@
+{
+  "properties": {
+    "connectionReferences": {
+      "shared_commondataserviceforapps": {
+        "runtimeSource": "embedded",
+        "connection": {
+          "connectionReferenceLogicalName": "vl_sharedcommondataserviceforapps_04816"
+        },
+        "api": {
+          "name": "shared_commondataserviceforapps"
+        }
+      }
+    },
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "parameters": {
+        "$connections": {
+          "defaultValue": {},
+          "type": "Object"
+        },
+        "$authentication": {
+          "defaultValue": {},
+          "type": "SecureObject"
+        }
+      },
+      "triggers": {
+        "When_Asset_Created_As_Investment": {
+          "metadata": {
+            "operationMetadataId": "75c27d8a-7173-4e7b-b206-691bc69e5b67"
+          },
+          "type": "OpenApiConnectionWebhook",
+          "inputs": {
+            "host": {
+              "connectionName": "shared_commondataserviceforapps",
+              "operationId": "SubscribeWebhookTrigger",
+              "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+            },
+            "parameters": {
+              "subscriptionRequest/message": 4,
+              "subscriptionRequest/entityname": "vl_assets",
+              "subscriptionRequest/scope": 4,
+              "subscriptionRequest/filteringattributes": "vl_propertyaddress,vl_applicant1id,vl_applicant2id,vl_applicant1ownership,vl_applicant2ownership,vl_occupancy"
+            },
+            "authentication": "@parameters('$authentication')"
+          }
+        }
+      },
+      "actions": {
+        "Main": {
+          "actions": {
+            "Get_Active_License": {
+              "runAfter": {},
+              "metadata": {
+                "operationMetadataId": "6d25080a-f2cb-4aa9-bbf8-632b0a4aa50f"
+              },
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_commondataserviceforapps",
+                  "operationId": "ListRecords",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                },
+                "parameters": {
+                  "entityName": "vl_licenses",
+                  "$filter": "vl_licensestatus eq true",
+                  "$top": 1
+                },
+                "authentication": "@parameters('$authentication')"
+              }
+            },
+            "Get_Rental_Shading": {
+              "runAfter": {
+                "Get_Active_License": [
+                  "Succeeded"
+                ]
+              },
+              "metadata": {
+                "operationMetadataId": "ba8a9eba-4cc2-4998-a6e5-64ba20ce84b4"
+              },
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_commondataserviceforapps",
+                  "operationId": "ListRecords",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                },
+                "parameters": {
+                  "entityName": "vl_configurationsettingses",
+                  "$filter": "_vl_licenseid_value eq '@{first(body('Get_Active_License')?['value'])?['vl_licenseid']}'",
+                  "$top": 1
+                },
+                "authentication": "@parameters('$authentication')"
+              }
+            },
+            "Check_Occupancy_Investment": {
+              "actions": {
+                "Check_Applicant_1_Ownership": {
+                  "actions": {
+                    "Applicant_1_Ownership_Calculation": {
+                      "runAfter": {},
+                      "metadata": {
+                        "operationMetadataId": "6ab14dc8-3366-467c-ab7c-f272967c5580"
+                      },
+                      "type": "Compose",
+                      "inputs": "@mul(div(variables('varCalculatedRental'),100),triggerOutputs()?['body/vl_applicant1ownership'])"
+                    },
+                    "Set_varRentalGrossIncome": {
+                      "runAfter": {
+                        "Applicant_1_Ownership_Calculation": [
+                          "Succeeded"
+                        ]
+                      },
+                      "metadata": {
+                        "operationMetadataId": "00ffdda6-cb8a-46a0-b4ee-82795c9493ff"
+                      },
+                      "type": "SetVariable",
+                      "inputs": {
+                        "name": "varRentalGrossIncome",
+                        "value": "@mul(div(outputs('Applicant_1_Ownership_Calculation'),100),variables('varShading'))"
+                      }
+                    },
+                    "Add_Rental_Income_Applicant_1": {
+                      "runAfter": {
+                        "Set_varRentalGrossIncome": [
+                          "Succeeded"
+                        ]
+                      },
+                      "metadata": {
+                        "operationMetadataId": "2f6934a2-c138-44f0-8d9c-4fdb980d99dc"
+                      },
+                      "type": "OpenApiConnection",
+                      "inputs": {
+                        "host": {
+                          "connectionName": "shared_commondataserviceforapps",
+                          "operationId": "CreateRecord",
+                          "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                        },
+                        "parameters": {
+                          "entityName": "vl_incomes",
+                          "item/vl_ApplicantID@odata.bind": "/vl_applicants(@{triggerOutputs()?['body/_vl_applicant1id_value']})",
+                          "item/vl_ApplicationID@odata.bind": "/vl_applicationses(@{triggerOutputs()?['body/_vl_applicationid_value']})",
+                          "item/vl_AssetID@odata.bind": "/vl_assetses(@{triggerOutputs()?['body/vl_assetsid']})",
+                          "item/vl_currentyearincome": "@outputs('Applicant_1_Ownership_Calculation')",
+                          "item/vl_incomefrequency": "@triggerOutputs()?['body/vl_rentalfrequency']",
+                          "item/vl_otherincometype": 127420008,
+                          "item/vl_propertyaddress": "@triggerOutputs()?['body/vl_propertyaddress']",
+                          "item/vl_shading": "@variables('varShading')"
+                        },
+                        "authentication": "@parameters('$authentication')"
+                      }
+                    }
+                  },
+                  "runAfter": {
+                    "Rental_Frequency": [
+                      "Succeeded"
+                    ]
+                  },
+                  "expression": {
+                    "greater": [
+                      "@triggerOutputs()?['body/vl_applicant1ownership']",
+                      0
+                    ]
+                  },
+                  "metadata": {
+                    "operationMetadataId": "45e50ce5-d763-43c8-920a-fa5d30c987e9"
+                  },
+                  "type": "If"
+                },
+                "Check_Applicant_2_Ownership": {
+                  "actions": {
+                    "Applicant_2_Ownership_Calculation": {
+                      "runAfter": {},
+                      "metadata": {
+                        "operationMetadataId": "6ab14dc8-3366-467c-ab7c-f272967c5580"
+                      },
+                      "type": "Compose",
+                      "inputs": "@mul(div(variables('varCalculatedRental'), 100), triggerOutputs()?['body/vl_applicant2ownership'])"
+                    },
+                    "Set_varRentalGrossIncome_2": {
+                      "runAfter": {
+                        "Applicant_2_Ownership_Calculation": [
+                          "Succeeded"
+                        ]
+                      },
+                      "metadata": {
+                        "operationMetadataId": "00ffdda6-cb8a-46a0-b4ee-82795c9493ff"
+                      },
+                      "type": "SetVariable",
+                      "inputs": {
+                        "name": "varRentalGrossIncome",
+                        "value": "@mul(div(outputs('Applicant_2_Ownership_Calculation'), 100), variables('varShading'))"
+                      }
+                    },
+                    "Add_Rental_Income_Applicant_2": {
+                      "runAfter": {
+                        "Set_varRentalGrossIncome_2": [
+                          "Succeeded"
+                        ]
+                      },
+                      "metadata": {
+                        "operationMetadataId": "2f6934a2-c138-44f0-8d9c-4fdb980d99dc"
+                      },
+                      "type": "OpenApiConnection",
+                      "inputs": {
+                        "host": {
+                          "connectionName": "shared_commondataserviceforapps",
+                          "operationId": "CreateRecord",
+                          "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                        },
+                        "parameters": {
+                          "entityName": "vl_incomes",
+                          "item/vl_ApplicantID@odata.bind": "/vl_applicants(@{triggerOutputs()?['body/_vl_applicant2id_value']})",
+                          "item/vl_ApplicationID@odata.bind": "/vl_applicationses(@{triggerOutputs()?['body/_vl_applicationid_value']})",
+                          "item/vl_AssetID@odata.bind": "/vl_assetses(@{triggerOutputs()?['body/vl_assetsid']})",
+                          "item/vl_currentyearincome": "@outputs('Applicant_2_Ownership_Calculation')",
+                          "item/vl_incomefrequency": "@triggerOutputs()?['body/vl_rentalfrequency']",
+                          "item/vl_otherincometype": 127420008,
+                          "item/vl_propertyaddress": "@triggerOutputs()?['body/vl_propertyaddress']",
+                          "item/vl_shading": "@variables('varShading')"
+                        },
+                        "authentication": "@parameters('$authentication')"
+                      }
+                    }
+                  },
+                  "runAfter": {
+                    "Check_Applicant_1_Ownership": [
+                      "Succeeded"
+                    ]
+                  },
+                  "expression": {
+                    "and": [
+                      {
+                        "not": {
+                          "equals": [
+                            "@triggerOutputs()?['body/vl_applicant2ownership']",
+                            "@null"
+                          ]
+                        }
+                      },
+                      {
+                        "not": {
+                          "equals": [
+                            "@triggerOutputs()?['body/vl_applicant2ownership']",
+                            0
+                          ]
+                        }
+                      },
+                      {
+                        "not": {
+                          "equals": [
+                            "@triggerOutputs()?['body/_vl_applicant2id_value']",
+                            "@null"
+                          ]
+                        }
+                      }
+                    ]
+                  },
+                  "metadata": {
+                    "operationMetadataId": "45e50ce5-d763-43c8-920a-fa5d30c987e9"
+                  },
+                  "type": "If"
+                },
+                "Rental_Type": {
+                  "runAfter": {},
+                  "cases": {
+                    "Tenanted": {
+                      "case": 127420000,
+                      "actions": {
+                        "Set_varShading_Tenanted": {
+                          "runAfter": {},
+                          "metadata": {
+                            "operationMetadataId": "cd4c1041-ae1e-429b-ac1e-8e15a2171847"
+                          },
+                          "type": "SetVariable",
+                          "inputs": {
+                            "name": "varShading",
+                            "value": "@first(body('Get_Rental_Shading')?['value'])?['vl_rentaltenantedshading']"
+                          }
+                        }
+                      }
+                    },
+                    "Non_Tenanted": {
+                      "case": 127420001,
+                      "actions": {
+                        "Set_varShading_Non_Tenanted": {
+                          "runAfter": {},
+                          "metadata": {
+                            "operationMetadataId": "4bfdde94-9275-4401-a798-445cad009616"
+                          },
+                          "type": "SetVariable",
+                          "inputs": {
+                            "name": "varShading",
+                            "value": "@first(body('Get_Rental_Shading')?['value'])?['vl_rentalnontenantedshading']"
+                          }
+                        }
+                      }
+                    },
+                    "Airbnb": {
+                      "case": 127420002,
+                      "actions": {
+                        "Set_varShading_Airbnb": {
+                          "runAfter": {},
+                          "metadata": {
+                            "operationMetadataId": "c2a37cd7-1269-4044-a5f0-0fbd13026f15"
+                          },
+                          "type": "SetVariable",
+                          "inputs": {
+                            "name": "varShading",
+                            "value": "@first(body('Get_Rental_Shading')?['value'])?['vl_rentalairbnbshading']"
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "default": {
+                    "actions": {}
+                  },
+                  "expression": "@triggerOutputs()?['body/vl_rentaltype']",
+                  "metadata": {
+                    "operationMetadataId": "36358d8d-18df-4801-b1a4-9c72fc1f3281"
+                  },
+                  "type": "Switch"
+                },
+                "Rental_Frequency": {
+                  "runAfter": {
+                    "Rental_Type": [
+                      "Succeeded"
+                    ]
+                  },
+                  "cases": {
+                    "Weekly": {
+                      "case": 127420000,
+                      "actions": {
+                        "Set_varCalculatedRental_Weekly": {
+                          "runAfter": {},
+                          "metadata": {
+                            "operationMetadataId": "1c64296a-d6d9-47a2-830e-1fc4a46b896e"
+                          },
+                          "type": "SetVariable",
+                          "inputs": {
+                            "name": "varCalculatedRental",
+                            "value": "@mul(variables('varRental'),52)"
+                          }
+                        }
+                      }
+                    },
+                    "Fortnightly": {
+                      "case": 127420001,
+                      "actions": {
+                        "Set_varCalculatedRental_Fortnightly": {
+                          "runAfter": {},
+                          "metadata": {
+                            "operationMetadataId": "aa52dfeb-5425-42c6-ac24-34621aeea4c3"
+                          },
+                          "type": "SetVariable",
+                          "inputs": {
+                            "name": "varCalculatedRental",
+                            "value": "@mul(variables('varRental'),26)"
+                          }
+                        }
+                      }
+                    },
+                    "Monthly": {
+                      "case": 127420002,
+                      "actions": {
+                        "Set_varCalculatedRental_Monthly": {
+                          "runAfter": {},
+                          "metadata": {
+                            "operationMetadataId": "61f2e357-5ab2-4dbc-aa2e-adf2c134cc58"
+                          },
+                          "type": "SetVariable",
+                          "inputs": {
+                            "name": "varCalculatedRental",
+                            "value": "@mul(variables('varRental'),12)"
+                          }
+                        }
+                      }
+                    }
+                  },
+                  "default": {
+                    "actions": {}
+                  },
+                  "expression": "@triggerOutputs()?['body/vl_rentalfrequency']",
+                  "metadata": {
+                    "operationMetadataId": "3df2e425-3096-46db-8692-a9883066d75c"
+                  },
+                  "type": "Switch"
+                }
+              },
+              "runAfter": {
+                "For_Each_Existing_Rental_Income": [
+                  "Succeeded"
+                ]
+              },
+              "else": {
+                "actions": {
+                  "Apply_to_each": {
+                    "foreach": "@outputs('Get_Rental_Income')?['body/value']",
+                    "actions": {
+                      "Get_Support_Documents": {
+                        "runAfter": {},
+                        "metadata": {
+                          "operationMetadataId": "e8db0dd0-3afa-4d33-b1ad-92291088b970"
+                        },
+                        "type": "OpenApiConnection",
+                        "inputs": {
+                          "host": {
+                            "connectionName": "shared_commondataserviceforapps",
+                            "operationId": "ListRecords",
+                            "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                          },
+                          "parameters": {
+                            "entityName": "vl_supportingdocumentses",
+                            "$filter": "vl_supportid eq '@{items('Apply_to_each')?['vl_incomeid']}'"
+                          },
+                          "authentication": "@parameters('$authentication')"
+                        }
+                      },
+                      "Apply_to_each_2": {
+                        "foreach": "@outputs('Get_Support_Documents')?['body/value']",
+                        "actions": {
+                          "Delete_a_row": {
+                            "runAfter": {},
+                            "metadata": {
+                              "operationMetadataId": "c910ecbb-b4d3-4755-bfe1-5bc817ff0ee1"
+                            },
+                            "type": "OpenApiConnection",
+                            "inputs": {
+                              "host": {
+                                "connectionName": "shared_commondataserviceforapps",
+                                "operationId": "DeleteRecord",
+                                "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                              },
+                              "parameters": {
+                                "entityName": "vl_supportingdocumentses",
+                                "recordId": "@items('Apply_to_each_2')?['vl_supportingdocumentsid']"
+                              },
+                              "authentication": "@parameters('$authentication')"
+                            }
+                          }
+                        },
+                        "runAfter": {
+                          "Get_Support_Documents": [
+                            "Succeeded"
+                          ]
+                        },
+                        "metadata": {
+                          "operationMetadataId": "f01d63b5-64eb-45ce-931d-2f2b5360c532"
+                        },
+                        "type": "Foreach"
+                      }
+                    },
+                    "runAfter": {},
+                    "metadata": {
+                      "operationMetadataId": "89985895-ee73-4e09-afc8-ce53fc53f8aa"
+                    },
+                    "type": "Foreach"
+                  }
+                }
+              },
+              "expression": {
+                "and": [
+                  {
+                    "equals": [
+                      "@triggerOutputs()?['body/vl_occupancy']",
+                      127420001
+                    ]
+                  },
+                  {
+                    "not": {
+                      "equals": [
+                        "@triggerOutputs()?['body/vl_assetrental']",
+                        "@null"
+                      ]
+                    }
+                  }
+                ]
+              },
+              "metadata": {
+                "operationMetadataId": "ca61eb0d-e5ae-46c3-b36c-7c9e66a0ee6e"
+              },
+              "type": "If"
+            },
+            "Get_Rental_Income": {
+              "runAfter": {
+                "Get_Rental_Shading": [
+                  "Succeeded"
+                ]
+              },
+              "metadata": {
+                "operationMetadataId": "7a2f6b38-111b-4b0c-9509-dcbbfdd037af"
+              },
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_commondataserviceforapps",
+                  "operationId": "ListRecords",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                },
+                "parameters": {
+                  "entityName": "vl_incomes",
+                  "$filter": "_vl_assetid_value eq '@{triggerOutputs()?['body/vl_assetsid']}'"
+                },
+                "authentication": "@parameters('$authentication')"
+              }
+            },
+            "For_Each_Existing_Rental_Income": {
+              "foreach": "@outputs('Get_Rental_Income')?['body/value']",
+              "actions": {
+                "Delete_Existing_Rental_Income": {
+                  "runAfter": {},
+                  "metadata": {
+                    "operationMetadataId": "0009a8cb-267a-4a03-a796-736f6b11c56a"
+                  },
+                  "type": "OpenApiConnection",
+                  "inputs": {
+                    "host": {
+                      "connectionName": "shared_commondataserviceforapps",
+                      "operationId": "DeleteRecord",
+                      "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                    },
+                    "parameters": {
+                      "entityName": "vl_incomes",
+                      "recordId": "@items('For_Each_Existing_Rental_Income')?['vl_incomeid']"
+                    },
+                    "authentication": "@parameters('$authentication')"
+                  }
+                }
+              },
+              "runAfter": {
+                "Get_Rental_Income": [
+                  "Succeeded"
+                ]
+              },
+              "metadata": {
+                "operationMetadataId": "652fea02-19c1-4899-a179-b0bca463b222"
+              },
+              "type": "Foreach"
+            }
+          },
+          "runAfter": {
+            "Initialize_varRentalGrossIncome": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "93d3f0ed-1ce2-4bd7-9f02-492ad4b38259"
+          },
+          "type": "Scope"
+        },
+        "Initialize_varRental": {
+          "runAfter": {},
+          "metadata": {
+            "operationMetadataId": "b7bb6413-0c32-44d8-9f78-5b152debabb4"
+          },
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "varRental",
+                "type": "float",
+                "value": "@triggerOutputs()?['body/vl_assetrental']"
+              }
+            ]
+          }
+        },
+        "Initialize_varCalculatedRental": {
+          "runAfter": {
+            "Initialize_varRental": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "204fc941-0957-4ecb-9c6f-f239139719a8"
+          },
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "varCalculatedRental",
+                "type": "float",
+                "value": "@triggerOutputs()?['body/vl_assetrental']"
+              }
+            ]
+          }
+        },
+        "Initialize_varShading": {
+          "runAfter": {
+            "Initialize_varCalculatedRental": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "52fa2419-5d11-4173-bc5e-5da75aa57306"
+          },
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "varShading",
+                "type": "float",
+                "value": 0
+              }
+            ]
+          }
+        },
+        "Initialize_varRentalGrossIncome": {
+          "runAfter": {
+            "Initialize_varShading": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "8f76a18a-0bd1-4aeb-9b00-24e4ede72a3b"
+          },
+          "type": "InitializeVariable",
+          "inputs": {
+            "variables": [
+              {
+                "name": "varRentalGrossIncome",
+                "type": "float",
+                "value": 0
+              }
+            ]
+          }
+        },
+        "On_Error": {
+          "actions": {
+            "Filter_Error_Details": {
+              "runAfter": {},
+              "metadata": {
+                "operationMetadataId": "7848921a-94ea-4759-84d7-c1ab6b6f5fc3"
+              },
+              "type": "Query",
+              "inputs": {
+                "from": "@result('Main')",
+                "where": "@equals(item()?['status'], 'Failed')"
+              }
+            },
+            "Add_Error_Details": {
+              "runAfter": {
+                "Filter_Error_Details": [
+                  "Succeeded"
+                ]
+              },
+              "metadata": {
+                "operationMetadataId": "cdc22c39-5c13-4ecb-b2b5-0a202e7a02d3"
+              },
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_commondataserviceforapps",
+                  "operationId": "CreateRecord",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                },
+                "parameters": {
+                  "entityName": "vl_errorhandlings",
+                  "item/vl_component": "@first(body('Filter_Error_Details'))?['name']",
+                  "item/vl_errorcode": "@first(body('Filter_Error_Details'))?['error']?['code']",
+                  "item/vl_errormessage": "@first(body('Filter_Error_Details'))?['error']?['message']",
+                  "item/vl_errorsource": 127420001,
+                  "item/vl_sourcename": "@workflow().tags.flowDisplayName"
+                },
+                "authentication": "@parameters('$authentication')"
+              }
+            }
+          },
+          "runAfter": {
+            "Main": [
+              "Failed",
+              "Skipped",
+              "TimedOut"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "f4bbdc46-db37-44aa-8e6d-98d2b0694462"
+          },
+          "type": "Scope"
+        }
+      }
+    },
+    "templateName": ""
+  },
+  "schemaVersion": "1.0.0.0"
+}

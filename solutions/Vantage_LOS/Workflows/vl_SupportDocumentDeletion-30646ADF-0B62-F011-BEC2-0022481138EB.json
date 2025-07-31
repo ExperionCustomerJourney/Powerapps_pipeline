@@ -1,0 +1,169 @@
+{
+  "properties": {
+    "connectionReferences": {
+      "shared_commondataserviceforapps": {
+        "runtimeSource": "embedded",
+        "connection": {
+          "connectionReferenceLogicalName": "vl_sharedcommondataserviceforapps_04816"
+        },
+        "api": {
+          "name": "shared_commondataserviceforapps"
+        }
+      }
+    },
+    "definition": {
+      "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+      "contentVersion": "1.0.0.0",
+      "parameters": {
+        "$connections": {
+          "defaultValue": {},
+          "type": "Object"
+        },
+        "$authentication": {
+          "defaultValue": {},
+          "type": "SecureObject"
+        }
+      },
+      "triggers": {
+        "manual": {
+          "metadata": {
+            "operationMetadataId": "cc444455-309f-4822-8f53-6ae94c4941ff"
+          },
+          "type": "Request",
+          "kind": "Http",
+          "inputs": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "ApplicationID": {
+                  "type": "string"
+                },
+                "SupportID": {
+                  "type": "string"
+                }
+              }
+            },
+            "method": "POST",
+            "triggerAuthenticationType": "All"
+          }
+        }
+      },
+      "actions": {
+        "Compose": {
+          "runAfter": {},
+          "metadata": {
+            "operationMetadataId": "fd67e0bf-60ee-4c5c-ae49-9ec99b4a4b8e"
+          },
+          "type": "Compose",
+          "inputs": "@triggerBody()?['ApplicationID']"
+        },
+        "Compose_2": {
+          "runAfter": {
+            "Compose": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "c1521c45-2117-48d6-b401-cf6bb8392fad"
+          },
+          "type": "Compose",
+          "inputs": "@triggerBody()?['SupportID']"
+        },
+        "Main": {
+          "actions": {
+            "Get_Support_Document": {
+              "runAfter": {},
+              "metadata": {
+                "operationMetadataId": "0eb0630e-eac9-4f77-8b27-1772470ae912"
+              },
+              "type": "OpenApiConnection",
+              "inputs": {
+                "host": {
+                  "connectionName": "shared_commondataserviceforapps",
+                  "operationId": "ListRecords",
+                  "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                },
+                "parameters": {
+                  "entityName": "vl_supportingdocumentses",
+                  "$filter": "_vl_applicationid_value eq '@{triggerBody()?['ApplicationID']}' and vl_supportid eq '@{triggerBody()?['SupportID']}'"
+                },
+                "authentication": "@parameters('$authentication')"
+              }
+            },
+            "For_Each_Support_Document": {
+              "foreach": "@outputs('Get_Support_Document')?['body/value']",
+              "actions": {
+                "Delete_Support_Document": {
+                  "runAfter": {},
+                  "metadata": {
+                    "operationMetadataId": "2b0cf739-2371-4b46-b50e-329dc47fcd62"
+                  },
+                  "type": "OpenApiConnection",
+                  "inputs": {
+                    "host": {
+                      "connectionName": "shared_commondataserviceforapps",
+                      "operationId": "DeleteRecord",
+                      "apiId": "/providers/Microsoft.PowerApps/apis/shared_commondataserviceforapps"
+                    },
+                    "parameters": {
+                      "entityName": "vl_supportingdocumentses",
+                      "recordId": "@items('For_Each_Support_Document')?['vl_supportingdocumentsid']"
+                    },
+                    "authentication": "@parameters('$authentication')"
+                  }
+                }
+              },
+              "runAfter": {
+                "Get_Support_Document": [
+                  "Succeeded"
+                ]
+              },
+              "metadata": {
+                "operationMetadataId": "d9b03051-cf2f-4802-8a1a-b746f332c27d"
+              },
+              "type": "Foreach"
+            }
+          },
+          "runAfter": {
+            "Compose_2": [
+              "Succeeded"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "bb61a2cf-467a-4632-a7a1-239ef29e6c7d"
+          },
+          "type": "Scope"
+        },
+        "On_Error": {
+          "actions": {
+            "Filter_Error_Details": {
+              "runAfter": {},
+              "metadata": {
+                "operationMetadataId": "3c7914d9-2d5d-4d8b-b7ea-4183b8a61a21"
+              },
+              "type": "Query",
+              "inputs": {
+                "from": "@result('Main')",
+                "where": "@equals(item()?['status'], 'Failed')"
+              }
+            }
+          },
+          "runAfter": {
+            "Main": [
+              "TimedOut",
+              "Skipped",
+              "Failed"
+            ]
+          },
+          "metadata": {
+            "operationMetadataId": "1dd307c5-00f1-4add-b08c-5de5c1894d7d"
+          },
+          "type": "Scope"
+        }
+      },
+      "outputs": {}
+    },
+    "templateName": ""
+  },
+  "schemaVersion": "1.0.0.0"
+}
